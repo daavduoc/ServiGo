@@ -1,4 +1,4 @@
-                                SERVIGO
+                                                                                 SERVIGO
 
 El proyecto consiste en el desarrollo de una plataforma web denominada SERVIGO, que corresponde a una plataforma tipo marketplace de servicios. la cual permite a los usuarios contratar y agendar servicios profesionales y técnicos, ya sea a domicilio o en un lugar establecido.
 La plataforma contará con un sistema de búsqueda inteligente basado en geolocalización, permitiendo encontrar servicios cercanos disponibles en tiempo real.
