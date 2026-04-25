@@ -1,4 +1,4 @@
-package com.servigo.servigo.usuario.model;
+package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -21,4 +21,8 @@ public class Prestador {
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "id_empresa")
+    private Empresa empresa;
 }

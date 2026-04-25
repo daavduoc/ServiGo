@@ -57,7 +57,6 @@
         </dependency>
 
 
-
         <!-- JavaCV / OpenCV -->
         <dependency>
             <groupId>org.bytedeco</groupId>

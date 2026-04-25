@@ -1,6 +1,5 @@
-package com.servigo.servigo.servicio.model;
+package com.servigo.servigo.entity;
 
-import com.servigo.servigo.usuario.model.Prestador;
 import jakarta.persistence.*;
 import lombok.Data;
 
