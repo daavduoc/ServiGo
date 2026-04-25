@@ -1,4 +1,4 @@
-package com.servigo.servigo.agendamiento.model;
+package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

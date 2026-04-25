@@ -1,7 +1,5 @@
-package com.servigo.servigo.biometria.model;
+package com.servigo.servigo.entity;
 
-import com.servigo.servigo.agendamiento.model.SolicitudServicio;
-import com.servigo.servigo.usuario.model.Usuario;
 import jakarta.persistence.*;
 import lombok.Data;
 

@@ -1,7 +1,5 @@
-package com.servigo.servigo.agendamiento.model;
+package com.servigo.servigo.entity;
 
-import com.servigo.servigo.usuario.model.Cliente;
-import com.servigo.servigo.servicio.model.Servicio;
 import jakarta.persistence.*;
 import lombok.Data;
 
