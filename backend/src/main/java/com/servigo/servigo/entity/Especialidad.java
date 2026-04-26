@@ -1,9 +1,11 @@
 package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@Getter
+@Setter
 @Entity
 @Table(name = "ESPECIALIDAD")
 public class Especialidad {
