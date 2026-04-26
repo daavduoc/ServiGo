@@ -30,7 +30,12 @@ const NavbarInicio = () => {
           </form>
         </div>
 
-        <div style={{ flex: 1 }}></div>
+        <div className="d-flex justify-content-end" style={{ flex: 1 }}>
+          <div className="d-flex gap-3 pe-3">
+            <button type="button" className="btn btn-outline-success">Registrar</button>
+            <button type="button" className="btn btn-outline-success">Iniciar sesión</button>
+          </div>
+        </div>
       </div>
     </nav>
   );
