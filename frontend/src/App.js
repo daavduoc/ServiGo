@@ -2,12 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavbarInicio from './components/layout/Navbar';
 import { RegisterView } from './components/view/RegisterView'; 
+import BannerInicio from './components/ui/Banner';
 
 function App() {
   return (
     <Router>
       <div>
         <NavbarInicio />
+        <BannerInicio/>
         
         <Routes>
           {/* VISTA DE INICIO: Solo se ve en el link "/" */}
