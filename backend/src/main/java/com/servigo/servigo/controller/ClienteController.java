@@ -3,7 +3,6 @@ package com.servigo.servigo.controller;
 import com.servigo.servigo.entity.Cliente;
 import com.servigo.servigo.service.ClienteService;
 import org.springframework.web.bind.annotation.*;
-import lombok.Data;
 import java.util.List;
 
 // Indica que esta clase es un controlador REST (API)
@@ -58,6 +57,7 @@ public class ClienteController {
     if (cliente != null) {
         // Actualizamos los datos
         cliente.setUsuario(clienteActualizado.getUsuario());
+        
 
         // Guardamos cambios
         return clienteService.crearCliente(cliente);
