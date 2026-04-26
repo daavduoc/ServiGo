@@ -22,4 +22,5 @@ public class Disponibilidad {
     @ManyToOne
     @JoinColumn(name = "id_prestador")
     private Prestador prestador;
+    //ejemplo 
 }
