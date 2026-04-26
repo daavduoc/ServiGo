@@ -66,3 +66,7 @@ public class EspecialidadController {
         especialidadService.eliminarEspecialidad(id);
     }
 }
+
+// TODO: Agregar validación de roles para que solo admin pueda crear, actualizar y eliminar
+// TODO: Implementar manejo de excepciones personalizadas en lugar de devolver null
+// TODO: Agregar anotación @Secured("ROLE_ADMIN") en los métodos POST, PUT, DELETE

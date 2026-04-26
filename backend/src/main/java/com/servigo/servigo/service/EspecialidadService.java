@@ -1,10 +1,11 @@
 package com.servigo.servigo.service;
 
-import com.servigo.servigo.entity.Especialidad;
-import com.servigo.servigo.repository.EspecialidadRepository;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.servigo.servigo.entity.Especialidad;
+import com.servigo.servigo.repository.EspecialidadRepository;
 
 @Service
 public class EspecialidadService {
@@ -30,4 +31,7 @@ public class EspecialidadService {
     public void eliminarEspecialidad(Long id) {
         especialidadRepository.deleteById(id);
     }
-}
+    
+}// TODO: Agregar validaciones para que el nombre no esté vacío o nulo
+// TODO: Lanzar excepciones personalizadas (ej: EspecialidadNoEncontradaException) en lugar de devolver null
+// TODO: Validar que no existan duplicados al crear especialidades
