@@ -1,76 +1,120 @@
 import React from 'react';
-import { CardContainer } from '../ui/CardContainer';
-import { SelectField } from '../ui/SelectField';
-import { InputField } from '../ui/InputField';
-import { ButtonCustom } from '../ui/ButtonCustom';
+import { useForm } from '../../hooks/useForm';
+import { registerUserInDB } from '../../serviceFront/userService';
+
+// Importamos los componentes desdee la UI
+import { 
+    CardContainer, 
+    FormRow, 
+    FormSelect, 
+    FormActions, 
+    PhotoUpload, 
+    MapSection 
+} from '../ui';
+// fin de las importaciondes desde la UI
 
 export const RegisterView = () => {
-    
-    // Definimos las opciones de los selectores aquí arriba para mantener limpio el HTML
-    const opcionesRol = [
-        { valor: 'cliente', texto: 'Quiero contratar servicios (Cliente)' },
-        { valor: 'prestador', texto: 'Quiero ofrecer mis servicios (Prestador)' }
+    // coneccion con el hook con todos los campos necesarios para las tablas SQL
+    const { formData, handleChange } = useForm({
+        tipo: '', 
+        tipo_persona: '',
+        nombre: '', rut: '', mail: '', fono: '', direccion: '',
+        nombre_comercial: '', 
+        descripcion: '', experiencia: '', direccion_local: ''
+    });
+    // fin de la coneccion con el hook
+
+    // Opciones para los Selects clientes prestadores y tipo de persona individual o empresa
+    const opcionesTipo = [
+        { label: "Quiero contratar servicios (Cliente)", value: "cliente" },
+        { label: "Quiero ofrecer servicios (Prestador)", value: "prestador" }
     ];
 
-    const opcionesEntidad = [
-        { valor: 'independiente', texto: 'Como Persona Natural / Independiente' },
-        { valor: 'empresa', texto: 'Como Empresa (Jurídica)' }
+    const opcionesPersona = [
+        { label: "Particular", value: "individual" },
+        { label: "Empresa", value: "empresa" }
     ];
+    // fin de las opciones para los Selects
 
+    // Envío de datos a BD
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("Datos listos para enviar al Backend/SQL:", formData);
+        await registerUserInDB(formData);
+        alert("¡Registro enviado! Revisa la consola.");
+    };
+ 
     return (
-        <div className="container py-4">
-            <div className="row justify-content-center">
-                <div className="col-md-8 col-lg-5">
-            
-                    {/* Invocamos la Tarjeta envolviendo el formulario */}
-                    <CardContainer titulo="Crea tu Cuenta en ServiGo">
-                        <form>
-                            
-                            <SelectField 
-                                label="¿Qué buscas en la plataforma?" 
-                                name="rol_usuario" 
-                                opciones={opcionesRol} 
-                            />
+        <CardContainer titulo="Registro ServiGO">
+            <form onSubmit={handleSubmit} className="p-4 border rounded bg-white">
+                
+                {/*CLASIFICACIÓN de usaurios */}
+                <h5 className="text-primary mb-3">¿Que es lo que quieres?</h5>
+                
+                {/* cliente/prestador */}
+                <FormSelect 
+                    label="¿Como te registraras?" 
+                    name="tipo" 
+                    options={opcionesTipo} 
+                    onChange={handleChange} 
+                />
+                
+                {/* particular / empresa */}
+                <FormSelect 
+                    label="¿Particular o Empresa?" 
+                    name="tipo_persona" 
+                    options={opcionesPersona} 
+                    onChange={handleChange} 
+                />
+                
+                <hr className="my-4" />
 
-                            <SelectField 
-                                label="¿Cómo te registrarás?" 
-                                name="tipo_entidad" 
-                                opciones={opcionesEntidad} 
-                            />
+                {/* DATOS PERSONALES (Común para todoslos usuarios)  */}
+                <h5 className="text-primary mb-3">Datos de Identificación</h5>
+                
+                <FormRow label="Nombre Completo" name="nombre" placeholder="Ej: Juan Pérez" onChange={handleChange} />
+                <FormRow label="RUT" name="rut" placeholder="12.345.678-9" onChange={handleChange} />
+                <FormRow label="Correo" name="mail" tipo="email" placeholder="correo@ejemplo.com" onChange={handleChange} />
+                <FormRow label="Fono" name="fono" placeholder="+56 9 1234 5678" onChange={handleChange} />
+                <FormRow label="Dirección" name="direccion" placeholder="Calle Falsa 123" onChange={handleChange} />
 
-                            <InputField 
-                                label="Nombre Completo o Razón Social" 
-                                tipo="text" 
-                                placeholder="Ej: Juan Pérez o Empresa SpA" 
-                                textField="nombre_usuario" 
-                            />
-                            
-                            <InputField 
-                                label="Correo Electrónico" 
-                                tipo="email" 
-                                placeholder="correo@ejemplo.com" 
-                                textField="email_usuario" 
-                            />
-                            
-                            <InputField 
-                                label="Contraseña" 
-                                tipo="password" 
-                                placeholder="Mínimo 8 caracteres" 
-                                textField="password_usuario" 
-                            />
-                            
-                            <div className="mt-4">
-                                <ButtonCustom 
-                                    texto="Registrarme" 
-                                    tipo="submit" 
-                                />
-                            </div>
+                {/*/DATOS DE EMPRESA (Aparece solo si elige "empresa") */}
+                {formData.tipo_persona === 'empresa' && (
+                    <div className="bg-light p-3 rounded mb-3 border">
+                        <h6 className="text-secondary">Información de la Empresa</h6>
+                        <FormRow label="Nombre Comercial" name="nombre_comercial" placeholder="Nombre de tu negocio" onChange={handleChange} />
+                    </div>
+                )}
 
-                        </form>
-                    </CardContainer>
+                {/* DATOS DE PRESTADOR de servicios(Aparece solo si elige "prestador") */}
+                {formData.tipo === 'prestador' && (
+                    <div className="bg-light p-3 rounded mb-3 border">
+                        <h6 className="text-secondary">Perfil Profesional (Para validación)</h6>
+                        <FormRow label="Años de Experiencia" name="experiencia" placeholder="Ej: 5 años" onChange={handleChange} />
+                        <FormRow label="Descripción" name="descripcion" placeholder="¿Qué servicios ofreces?" onChange={handleChange} />
+                        <FormRow label="Dirección del Local" name="direccion_local" placeholder="(Opcional) Si atiendes en un lugar físico" onChange={handleChange} />
+                        <p className="small text-danger mt-2 mb-0">
+                            * Nota: Tu cuenta pasará a estado de revisión por un administrador antes de ser publicada.
+                        </p>
+                    </div>
+                )}
 
+                <hr className="my-4" />
+
+                {/*  MAPA */}
+                <MapSection label="Tu ubicación en el mapa" />
+                
+                {/* Aquí está el componente de la foto intacto */}
+                <PhotoUpload />
+
+                {/* terminos y condiciones y botones*/}
+                <div className="my-4 border-top pt-3">
+                    <input type="checkbox" id="check" required className="me-2" />
+                    <label htmlFor="check" className="small text-muted">Acepto los términos, condiciones y el tratamiento de datos de ServiGO.</label>
                 </div>
-            </div>
-        </div>
+
+                <FormActions onCancel={() => window.history.back()} />
+            </form>
+        </CardContainer>
     );
 };

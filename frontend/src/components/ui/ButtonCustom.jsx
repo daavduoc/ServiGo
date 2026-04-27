@@ -1,14 +1,13 @@
-// Boton generico
-// inicio Boton generico
-export const ButtonCustom = ({ texto, onClick, tipo = "button", color = "primary" }) => {
+// En tu archivo ButtonCustom.jsx
+export const ButtonCustom = ({ texto, onClick, tipo = "button", color = "primary", className = "" }) => {
   return (
     <button 
       type={tipo} 
-      className={`btn btn-${color} w-100 fw-bold`} 
+      // Agregamos ${className} para que acepte estilos extra desde afuera
+      className={`btn btn-${color} fw-bold ${className}`} 
       onClick={onClick}
     >
       {texto}
     </button>
   );
 };
-// fin Boton generico {texto} cambiara segun la necesidad
