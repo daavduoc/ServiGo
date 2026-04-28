@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Data
-@Getter
-@Setter
 @Entity
 @Table(name = "ESPECIALIDAD")
 public class Especialidad {
@@ -15,4 +13,5 @@ public class Especialidad {
     private Long idEspecialidad;
 
     private String nombre;
+    private String descripcion;
 }

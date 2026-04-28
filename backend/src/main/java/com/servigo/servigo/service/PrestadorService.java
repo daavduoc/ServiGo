@@ -1,7 +1,10 @@
 package com.servigo.servigo.service;
 
-import com.servigo.servigo.entity.Prestador;
+import com.servigo.servigo.entity.Usuario;
+import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
+import com.servigo.servigo.entity.Prestador;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +13,11 @@ import java.util.List;
 public class PrestadorService {
 
     private final PrestadorRepository prestadorRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public PrestadorService(PrestadorRepository prestadorRepository) {
+    public PrestadorService(PrestadorRepository prestadorRepository, UsuarioRepository usuarioRepository) {
         this.prestadorRepository = prestadorRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public List<Prestador> listarPrestadores() {
@@ -24,6 +29,12 @@ public class PrestadorService {
     }
 
     public Prestador crearPrestador(Prestador prestador) {
+
+        Usuario usuario = usuarioRepository.findById(prestador.getUsuario().getIdUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        prestador.setUsuario(usuario);
+
         return prestadorRepository.save(prestador);
     }
 
@@ -36,7 +47,11 @@ public class PrestadorService {
             prestador.setExperiencia(prestadorActualizado.getExperiencia());
             prestador.setDireccionLocal(prestadorActualizado.getDireccionLocal());
             prestador.setEstadoValidacion(prestadorActualizado.getEstadoValidacion());
-            prestador.setUsuario(prestadorActualizado.getUsuario());
+
+            Usuario usuario = usuarioRepository.findById(prestadorActualizado.getUsuario().getIdUsuario())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            prestador.setUsuario(usuario);
             prestador.setEmpresa(prestadorActualizado.getEmpresa());
 
             return prestadorRepository.save(prestador);
