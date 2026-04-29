@@ -24,12 +24,22 @@ public class CorsConfig {
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        config.setAllowedHeaders(List.of("*"));
+        // CAMBIO: Especifica headers permitidos en lugar de usar "*"
+        config.setAllowedHeaders(List.of(
+                "Content-Type",
+                "Authorization",
+                "X-Requested-With"
+        ));
+
         config.setAllowCredentials(true);
+        
+        // Opcional: permite que el navegador acceda a headers de respuesta
+        config.setExposedHeaders(List.of(
+                "Content-Type",
+                "Authorization"
+        ));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        // IMPORTANTE
         source.registerCorsConfiguration("/**", config);
 
         return source;
