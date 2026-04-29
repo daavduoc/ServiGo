@@ -85,7 +85,23 @@ public class UsuarioService {
             prestador.setEstadoValidacion("pendiente");
             prestadorRepository.save(prestador);
         }
-
         return usuario;
     }
+
+    public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
+
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        usuario.setRut(usuarioActualizado.getRut());
+        usuario.setNombre(usuarioActualizado.getNombre());
+        usuario.setApellido(usuarioActualizado.getApellido());
+        usuario.setCorreo(usuarioActualizado.getCorreo());
+        usuario.setTelefono(usuarioActualizado.getTelefono());
+        usuario.setEstado(usuarioActualizado.getEstado());
+        usuario.setRol(usuarioActualizado.getRol());
+
+    return usuarioRepository.save(usuario);
+    }
+
 }

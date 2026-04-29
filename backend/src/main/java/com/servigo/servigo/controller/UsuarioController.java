@@ -53,4 +53,10 @@ public class UsuarioController {
     public Usuario registrar(@RequestBody RegistroUsuarioDTO dto) {
         return usuarioService.registrarNuevoUsuario(dto);
     }
+    // PUT: actualizar usuario
+    // URL: http://localhost:8080/usuarios/{id}
+    @PutMapping("/{id}")
+    public Usuario actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioActualizado) {
+        return usuarioService.actualizarUsuario(id, usuarioActualizado);
+    }
 }
