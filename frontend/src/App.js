@@ -1,35 +1,26 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NavbarInicio from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import BannerInicio from './components/ui/Banner';
+
+// 1. Importamos tu nuevo Layout (El sándwich)
+import { MainLayout } from './components/layout/MainLayout';
+
+// 2. Importamos las Vistas (Las páginas)
+import { HomeView } from './components/view/HomeView';
 import { RegisterView } from './components/view/RegisterView';
 
 function App() {
   return (
     <Router>
-      <div className="d-flex flex-column min-vh-100">
-        <NavbarInicio />
-        
-        <div className="container mt-4 flex-grow-1">
-          <Routes>
-            {/* Esta es tu parte (El inicio con tu Banner) */}
-            <Route path="/" element={
-              <>
-                <BannerInicio />
-                <div className="mt-5 text-center">
-                  <h2>¡Bienvenida a ServiGo!</h2>
-                </div>
-              </>
-            } />
-            
-            {/* Esta es la parte de tu compañero */}
-            <Route path="/registro" element={<RegisterView />} />
-          </Routes>
-        </div>
-        
-        <Footer />
-      </div>
+      {/* Envolvemos todas las pantallas con el MainLayout para que siempre tengan Navbar y Footer */}
+      <MainLayout>
+        <Routes>
+          {/* Ruta principal: Tu tarea T08 */}
+          <Route path="/" element={<HomeView />} />
+          
+          {/* Ruta de registro: La tarea de tu compañero Sebastián */}
+          <Route path="/registro" element={<RegisterView />} />
+        </Routes>
+      </MainLayout>
     </Router>
   );
 }
