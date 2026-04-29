@@ -1,5 +1,6 @@
 package com.servigo.servigo.controller;
 
+import com.servigo.servigo.dto.RegistroUsuarioDTO;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.service.UsuarioService;
 import org.springframework.web.bind.annotation.*;
@@ -40,4 +41,12 @@ public class UsuarioController {
     public void eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminarUsuario(id);
     }
+   
+    // REGISTRO DE USUARIOS
+    @PostMapping("/registro")
+    public Usuario registrar(@RequestBody RegistroUsuarioDTO dto) {
+        return usuarioService.registrarNuevoUsuario(dto);
+    }
+
+
 }
