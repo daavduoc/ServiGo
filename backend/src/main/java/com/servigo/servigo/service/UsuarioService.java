@@ -1,8 +1,12 @@
 package com.servigo.servigo.service;
 
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
+import com.servigo.servigo.entity.Cliente;
+import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.entity.Rol;
 import com.servigo.servigo.entity.Usuario;
+import com.servigo.servigo.repository.ClienteRepository;
+import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.RolRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -14,10 +18,19 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final ClienteRepository clienteRepository;
+    private final PrestadorRepository prestadorRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository) {
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            RolRepository rolRepository,
+            ClienteRepository clienteRepository,
+            PrestadorRepository prestadorRepository
+    ) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
+        this.clienteRepository = clienteRepository;
+        this.prestadorRepository = prestadorRepository;
     }
 
     public List<Usuario> listarUsuarios() {
@@ -38,8 +51,8 @@ public class UsuarioService {
 
     public Usuario registrarNuevoUsuario(RegistroUsuarioDTO dto) {
 
-        // Por ahora usamos el rol CLIENTE ya creado con id 1
-        Rol rol = rolRepository.findById(1L).orElse(null);
+        Long idRol = dto.getTipoUsuario().equalsIgnoreCase("PRESTADOR") ? 2L : 1L;
+        Rol rol = rolRepository.findById(idRol).orElse(null);
 
         Usuario usuario = new Usuario();
         usuario.setRut(dto.getRut());
@@ -51,6 +64,28 @@ public class UsuarioService {
         usuario.setEstado("activo");
         usuario.setRol(rol);
 
-        return usuarioRepository.save(usuario);
+        usuario = usuarioRepository.save(usuario);
+
+        // Creación automática según tipo de usuario
+        if (dto.getTipoUsuario().equalsIgnoreCase("CLIENTE")) {
+
+            Cliente cliente = new Cliente();
+            cliente.setUsuario(usuario);
+            clienteRepository.save(cliente);
+
+        } else if (dto.getTipoUsuario().equalsIgnoreCase("PRESTADOR")) {
+
+            if (dto.getTipoPrestador() == null) {
+                throw new RuntimeException("Debe especificar tipoPrestador: individual o empresa");
+            }
+
+            Prestador prestador = new Prestador();
+            prestador.setUsuario(usuario);
+            prestador.setTipoPrestador(dto.getTipoPrestador());
+            prestador.setEstadoValidacion("pendiente");
+            prestadorRepository.save(prestador);
+        }
+
+        return usuario;
     }
 }
