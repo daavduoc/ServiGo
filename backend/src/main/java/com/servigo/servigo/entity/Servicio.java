@@ -1,8 +1,11 @@
 package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
+import lombok.*;
+
+@Getter
+@Setter
 @Data
 @Entity
 @Table(name = "SERVICIO")

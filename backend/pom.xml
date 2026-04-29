@@ -57,7 +57,6 @@
         </dependency>
 
 
-
         <!-- JavaCV / OpenCV -->
         <dependency>
             <groupId>org.bytedeco</groupId>
@@ -67,11 +66,10 @@
 
         <!-- Lombok -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
+		<groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-
+            <scope>provided</scope>
+	    </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

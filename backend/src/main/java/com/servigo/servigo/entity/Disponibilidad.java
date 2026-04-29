@@ -1,11 +1,13 @@
 package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalTime;
 
 @Data
+@Getter
+@Setter
 @Entity
 @Table(name = "DISPONIBILIDAD")
 public class Disponibilidad {
@@ -22,4 +24,5 @@ public class Disponibilidad {
     @ManyToOne
     @JoinColumn(name = "id_prestador")
     private Prestador prestador;
+    //ejemplo 
 }

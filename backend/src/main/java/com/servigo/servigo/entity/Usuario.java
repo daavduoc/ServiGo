@@ -2,6 +2,7 @@ package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -18,7 +19,10 @@ public class Usuario {
     private String nombre;
     private String apellido;
     private String correo;
+     // Ocultar la contraseña en las respuestas JSON
+    @JsonIgnore  
     private String contrasena;
+
     private String telefono;
     private String estado;
 
