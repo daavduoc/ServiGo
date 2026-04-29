@@ -23,8 +23,8 @@ Facilitar la búsqueda rápida, segura y eficiente de servicios cercanos, tanto 
 - Información clara sobre disponibilidad (Disponible / En atención / Cerrado)
 - Validación de identidad para mayor seguridad
 
-## 🔐 Seguridad
+ 🔐 Seguridad
 
 La plataforma incorpora un sistema de reconocimiento facial para validar la identidad de prestadores y usuarios en servicios a domicilio.
 =======
-# ServiGo
+
