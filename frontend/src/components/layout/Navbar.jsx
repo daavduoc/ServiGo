@@ -2,8 +2,15 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 // 1. Importamos el nuevo módulo de botones
 import { AuthButtons } from "../ui/AuthButtons";
+import { useNavigate } from 'react-router-dom';
 
 const NavbarInicio = () => {
+  const navigate = useNavigate(); 
+  const handleBuscar = (e) => {
+    e.preventDefault(); 
+    navigate('/buscar');
+  };
+
   return (
     <nav className="navbar" style={{ height: "80px", overflow: "visible", backgroundColor: "#F0F5F2" }}>
       <div className="container-fluid h-100 d-flex align-items-center">
@@ -21,6 +28,7 @@ const NavbarInicio = () => {
             className="d-flex align-items-center w-100" 
             role="search" 
             style={{ maxWidth: "460px" }}
+            onSubmit={handleBuscar}
           >
             <input 
               className="form-control me-2" 
