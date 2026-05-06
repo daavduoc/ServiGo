@@ -9,6 +9,7 @@ import { HomeView } from './components/view/HomeView';
 import { RegisterView } from './components/view/RegisterView';
 // ¡Ruta corregida aquí abajo!
 import { SearchView } from './components/view/SearchView'; 
+import { ProfileView } from './components/view/ProfileView';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           {/* NUEVA RUTA: Tu buscador (Tarea T11) */}
           <Route path="/buscar" element={<SearchView />} />
           
+          <Route path="/perfil" element={<ProfileView />} />
         </Routes>
       </MainLayout>
     </Router>
