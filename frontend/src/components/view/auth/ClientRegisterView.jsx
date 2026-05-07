@@ -1,0 +1,68 @@
+import React, { useState } from 'react';
+import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
+import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
+
+export const ClientRegisterView = () => {
+    const [formData, setFormData] = useState({
+        rut: '', nombre: '', apellido: '', correo: '', contrasena: '',
+        telefono: '', direccion: '', comuna: '', region: '', id_rol: 1
+    });
+
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e) => {
+        let { name, value } = e.target;
+        const camposMayusculas = ['region', 'comuna', 'direccion'];
+        if (camposMayusculas.includes(name)) value = value.toUpperCase();
+        setFormData({ ...formData, [name]: value });
+        if (error) setError(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const camposObligatorios = Object.keys(formData);
+        const tieneVacios = camposObligatorios.some(campo => !formData[campo]);
+
+        if (tieneVacios) return setError("Rellene todos los campos para seguir con el registro");
+        if (!formData.rut.includes('-')) return setError("El RUT debe incluir guion (ej: 12345678-9)");
+
+        setIsLoading(true);
+        const dataParaBackend = { ...formData, tipoUsuario: "CLIENTE" };
+
+        try {
+            const response = await fetch('http://localhost:8080/usuarios/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataParaBackend)
+            });
+            if (response.ok) alert("¡Registro de Cliente exitoso!");
+            else setError("Error al conectar con el servidor");
+        } catch (err) {
+            setError("Servidor no disponible");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <CardContainer titulo="Registro de Cliente">
+            <div className="mx-auto" style={{ maxWidth: '600px' }}>
+                <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow-sm">
+                    <SeccionUsuarioBase handleChange={handleChange} formData={formData} />
+                    <hr className="my-4" />
+                    <div className="col-12 mb-3"><MapSection label="Geolocalización" /></div>
+                    <div className="col-12 mb-3"><PhotoUpload label="Foto de Perfil" /></div>
+
+                    {error && <div className="alert alert-danger mt-3 text-center fw-bold">{error}</div>}
+
+                    <FormActions
+                        onCancel={() => window.history.back()}
+                        submitLabel={isLoading ? "Enviando..." : "Registrar Cliente"}
+                        submitDisabled={isLoading}
+                    />
+                </form>
+            </div>
+        </CardContainer>
+    );
+};
