@@ -14,6 +14,8 @@ import { RegisterSelectionView } from './components/view/auth/RegisterSelectionV
 import { ClientRegisterView } from './components/view/auth/ClientRegisterView';
 import { ProviderRegisterView } from './components/view/auth/ProviderRegisterView';
 
+import { ClientDashboard } from './components/view/ClientDashboard';
+
 function App() {
   return (
     <Router>
@@ -32,6 +34,7 @@ function App() {
           <Route path="/buscar" element={<SearchView />} />
 
           <Route path="/perfil" element={<ProfileView />} />
+          <Route path="/dashboard-cliente" element={<ClientDashboard />} />
         </Routes>
       </MainLayout>
     </Router>
