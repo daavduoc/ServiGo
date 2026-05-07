@@ -3,7 +3,7 @@ import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../section/SeccionUsuarioBase';
 
 export const ClientRegisterView = () => {
-    // 1. Formulario inicial
+    // 1. Campos del formulario (Estado local)
     const [formData, setFormData] = useState({
         rut: '', nombre: '', apellido: '', correo: '', contrasena: '',
         telefono: '', direccion: '', comuna: '', region: '', id_rol: 1
@@ -12,69 +12,79 @@ export const ClientRegisterView = () => {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // 2. Hace que los campos de direccion se almacenen en mayusculas
+    // 2. Manejo de cambios y Mayúsculas en direcciones
     const handleChange = (e) => {
         let { name, value } = e.target;
-
-        // Regla de mayúsculas para direcciones
         const camposMayusculas = ['region', 'comuna', 'direccion'];
-        if (camposMayusculas.includes(name)) {
-            value = value.toUpperCase();
-        }
+        if (camposMayusculas.includes(name)) value = value.toUpperCase();
 
         setFormData({ ...formData, [name]: value });
-        // Limpia el error rojo al escribir correctamente
         if (error) setError(null);
     };
 
-    // 3.Validaciones necesarias para el registroe exitoso
+    // 3. Envío al Backend
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Revisar si hay campos vacíos
+        // VALIDACIÓN: Campos obligatorios
         const vacios = Object.values(formData).some(val => val === "");
         if (vacios) {
-            setError("Rellene los todos los campos");
+            setError("Rellene los campos obligatorios");
             return;
         }
-
-        // Regla del correo (@)
-        if (!formData.correo.includes('@')) {
-            setError("El correo debe ser válido (incluir @)");
-            return;
-        }
-
-        // Regla de contraseña (6 dígitos)
-        if (formData.contrasena.length < 6) {
-            setError("La contraseña debe tener al menos 6 dígitos");
-            return;
-        }
+        // VALIDACIÓN: Correo y Contraseña
+        if (!formData.correo.includes('@')) return setError("El correo debe incluir @");
+        if (formData.contrasena.length < 6) return setError("La contraseña debe tener al menos 6 dígitos");
 
         setIsLoading(true);
-        // Aquí iría el envío a la base de datos
-        console.log("Enviando cliente:", formData);
+
+        // ADAPTADOR: Ajustamos los nombres de los campos para el Backend (RegistroUsuarioDTO)
+        const dataParaBackend = {
+            rut: formData.rut,
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            correo: formData.correo,
+            contrasena: formData.contrasena,
+            telefono: formData.telefono,
+            tipoUsuario: "CLIENTE" // Texto que espera el Backend
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/usuarios/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataParaBackend)
+            });
+
+            if (response.ok) {
+                alert("¡Cliente registrado con éxito!");
+                // Aquí se redirigira a login: window.location.href = '/login';
+            } else {
+                setError("Error en el servidor al registrar");
+            }
+        } catch (err) {
+            setError("No hay conexión con el servidor (Spring Boot)");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <CardContainer titulo="Registro de Cliente">
-            <form onSubmit={handleSubmit} className="p-4 bg-white shadow-sm rounded">
-
-                {/* campos personales y direccion*/}
+            <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow-sm">
+                {/* Campos personales (Nombre, RUT, etc) */}
                 <SeccionUsuarioBase handleChange={handleChange} formData={formData} />
 
                 <hr />
                 <MapSection label="Mi Ubicación" />
                 <PhotoUpload label="Foto de Perfil" />
 
-                {/* en caso de error de registro dara mensaje en rojo */}
-                {error && (
-                    <div className="alert alert-danger mt-3 text-center fw-bold">
-                        {error}
-                    </div>
-                )}
+                {/* Mensaje de error rojo */}
+                {error && <div className="alert alert-danger mt-3 text-center fw-bold">{error}</div>}
 
                 <FormActions
-                    submitLabel={isLoading ? "Cargando..." : "Finalizar Registro"}
+                    onCancel={() => window.history.back()}
+                    submitLabel={isLoading ? "Enviando..." : "Finalizar Registro"}
                     submitDisabled={isLoading}
                 />
             </form>
