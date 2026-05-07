@@ -21,7 +21,7 @@ export const ClientRegisterView = () => {
         if (error) setError(null);
     };
 
-    // NUEVO: Función para recibir las coordenadas desde el mapa
+    //para recibir las coordenadas desde el mapa
     const handleMapCoords = (coords) => {
         setFormData(prev => ({
             ...prev,
@@ -35,7 +35,7 @@ export const ClientRegisterView = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Excluimos temporalmente latitud y longitud de la validación inicial de texto
+        // Excluye temporalmente latitud y longitud de la validación inicial de texto
         const camposTexto = ['rut', 'nombre', 'apellido', 'correo', 'contrasena', 'telefono', 'direccion', 'comuna', 'region'];
         const tieneVacios = camposTexto.some(campo => !formData[campo]);
 
@@ -77,7 +77,7 @@ export const ClientRegisterView = () => {
 
                     <hr className="my-4" />
 
-                    {/* NUEVO: Le pasamos la dirección y la función al MapSection */}
+                    {/* dirección y la función al MapSection */}
                     <div className="col-12 mb-3">
                         <MapSection
                             label="Verificación de Geolocalización"

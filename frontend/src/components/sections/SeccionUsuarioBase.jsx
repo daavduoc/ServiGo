@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormRow } from '../ui';
 
+// seccion creada para el registro de usuarios
 export const SeccionUsuarioBase = ({ handleChange, formData }) => {
     return (
         <>
