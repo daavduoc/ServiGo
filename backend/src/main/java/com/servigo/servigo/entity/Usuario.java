@@ -24,8 +24,11 @@ public class Usuario {
     private String contrasena;
 
     private String telefono;
+    private String direccion;
+    private String comuna;
+    private String region;
     private String estado;
-
+        
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private Rol rol;
