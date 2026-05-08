@@ -51,7 +51,7 @@ export const ClientDashboard = () => {
         <div className="col-md-8">
           <div className="card shadow-sm border-0 p-4">
             <h3 className="fw-bold mb-4">Mis Solicitudes de Servicio</h3>
-            
+
             {historial.length > 0 ? (
               <div className="table-responsive">
                 <table className="table table-hover align-middle">

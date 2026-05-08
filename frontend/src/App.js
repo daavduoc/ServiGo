@@ -15,6 +15,9 @@ import { ClientRegisterView } from './components/view/auth/ClientRegisterView';
 import { ProviderRegisterView } from './components/view/auth/ProviderRegisterView';
 
 import { ClientDashboard } from './components/view/ClientDashboard';
+import { ProviderDashboard } from './components/view/ProviderDashboard';
+
+
 
 function App() {
   return (
@@ -35,6 +38,7 @@ function App() {
 
           <Route path="/perfil" element={<ProfileView />} />
           <Route path="/dashboard-cliente" element={<ClientDashboard />} />
+          <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
         </Routes>
       </MainLayout>
     </Router>
