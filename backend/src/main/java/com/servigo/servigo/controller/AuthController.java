@@ -22,7 +22,9 @@ public class AuthController {
     // POST: iniciar sesión
     // URL: http://localhost:8080/auth/login
     @PostMapping("/login")
-    public LoginResponseDTO login(@RequestBody LoginRequestDTO dto) {
+    public LoginResponseDTO login(
+            @Valid @RequestBody LoginRequestDTO dto
+    ) {
         return authService.login(dto);
     }
 

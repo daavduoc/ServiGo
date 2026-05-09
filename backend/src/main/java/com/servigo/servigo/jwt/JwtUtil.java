@@ -42,6 +42,12 @@ public class JwtUtil {
                 .getSubject();
     }
 
-
-    
+    public String extraerRol(String token) {
+        return Jwts.parser()
+                .verifyWith((javax.crypto.SecretKey) getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("rol", String.class);
+    }
 }

@@ -8,20 +8,28 @@ import com.servigo.servigo.dto.ValidarCodigoDTO;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.jwt.JwtUtil;
 import com.servigo.servigo.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Service
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final SecureRandom secureRandom = new SecureRandom();
 
-    public AuthService(UsuarioRepository usuarioRepository, JwtUtil jwtUtil) {
+    public AuthService(
+            UsuarioRepository usuarioRepository,
+            JwtUtil jwtUtil,
+            PasswordEncoder passwordEncoder
+    ) {
         this.usuarioRepository = usuarioRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public LoginResponseDTO login(LoginRequestDTO dto) {
@@ -29,7 +37,10 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (!usuario.getContrasena().equals(dto.getContrasena())) {
+        if (!passwordEncoder.matches(
+                dto.getContrasena(),
+                usuario.getContrasena()
+        )) {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
@@ -50,7 +61,7 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        String codigo = String.valueOf(100000 + new Random().nextInt(900000));
+        String codigo = String.valueOf(100000 + secureRandom.nextInt(900000));
 
         usuario.setCodigoRecuperacion(codigo);
         usuario.setCodigoExpiracion(LocalDateTime.now().plusMinutes(10));
@@ -99,7 +110,10 @@ public class AuthService {
             throw new RuntimeException("Código inválido");
         }
 
-        usuario.setContrasena(dto.getNuevaContrasena());
+        usuario.setContrasena(
+                passwordEncoder.encode(dto.getNuevaContrasena())
+        );
+
         usuario.setCodigoRecuperacion(null);
         usuario.setCodigoExpiracion(null);
 

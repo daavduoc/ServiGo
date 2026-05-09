@@ -6,13 +6,12 @@ import com.servigo.servigo.entity.Empresa;
 import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.entity.Rol;
 import com.servigo.servigo.entity.Usuario;
-
 import com.servigo.servigo.repository.ClienteRepository;
 import com.servigo.servigo.repository.EmpresaRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.RolRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,19 +24,22 @@ public class UsuarioService {
     private final ClienteRepository clienteRepository;
     private final PrestadorRepository prestadorRepository;
     private final EmpresaRepository empresaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             RolRepository rolRepository,
             ClienteRepository clienteRepository,
             PrestadorRepository prestadorRepository,
-            EmpresaRepository empresaRepository
+            EmpresaRepository empresaRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
         this.clienteRepository = clienteRepository;
         this.prestadorRepository = prestadorRepository;
         this.empresaRepository = empresaRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Usuario> listarUsuarios() {
@@ -49,6 +51,7 @@ public class UsuarioService {
     }
 
     public Usuario crearUsuario(Usuario usuario) {
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         return usuarioRepository.save(usuario);
     }
 
@@ -58,8 +61,14 @@ public class UsuarioService {
 
     public Usuario registrarNuevoUsuario(RegistroUsuarioDTO dto) {
 
-        Long idRol = dto.getTipoUsuario().equalsIgnoreCase("PRESTADOR") ? 2L : 1L;
-        Rol rol = rolRepository.findById(idRol).orElse(null);
+        String tipoUsuario = dto.getTipoUsuario().toUpperCase();
+
+        if (!tipoUsuario.equals("CLIENTE") && !tipoUsuario.equals("PRESTADOR")) {
+            throw new RuntimeException("tipoUsuario debe ser CLIENTE o PRESTADOR");
+        }
+
+        Rol rol = rolRepository.findByNombre(tipoUsuario)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + tipoUsuario));
 
         Usuario usuario = new Usuario();
 
@@ -67,47 +76,41 @@ public class UsuarioService {
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
         usuario.setCorreo(dto.getCorreo());
-        usuario.setContrasena(dto.getContrasena());
+        usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
         usuario.setTelefono(dto.getTelefono());
-
         usuario.setDireccion(dto.getDireccion());
         usuario.setComuna(dto.getComuna());
         usuario.setRegion(dto.getRegion());
-
         usuario.setEstado("activo");
+        usuario.setCorreoValidado(false);
         usuario.setRol(rol);
 
         usuario = usuarioRepository.save(usuario);
 
-        // CLIENTE
-        if (dto.getTipoUsuario().equalsIgnoreCase("CLIENTE")) {
+        if (tipoUsuario.equals("CLIENTE")) {
 
             Cliente cliente = new Cliente();
             cliente.setUsuario(usuario);
-
             clienteRepository.save(cliente);
 
-        }
-
-        // PRESTADOR
-        else if (dto.getTipoUsuario().equalsIgnoreCase("PRESTADOR")) {
+        } else if (tipoUsuario.equals("PRESTADOR")) {
 
             if (dto.getTipoPrestador() == null) {
                 throw new RuntimeException("Debe especificar tipoPrestador");
             }
 
-            Prestador prestador = new Prestador();
+            if (dto.getTipoPrestador().equalsIgnoreCase("empresa") && dto.getIdEmpresa() == null) {
+                throw new RuntimeException("Debe indicar idEmpresa para prestador tipo empresa");
+            }
 
+            Prestador prestador = new Prestador();
             prestador.setUsuario(usuario);
             prestador.setTipoPrestador(dto.getTipoPrestador());
             prestador.setEstadoValidacion("pendiente");
 
-            // EMPRESA
             if (dto.getIdEmpresa() != null) {
-
-                Empresa empresa = empresaRepository
-                        .findById(dto.getIdEmpresa())
-                        .orElse(null);
+                Empresa empresa = empresaRepository.findById(dto.getIdEmpresa())
+                        .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
 
                 prestador.setEmpresa(empresa);
             }
@@ -128,11 +131,9 @@ public class UsuarioService {
         usuario.setApellido(usuarioActualizado.getApellido());
         usuario.setCorreo(usuarioActualizado.getCorreo());
         usuario.setTelefono(usuarioActualizado.getTelefono());
-
         usuario.setDireccion(usuarioActualizado.getDireccion());
         usuario.setComuna(usuarioActualizado.getComuna());
         usuario.setRegion(usuarioActualizado.getRegion());
-
         usuario.setEstado(usuarioActualizado.getEstado());
         usuario.setRol(usuarioActualizado.getRol());
 

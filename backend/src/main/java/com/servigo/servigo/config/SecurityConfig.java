@@ -27,8 +27,18 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/usuarios/registro").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/auth/login",
+                                "/usuarios/registro",
+                                "/auth/recuperar-password",
+                                "/auth/validar-codigo",
+                                "/auth/cambiar-password",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        //.anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
