@@ -4,6 +4,7 @@ import com.servigo.servigo.dto.RegistroUsuarioDTO;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.service.UsuarioService;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class UsuarioController {
     // Crea Usuario + Cliente o Prestador automáticamente según tipo
     // URL: http://localhost:8080/usuarios/registro
     @PostMapping("/registro")
-    public Usuario registrar(@RequestBody RegistroUsuarioDTO dto) {
+    public Usuario registrar(@Valid @RequestBody RegistroUsuarioDTO dto) {
         return usuarioService.registrarNuevoUsuario(dto);
     }
     // PUT: actualizar usuario

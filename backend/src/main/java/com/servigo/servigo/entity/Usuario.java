@@ -3,6 +3,7 @@ package com.servigo.servigo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -15,7 +16,6 @@ public class Usuario {
 
     @Column(unique = true, nullable = false)
     private String rut;
-
     private String nombre;
     private String apellido;
     private String correo;
@@ -28,6 +28,9 @@ public class Usuario {
     private String comuna;
     private String region;
     private String estado;
+    private Boolean correoValidado;
+    private String codigoRecuperacion;
+    private LocalDateTime codigoExpiracion;
         
     @ManyToOne
     @JoinColumn(name = "id_rol")
