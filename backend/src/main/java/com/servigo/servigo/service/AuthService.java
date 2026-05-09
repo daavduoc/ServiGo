@@ -3,6 +3,7 @@ package com.servigo.servigo.service;
 import com.servigo.servigo.dto.LoginRequestDTO;
 import com.servigo.servigo.dto.LoginResponseDTO;
 import com.servigo.servigo.entity.Usuario;
+import com.servigo.servigo.jwt.JwtUtil;
 import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +11,11 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UsuarioRepository usuarioRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, JwtUtil jwtUtil) {
         this.usuarioRepository = usuarioRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public LoginResponseDTO login(LoginRequestDTO dto) {
@@ -24,7 +27,10 @@ public class AuthService {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        String token = "TOKEN_TEMPORAL";
+        String token = jwtUtil.generarToken(
+                usuario.getCorreo(),
+                usuario.getRol().getNombre()
+        );
 
         return new LoginResponseDTO(
                 token,
