@@ -1,11 +1,13 @@
 package com.servigo.servigo.service;
 
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
+import com.servigo.servigo.entity.CategoriaPrestador;
 import com.servigo.servigo.entity.Cliente;
 import com.servigo.servigo.entity.Empresa;
 import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.entity.Rol;
 import com.servigo.servigo.entity.Usuario;
+import com.servigo.servigo.repository.CategoriaPrestadorRepository;
 import com.servigo.servigo.repository.ClienteRepository;
 import com.servigo.servigo.repository.EmpresaRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
@@ -24,6 +26,7 @@ public class UsuarioService {
     private final ClienteRepository clienteRepository;
     private final PrestadorRepository prestadorRepository;
     private final EmpresaRepository empresaRepository;
+    private final CategoriaPrestadorRepository categoriaPrestadorRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(
@@ -32,6 +35,7 @@ public class UsuarioService {
             ClienteRepository clienteRepository,
             PrestadorRepository prestadorRepository,
             EmpresaRepository empresaRepository,
+            CategoriaPrestadorRepository categoriaPrestadorRepository,
             PasswordEncoder passwordEncoder
     ) {
         this.usuarioRepository = usuarioRepository;
@@ -39,6 +43,7 @@ public class UsuarioService {
         this.clienteRepository = clienteRepository;
         this.prestadorRepository = prestadorRepository;
         this.empresaRepository = empresaRepository;
+        this.categoriaPrestadorRepository = categoriaPrestadorRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -71,7 +76,6 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + tipoUsuario));
 
         Usuario usuario = new Usuario();
-
         usuario.setRut(dto.getRut());
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
@@ -81,6 +85,8 @@ public class UsuarioService {
         usuario.setDireccion(dto.getDireccion());
         usuario.setComuna(dto.getComuna());
         usuario.setRegion(dto.getRegion());
+        usuario.setLatitud(dto.getLatitud());
+        usuario.setLongitud(dto.getLongitud());
         usuario.setEstado("activo");
         usuario.setCorreoValidado(false);
         usuario.setRol(rol);
@@ -99,13 +105,21 @@ public class UsuarioService {
                 throw new RuntimeException("Debe especificar tipoPrestador");
             }
 
+            if (dto.getIdCategoria() == null) {
+                throw new RuntimeException("Debe indicar idCategoria para el prestador");
+            }
+
             if (dto.getTipoPrestador().equalsIgnoreCase("empresa") && dto.getIdEmpresa() == null) {
                 throw new RuntimeException("Debe indicar idEmpresa para prestador tipo empresa");
             }
 
+            CategoriaPrestador categoria = categoriaPrestadorRepository.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new RuntimeException("Categoría de prestador no encontrada"));
+
             Prestador prestador = new Prestador();
             prestador.setUsuario(usuario);
             prestador.setTipoPrestador(dto.getTipoPrestador());
+            prestador.setCategoriaPrestador(categoria);
             prestador.setEstadoValidacion("pendiente");
 
             if (dto.getIdEmpresa() != null) {
@@ -134,6 +148,8 @@ public class UsuarioService {
         usuario.setDireccion(usuarioActualizado.getDireccion());
         usuario.setComuna(usuarioActualizado.getComuna());
         usuario.setRegion(usuarioActualizado.getRegion());
+        usuario.setLatitud(usuarioActualizado.getLatitud());
+        usuario.setLongitud(usuarioActualizado.getLongitud());
         usuario.setEstado(usuarioActualizado.getEstado());
         usuario.setRol(usuarioActualizado.getRol());
 

@@ -37,10 +37,18 @@ public class RegistroUsuarioDTO {
     private String comuna;
     private String region;
 
+    // GEOLOCALIZACION
+    private Double latitud;
+    private Double longitud;
+    
     @NotBlank(message = "Debe indicar tipo de usuario")
-    private String tipoUsuario; // CLIENTE o PRESTADOR
+    private String tipoUsuario;
 
-    private String tipoPrestador; // particular o empresa
+    // particular o empresa
+    private String tipoPrestador;
+
+    // tecnico o profesional
+    private Long idCategoria;
 
     private Long idEmpresa;
 }

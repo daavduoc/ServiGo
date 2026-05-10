@@ -13,9 +13,13 @@ public class Prestador {
     private Long idPrestador;
 
     private String tipoPrestador;
+
     private String descripcion;
+
     private String experiencia;
+
     private String direccionLocal;
+
     private String estadoValidacion;
 
     @OneToOne
@@ -25,4 +29,8 @@ public class Prestador {
     @ManyToOne
     @JoinColumn(name = "id_empresa")
     private Empresa empresa;
+
+    @ManyToOne
+    @JoinColumn(name = "id_categoria", nullable = false)
+    private CategoriaPrestador categoriaPrestador;
 }
