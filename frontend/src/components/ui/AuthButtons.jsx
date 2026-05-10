@@ -1,15 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { LoginModal } from './LoginModal';
+import { useAuth } from '../../context/AuthContext';
 
 export const AuthButtons = () => {
+  // 1. Estado local: generamos un switch para mostrar u ocultar el boton de Iniciar Sesión
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 2. Obtenemos el estado de la sesión (¿Está conectado?) y los datos del usuario actual.
+  const { isAuthenticated, user, logout } = useAuth();
+
+  // 3. Si el usuario ya inició sesión, le damos la bienvenida y mostramos el botón de cerrar sesión
+  if (isAuthenticated && user) {
+    return (
+      <div className="d-flex align-items-center gap-3">
+        <span className="text-muted">
+          Bienvenido, <strong>{user.nombre || user.correo}</strong>
+        </span>
+        <button className="btn btn-outline-danger btn-sm fw-bold" onClick={logout}>
+          Cerrar Sesión
+        </button>
+      </div>
+    );
+  }
+
+  // 4. Si NO hay nadie logueado, mostramos los botones iniciales de iniciar sesión y registrarse
   return (
-    <div className="d-flex gap-2">
-      <Link to="/login" className="btn btn-outline-primary fw-bold">
-        Iniciar Sesión
-      </Link>
-      <Link to="/registro" className="btn btn-primary fw-bold">
-        Registrarse
-      </Link>
-    </div>
+    <>
+      <div className="d-flex gap-2">
+        {/* este botón muestra la ventaa de iniciar sesión */}
+        <button
+          className="btn btn-outline-primary fw-bold"
+          onClick={() => setShowLoginModal(true)}
+        >
+          Iniciar Sesión
+        </button>
+
+        {/* Este botón nos redirige a la página donde el usuario elige si ser Cliente o Prestador */}
+        <Link to="/registro" className="btn btn-primary fw-bold">
+          Registrarse
+        </Link>
+      </div>
+
+      {/* La ventana del login que está invisible hasta que showLoginModal sea true */}
+      <LoginModal
+        show={showLoginModal}
+        handleClose={() => setShowLoginModal(false)}
+      />
+    </>
   );
 };
