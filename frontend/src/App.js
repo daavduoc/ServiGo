@@ -1,6 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+// manejo de auth y mantiene la secion activa 
+import { AuthProvider } from './context/AuthContext';
+
 // 1. Importamos tu nuevo Layout (El sándwich)
 import { MainLayout } from './components/layout/MainLayout';
 
@@ -17,31 +20,26 @@ import { ProviderRegisterView } from './components/view/auth/ProviderRegisterVie
 import { ClientDashboard } from './components/view/ClientDashboard';
 import { ProviderDashboard } from './components/view/ProviderDashboard';
 
-
-
 function App() {
   return (
-    <Router>
-      {/* Envolvemos todas las pantallas con el MainLayout para que siempre tengan Navbar y Footer */}
-      <MainLayout>
-        <Routes>
-          {/* Ruta principal: Tu tarea T08 */}
-          <Route path="/" element={<HomeView />} />
-
-          {/* Rutas de registro modular */}
-          <Route path="/registro" element={<RegisterSelectionView />} />
-          <Route path="/registro/cliente" element={<ClientRegisterView />} />
-          <Route path="/registro/prestador" element={<ProviderRegisterView />} />
-
-          {/* NUEVA RUTA: Tu buscador (Tarea T11) */}
-          <Route path="/buscar" element={<SearchView />} />
-
-          <Route path="/perfil" element={<ProfileView />} />
-          <Route path="/dashboard-cliente" element={<ClientDashboard />} />
-          <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
-        </Routes>
-      </MainLayout>
-    </Router>
+    //  Envolvemos la app para que reconozca a los usuarios utilizando { ej: vista }
+    <AuthProvider>
+      <Router>
+        {/* habilitacion del layout */}
+        <MainLayout>
+          <Routes>
+            <Route path="/" element={<HomeView />} />
+            <Route path="/registro" element={<RegisterSelectionView />} />
+            <Route path="/registro/cliente" element={<ClientRegisterView />} />
+            <Route path="/registro/prestador" element={<ProviderRegisterView />} />
+            <Route path="/buscar" element={<SearchView />} />
+            <Route path="/perfil" element={<ProfileView />} />
+            <Route path="/dashboard-cliente" element={<ClientDashboard />} />
+            <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
+          </Routes>
+        </MainLayout>
+      </Router>
+    </AuthProvider>
   );
 }
 
