@@ -20,6 +20,10 @@ import { ProviderRegisterView } from './components/view/auth/ProviderRegisterVie
 import { ClientDashboard } from './components/view/ClientDashboard';
 import { ProviderDashboard } from './components/view/ProviderDashboard';
 
+
+import { ClientLayout } from './components/ui/ClientLayout';
+
+
 function App() {
   return (
     //  Envolvemos la app para que reconozca a los usuarios utilizando { ej: vista }
@@ -28,14 +32,31 @@ function App() {
         {/* habilitacion del layout */}
         <MainLayout>
           <Routes>
-            <Route path="/" element={<HomeView />} />
-            <Route path="/registro" element={<RegisterSelectionView />} />
-            <Route path="/registro/cliente" element={<ClientRegisterView />} />
-            <Route path="/registro/prestador" element={<ProviderRegisterView />} />
-            <Route path="/buscar" element={<SearchView />} />
-            <Route path="/perfil" element={<ProfileView />} />
-            <Route path="/dashboard-cliente" element={<ClientDashboard />} />
-            <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
+          
+              {/* =========================================
+                  1. RUTAS PÚBLICAS Y GENERALES
+                  (Aquí NO se muestra el Sidebar del cliente)
+                  ========================================= */}
+              <Route path="/" element={<HomeView />} />
+              <Route path="/registro" element={<RegisterSelectionView />} />
+              <Route path="/registro/cliente" element={<ClientRegisterView />} />
+              <Route path="/registro/prestador" element={<ProviderRegisterView />} />
+              
+              {/* El dashboard del prestador va aparte, porque él tendrá su propia vista/menú */}
+              <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
+
+              {/* =========================================
+                  2. RUTAS PRIVADAS DEL CLIENTE
+                  (Todas estas páginas SÍ tendrán el Sidebar a la izquierda)
+                  ========================================= */}
+              <Route element={<ClientLayout />}>
+                <Route path="/dashboard-cliente" element={<ClientDashboard />} />
+                <Route path="/perfil" element={<ProfileView />} />
+                {/* Dejamos tu SearchView real para que busque con el mapa */}
+                <Route path="/buscar" element={<SearchView />} /> 
+                <Route path="/editar-perfil" element={<h2>Aquí irá el formulario de edición</h2>} />
+              </Route>
+          
           </Routes>
         </MainLayout>
       </Router>
