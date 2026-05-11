@@ -45,7 +45,27 @@ export const ProviderRegisterView = () => {
         if (errorValidacion) return setError(errorValidacion);
 
         setIsLoading(true);
-        const dataParaBackend = { ...formData, tipoUsuario: "PRESTADOR" };
+        // Mapeamos los datos para asegurar que el backend reciba todo en formato camelCase
+        const dataParaBackend = {
+            rut: formData.rut,
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            correo: formData.correo,
+            contrasena: formData.contrasena,
+            telefono: formData.telefono,
+            direccion: formData.direccion,
+            comuna: formData.comuna,
+            region: formData.region,
+            tipoPrestador: formData.tipo_prestador,
+            idCategoria: formData.id_categoria,
+            descripcion: formData.descripcion,
+            experiencia: formData.experiencia,
+            direccionLocal: formData.direccion_local,
+            idRol: formData.id_rol,
+            latitud: formData.latitud,
+            longitud: formData.longitud,
+            tipoUsuario: "PRESTADOR"
+        };
 
         try {
             // parte modular 
