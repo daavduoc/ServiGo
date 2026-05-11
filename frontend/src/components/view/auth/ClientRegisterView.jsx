@@ -50,8 +50,22 @@ export const ClientRegisterView = () => {
         // Desactiva botones para evitar envíos duplicados.
         setIsLoading(true);
 
-        // Agregamos el discriminador para el DTO de Spring Boot.
-        const dataParaBackend = { ...formData, tipoUsuario: "CLIENTE" };
+        // Mapeamos los datos para asegurar que el backend reciba todo en formato camelCase
+        const dataParaBackend = {
+            rut: formData.rut,
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            correo: formData.correo,
+            contrasena: formData.contrasena,
+            telefono: formData.telefono,
+            direccion: formData.direccion,
+            comuna: formData.comuna,
+            region: formData.region,
+            idRol: formData.id_rol,
+            latitud: formData.latitud,
+            longitud: formData.longitud,
+            tipoUsuario: "CLIENTE"
+        };
 
         try {
 
