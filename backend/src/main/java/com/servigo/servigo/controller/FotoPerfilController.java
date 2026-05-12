@@ -3,6 +3,10 @@ package com.servigo.servigo.controller;
 import com.servigo.servigo.entity.FotoPerfil;
 import com.servigo.servigo.service.FotoPerfilService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import java.util.List;
 
@@ -50,5 +54,22 @@ public class FotoPerfilController {
     @DeleteMapping("/{id}")
     public void eliminarFoto(@PathVariable Long id) {
         fotoPerfilService.eliminarFoto(id);
+    }
+
+    // POST: subir foto perfil a Cloudinary
+// URL: http://localhost:8080/fotos-perfil/upload/{idUsuario}
+    @PostMapping(
+            value = "/upload/{idUsuario}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public FotoPerfil subirFotoPerfil(
+            @PathVariable Long idUsuario,
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+
+        return fotoPerfilService.subirFotoPerfil(
+                idUsuario,
+                file
+        );
     }
 }
