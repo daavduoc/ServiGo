@@ -1,24 +1,12 @@
 import React from 'react';
-import { FormSelect, FormRow } from '../ui';
+import { FormRow } from '../ui';
 
-//Esta seccion agrupará todos los campos específicos del prestador de servicio
 export const SeccionDetallesPrestador = ({ formData, handleChange }) => {
     return (
         <>
             <h5 className="text-primary mb-4 border-bottom pb-2">Datos del Servicio</h5>
 
-            <div className="col-12">
-                <FormSelect
-                    label="Tipo de Prestador"
-                    name="tipo_prestador"
-                    value={formData.tipo_prestador}
-                    options={[
-                        { label: "Particular", value: "particular" },
-                        { label: "Empresa", value: "empresa" }
-                    ]}
-                    onChange={handleChange}
-                />
-            </div>
+            {/* EL SELECTOR SE ELIMINÓ DE AQUÍ PORQUE YA ESTÁ EN EL INICIO DEL FORMULARIO */}
 
             <div className="col-12">
                 <FormRow
@@ -29,6 +17,7 @@ export const SeccionDetallesPrestador = ({ formData, handleChange }) => {
                 />
             </div>
 
+            {/* Si es empresa, mostramos el nombre comercial aquí o lo manejamos en la base */}
             {formData.tipo_prestador === 'empresa' && (
                 <div className="col-12">
                     <FormRow

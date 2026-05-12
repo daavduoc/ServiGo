@@ -11,45 +11,52 @@ export const LoginModal = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({ correo: '', contrasena: '' });
     const [status, setStatus] = useState({ error: '', success: '', loading: false });
 
-    // Cuando el usuario escribe en las cajitas de texto, se almacena esos datos
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-        // setStatus se encarga de borrar el error o el mensaje de éxito al momento de estar escribiendo
         setStatus(prev => ({ ...prev, error: '', success: '' }));
     };
 
-    // Función que se dispara cuando aprietan "Aceptar" en el login
+    // login del usuario
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setStatus({ error: '', success: '', loading: true });
 
         try {
-            // Intentamos entrar con el backend
-            const response = await loginUser({ correo: formData.correo, contrasena: formData.contrasena });
+            // Llamamos al servicio login del backend
+            const response = await loginUser({
+                correo: formData.correo,
+                contrasena: formData.contrasena
+            });
 
-            // Si el backend dice OK, avisamos al "cerebro AuthContext" y guardamos la sesión
-            login(response.user || response, response.token);
+            // el AuthContext guardara la info del usuario y el token
+            login(response);
+
+            // cerramos la ventana
             resetAndClose();
         } catch (error) {
-            // Si hay error o el usuario se equivoca al rellenar los campos, lo mostramos en pantalla
             setStatus({ error: error.message, success: '', loading: false });
         }
     };
 
-    // Función que se dispara cuando piden recuperar contraseña
+    // recuperacion de contraseña
     const handleRecoverSubmit = async (e) => {
         e.preventDefault();
         setStatus({ error: '', success: '', loading: true });
 
         try {
+            // Llamamos al servicio de recuperacion de contraseña
             const response = await recoverPassword({ correo: formData.correo });
-            setStatus({ error: '', success: response || 'Se ha enviado un código a tu correo.', loading: false });
+            setStatus({
+                error: '',
+                success: response?.message || 'Se ha enviado un código a tu correo.',
+                loading: false
+            });
         } catch (error) {
             setStatus({ error: error.message, success: '', loading: false });
         }
     };
 
-    // Limpia todo al cerrar para que cuando vuelvan a el iniciar sesion los campos estén vacíos
+    // cerramos la ventana
     const resetAndClose = () => {
         setView('login');
         setFormData({ correo: '', contrasena: '' });
@@ -57,6 +64,7 @@ export const LoginModal = ({ show, handleClose }) => {
         handleClose();
     };
 
+    // mostramos la ventana con dos opciones, login o recuperacion de contraseña
     return (
         <Modal show={show} onHide={resetAndClose} centered>
             <Modal.Header closeButton>
@@ -66,13 +74,10 @@ export const LoginModal = ({ show, handleClose }) => {
             </Modal.Header>
 
             <Modal.Body>
-                {/* Aquí mostramos los cuadritos rojos (errores) o verdes (éxito) */}
                 {status.error && <Alert variant="danger">{status.error}</Alert>}
                 {status.success && <Alert variant="success">{status.success}</Alert>}
 
                 {view === 'login' ? (
-
-                    // VISTA: INICIAR SESIÓN
                     <Form onSubmit={handleLoginSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label>Correo Electrónico</Form.Label>
@@ -93,8 +98,6 @@ export const LoginModal = ({ show, handleClose }) => {
                         </div>
                     </Form>
                 ) : (
-
-                    // VISTA: RECUPERAR CONTRASEÑA
                     <Form onSubmit={handleRecoverSubmit}>
                         <p className="text-muted small">Ingresa tu correo registrado para enviarte las instrucciones.</p>
                         <Form.Group className="mb-3">

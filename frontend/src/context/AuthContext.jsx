@@ -4,7 +4,7 @@ import React, { createContext, useState, useContext, useEffect, useMemo } from '
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    // Inicializamos las variables que nos diran si el usuario entró o no
+    // Inicializamos las variables que nos diran si el usuario inició sesión o no
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +24,6 @@ export const AuthProvider = ({ children }) => {
                 console.error("Error al recuperar la sesión:", error);
                 logout();
             } finally {
-                // Finaliza la fase de verificación
                 setIsLoading(false);
             }
         };
@@ -32,12 +31,16 @@ export const AuthProvider = ({ children }) => {
         checkSession();
     }, []);
 
-    // Función para guardar la sesión del usuario cuando el login es correcto
-    const login = (userData, token) => {
+    // Login de usuario
+    const login = (userData) => {
         setUser(userData);
         setIsAuthenticated(true);
         localStorage.setItem('user', JSON.stringify(userData));
-        if (token) localStorage.setItem('token', token);
+
+        // guardamos el token en el localStorage        
+        if (userData.token) {
+            localStorage.setItem('token', userData.token);
+        }
     };
 
     // Función para borrar al usuario cuando selecciona el botón cerrar sesión
@@ -48,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
     };
 
-    // guardamos toda la informacion para enviarselo a los componentes  
+    // guardamos toda la informacion para enviarselo a los componentes   
     const contextValue = useMemo(() => ({
         user,
         isAuthenticated,
@@ -66,11 +69,9 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
-// Herramienta para que para que cualquier componente (useAuth) pueda acceder a la autenticación fácilmente     
+// Hook personalizado para utilizar el context
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    // validadcion de seguridad en caso de error al iniciar la app, te avisa que no se pudo iniciar sesion  
     if (!context) {
         throw new Error("useAuth debe ser utilizado dentro de un AuthProvider");
     }

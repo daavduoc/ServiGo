@@ -1,8 +1,10 @@
 import React from 'react';
 import { FormRow } from '../ui';
 
-// seccion creada para el registro de usuarios
 export const SeccionUsuarioBase = ({ handleChange, formData }) => {
+    // Variable para saber si es empresa
+    const esEmpresa = formData.tipo_prestador === 'empresa';
+
     return (
         <>
             <h5 className="text-primary mb-4 border-bottom pb-2">Datos Personales (Tabla USUARIO)</h5>
@@ -10,12 +12,25 @@ export const SeccionUsuarioBase = ({ handleChange, formData }) => {
                 <div className="col-12">
                     <FormRow label="RUT" name="rut" type="text" value={formData.rut} onChange={handleChange} placeholder="Ej: 12345678-9" />
                 </div>
+
                 <div className="col-12">
-                    <FormRow label="Nombres" name="nombre" type="text" value={formData.nombre} onChange={handleChange} />
+                    {/* El label cambia dinámicamente */}
+                    <FormRow
+                        label={esEmpresa ? "Nombre de la Empresa" : "Nombres"}
+                        name="nombre"
+                        type="text"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                    />
                 </div>
-                <div className="col-12">
-                    <FormRow label="Apellidos" name="apellido" type="text" value={formData.apellido} onChange={handleChange} />
-                </div>
+
+                {/* Si NO es empresa, mostramos los apellidos */}
+                {!esEmpresa && (
+                    <div className="col-12">
+                        <FormRow label="Apellidos" name="apellido" type="text" value={formData.apellido} onChange={handleChange} />
+                    </div>
+                )}
+
                 <div className="col-12">
                     <FormRow label="Correo Electrónico" name="correo" type="email" value={formData.correo} onChange={handleChange} />
                 </div>

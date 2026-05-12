@@ -1,18 +1,18 @@
-// URL de tu backend (Cambia el puerto 5000 por el que use tu servidor Node.js)
-const API_URL = 'http://localhost:5000/api';
+
+const API_URL = 'http://localhost:8080/api';
 
 export const registerUserInDB = async (userData) => {
     try {
         // direccionamiento decimos a dónde ir.
         const response = await fetch(`${API_URL}/registro`, {
             // POST de los datos nuevos.
-            method: 'POST', 
-            
+            method: 'POST',
+
             // identifica como se formatean los datos que enviamos, en este caso JSON.
             headers: {
                 'Content-Type': 'application/json'
             },
-            
+
             //el objeto se convierte de JavaScript (userData) a un texto plano (JSON) para que el backend pueda entenderlo.
             body: JSON.stringify(userData)
         });
