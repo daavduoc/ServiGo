@@ -51,4 +51,5 @@ public class RegistroUsuarioDTO {
     private Long idCategoria;
 
     private Long idEmpresa;
+    private String direccionLocal;
 }

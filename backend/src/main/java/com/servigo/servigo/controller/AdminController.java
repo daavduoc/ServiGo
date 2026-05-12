@@ -16,8 +16,6 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    // GET: listar usuarios para administrador
-    // URL: http://localhost:8080/admin/usuarios
     @GetMapping("/usuarios")
     public List<AdminUsuarioDTO> listarUsuarios() {
         return adminService.listarUsuarios();

@@ -1,11 +1,11 @@
 package com.servigo.servigo.controller;
 
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
+import com.servigo.servigo.dto.UsuarioResponseDTO;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.service.UsuarioService;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-
 import java.util.List;
 
 // Controlador REST para gestionar usuarios
@@ -22,7 +22,7 @@ public class UsuarioController {
     // GET: listar todos los usuarios
     // URL: http://localhost:8080/usuarios
     @GetMapping
-    public List<Usuario> listarUsuarios() {
+    public List<UsuarioResponseDTO> listarUsuarios() {
         return usuarioService.listarUsuarios();
     }
 

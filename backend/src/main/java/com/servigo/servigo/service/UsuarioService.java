@@ -1,6 +1,7 @@
 package com.servigo.servigo.service;
 
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
+import com.servigo.servigo.dto.UsuarioResponseDTO;
 import com.servigo.servigo.entity.CategoriaPrestador;
 import com.servigo.servigo.entity.Cliente;
 import com.servigo.servigo.entity.Empresa;
@@ -15,6 +16,7 @@ import com.servigo.servigo.repository.RolRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.servigo.servigo.dto.UsuarioResponseDTO;
 
 import java.util.List;
 
@@ -47,8 +49,26 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Usuario> listarUsuarios() {
-        return usuarioRepository.findAll();
+        public List<UsuarioResponseDTO> listarUsuarios() {
+
+        return usuarioRepository.findAll()
+                .stream()
+                .map(usuario -> new UsuarioResponseDTO(
+                        usuario.getIdUsuario(),
+                        usuario.getRut(),
+                        usuario.getNombre(),
+                        usuario.getApellido(),
+                        usuario.getCorreo(),
+                        usuario.getTelefono(),
+                        usuario.getDireccion(),
+                        usuario.getComuna(),
+                        usuario.getRegion(),
+                        usuario.getLatitud(),
+                        usuario.getLongitud(),
+                        usuario.getEstado(),
+                        usuario.getRol().getNombre()
+                ))
+                .toList();
     }
 
     public Usuario obtenerUsuarioPorId(Long id) {
@@ -121,6 +141,15 @@ public class UsuarioService {
             prestador.setTipoPrestador(dto.getTipoPrestador());
             prestador.setCategoriaPrestador(categoria);
             prestador.setEstadoValidacion("pendiente");
+            prestador.setDireccionLocal(dto.getDireccionLocal());
+
+            if (dto.getTipoPrestador().equalsIgnoreCase("empresa")
+                && dto.getDireccionLocal() == null) {
+
+            throw new RuntimeException(
+                    "Prestador empresa debe tener direccionLocal"
+            );
+            }
 
             if (dto.getIdEmpresa() != null) {
                 Empresa empresa = empresaRepository.findById(dto.getIdEmpresa())
