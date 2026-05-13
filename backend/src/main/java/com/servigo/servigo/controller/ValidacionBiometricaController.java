@@ -3,6 +3,7 @@ package com.servigo.servigo.controller;
 import com.servigo.servigo.entity.ValidacionBiometrica;
 import com.servigo.servigo.service.ValidacionBiometricaService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -50,5 +51,20 @@ public class ValidacionBiometricaController {
     @DeleteMapping("/{id}")
     public void eliminarValidacion(@PathVariable Long id) {
         validacionService.eliminarValidacion(id);
+    }
+
+    @PostMapping("/comparar")
+    public ValidacionBiometrica validarBiometria(
+            @RequestParam("idSolicitud") Long idSolicitud,
+            @RequestParam("idUsuario") Long idUsuario,
+            @RequestParam("tipoValidacion") String tipoValidacion,
+            @RequestParam("fotoCapturada") MultipartFile fotoCapturada
+    ) throws Exception {
+        return validacionService.validarBiometria(
+                idSolicitud,
+                idUsuario,
+                tipoValidacion,
+                fotoCapturada
+        );
     }
 }
