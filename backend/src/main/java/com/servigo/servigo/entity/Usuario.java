@@ -38,8 +38,9 @@ public class Usuario {
 
     private Boolean correoValidado;
 
+    @JsonIgnore
     private String codigoRecuperacion;
-
+    @JsonIgnore
     private LocalDateTime codigoExpiracion;
 
     @ManyToOne
