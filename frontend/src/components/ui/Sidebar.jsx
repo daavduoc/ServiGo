@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export const Sidebar = ({ usuario }) => {
+  const { logout } = useAuth();
   return (
     <div className="d-flex flex-column flex-shrink-0 p-3 bg-light border-end" style={{ width: '280px', minHeight: '100vh' }}>
       
@@ -22,12 +24,12 @@ export const Sidebar = ({ usuario }) => {
           </Link>
         </li>
         <li className="nav-item mb-2">
-          <Link to="/editar-perfil" className="nav-link link-dark">
+          <Link to="/perfil" className="nav-link link-dark">
             ✏️ Actualizar mis Datos
           </Link>
         </li>
         <li className="nav-item mb-2">
-          <Link to="/mis-horas" className="nav-link link-dark">
+          <Link to="/mis-reservas" className="nav-link link-dark">
             🕒 Mis Horas y Reservas
           </Link>
         </li>
@@ -42,7 +44,10 @@ export const Sidebar = ({ usuario }) => {
       
       {/* Botón de salida */}
       <div>
-        <button className="btn btn-outline-danger w-100">
+        <button 
+          className="btn btn-outline-danger w-100"
+          onClick={logout}
+        >
           Cerrar Sesión
         </button>
       </div>
