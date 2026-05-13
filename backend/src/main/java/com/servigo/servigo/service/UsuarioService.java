@@ -1,5 +1,6 @@
 package com.servigo.servigo.service;
 
+import com.servigo.servigo.dto.CambiarPasswordPerfilDTO;
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
 import com.servigo.servigo.dto.UsuarioResponseDTO;
 import com.servigo.servigo.entity.CategoriaPrestador;
@@ -16,7 +17,7 @@ import com.servigo.servigo.repository.RolRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.servigo.servigo.dto.UsuarioResponseDTO;
+
 
 import java.util.List;
 
@@ -183,5 +184,23 @@ public class UsuarioService {
         usuario.setRol(usuarioActualizado.getRol());
 
         return usuarioRepository.save(usuario);
+    }
+
+    public String cambiarPasswordPerfil(
+        String correo,
+        CambiarPasswordPerfilDTO dto
+    ) {
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(dto.getPasswordActual(), usuario.getContrasena())) {
+            throw new RuntimeException("La contraseña actual es incorrecta");
+        }
+
+        usuario.setContrasena(passwordEncoder.encode(dto.getPasswordNueva()));
+
+        usuarioRepository.save(usuario);
+
+        return "Contraseña actualizada correctamente";
     }
 }
