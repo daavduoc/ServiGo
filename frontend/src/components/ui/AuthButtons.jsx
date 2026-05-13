@@ -7,16 +7,17 @@ export const AuthButtons = () => {
   // 1. Estado local: generamos un switch para mostrar u ocultar el boton de Iniciar Sesión
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // 2. Obtenemos el estado de la sesión (¿Está conectado?) y los datos del usuario actual.
   const { isAuthenticated, user, logout } = useAuth();
 
-  // 3. Si el usuario ya inició sesión, le damos la bienvenida y mostramos el botón de cerrar sesión
   if (isAuthenticated && user) {
     return (
-      <div className="d-flex align-items-center gap-3">
-        <span className="text-muted">
+      <div className="d-flex align-items-center gap-2">
+        <span className="text-muted d-none d-md-inline">
           Bienvenido, <strong>{user.nombre || user.correo}</strong>
         </span>
+        <Link to="/perfil" className="btn btn-outline-primary btn-sm fw-bold">
+          Mi Perfil
+        </Link>
         <button className="btn btn-outline-danger btn-sm fw-bold" onClick={logout}>
           Cerrar Sesión
         </button>

@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 // 1. Importamos el nuevo módulo de botones
 import { AuthButtons } from "../ui/AuthButtons";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import logoServigo from '../../assets/img/Logo-final.png';
 
 const NavbarInicio = () => {
-  const navigate = useNavigate(); 
+  const [busqueda, setBusqueda] = useState('');
+  const navigate = useNavigate();
   const handleBuscar = (e) => {
-    e.preventDefault(); 
-    navigate('/buscar');
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (busqueda.trim()) {
+      params.set('query', busqueda.trim());
+    }
+    navigate(`/buscar?${params.toString()}`);
   };
 
   return (
@@ -18,15 +23,14 @@ const NavbarInicio = () => {
         
         {/* Izquierda: Logo */}
         <div className="d-flex align-items-center" style={{ flex: 1 }}>
-          <a className="navbar-brand fw-bold fs-1" href="/" style={{ color: '#4AD990' }}>
-          <img 
+          <Link className="navbar-brand fw-bold fs-1" to="/" style={{ color: '#4AD990' }}>
+            <img 
               src={logoServigo} 
               alt="Logo ServiGo" 
               height="75" 
               className="d-inline-block align-top"
             />
-          </a>
-          
+          </Link>
         </div>
 
         {/* Centro: Buscador */}
@@ -42,6 +46,8 @@ const NavbarInicio = () => {
               type="search" 
               placeholder="buscar servicio" 
               aria-label="Search" 
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
             />
             <button className="btn btn-outline-success" type="submit">
               Buscar

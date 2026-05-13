@@ -1,23 +1,21 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { useAuth } from '../../context/AuthContext';
 
 export const ClientLayout = () => {
-  // Simulamos que el usuario está logueado en toda la plataforma
-  const [usuario] = useState({
-    nombre: "Nicole Chávez",
-    correo: "nicole.chavez@ejemplo.cl",
-    comuna: "Puente Alto"
-  });
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="container-fluid p-0 d-flex">
-      {/* El Sidebar queda fijo a la izquierda para siempre */}
-      <Sidebar usuario={usuario} />
+      <Sidebar usuario={user} />
 
-      {/* El contenido de la derecha cambiará según donde navegue el cliente */}
       <div className="w-100 bg-light" style={{ minHeight: '100vh' }}>
-        <Outlet /> 
+        <Outlet />
       </div>
     </div>
   );
