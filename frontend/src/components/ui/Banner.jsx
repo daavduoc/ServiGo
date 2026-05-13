@@ -1,9 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import bannerMedico from '../../assets/img/banner-medico.png';
 import bannerTecnico from '../../assets/img/banner-tecnico.png';
 
 export const Banner = () => {
+  useEffect(() => {
+    // Inicializar el carousel de Bootstrap
+    const carouselElement = document.getElementById('heroCarousel');
+    if (carouselElement) {
+      new window.bootstrap.Carousel(carouselElement, {
+        interval: 5000,
+        wrap: true,
+        ride: true
+      });
+    }
+  }, []);
+
   return (
     <div id="heroCarousel" className="carousel slide shadow-sm rounded mb-4" data-bs-ride="carousel" data-bs-interval="5000">
       
