@@ -10,6 +10,7 @@ import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.repository.EspecialidadRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.ServicioRepository;
+import com.servigo.servigo.dto.ServicioDTO;
 
 @Service
 public class ServicioService {
@@ -35,24 +36,23 @@ public class ServicioService {
                 .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
     }
 
-    public Servicio crearServicio(Servicio servicio) {
-
-        if (servicio.getPrestador() == null || servicio.getPrestador().getIdPrestador() == null) {
-            throw new RuntimeException("Debe enviar idPrestador");
-        }
-
-        if (servicio.getEspecialidad() == null || servicio.getEspecialidad().getIdEspecialidad() == null) {
-            throw new RuntimeException("Debe enviar idEspecialidad");
-        }
+    public Servicio crearServicio(ServicioDTO dto) {
 
         Prestador prestador = prestadorRepository
-                .findById(servicio.getPrestador().getIdPrestador())
+                .findById(dto.getIdPrestador())
                 .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
 
         Especialidad especialidad = especialidadRepository
-                .findById(servicio.getEspecialidad().getIdEspecialidad())
+                .findById(dto.getIdEspecialidad())
                 .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
 
+        Servicio servicio = new Servicio();
+
+        servicio.setNombre(dto.getNombre());
+        servicio.setDescripcion(dto.getDescripcion());
+        servicio.setPrecioReferencial(dto.getPrecioReferencial());
+        servicio.setModalidad(dto.getModalidad());
+        servicio.setEstado("activo");
         servicio.setPrestador(prestador);
         servicio.setEspecialidad(especialidad);
 

@@ -1,8 +1,10 @@
 package com.servigo.servigo.controller;
 
+import com.servigo.servigo.dto.ServicioDTO;
 import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.service.ServicioService;
 import org.springframework.web.bind.annotation.*;
+import com.servigo.servigo.dto.ServicioDTO;
 import java.util.List;
 
 // Indica que esta clase es un controlador REST (API)
@@ -38,10 +40,9 @@ public class ServicioController {
     // URL: http://localhost:8080/servicios
     // Recibe JSON en el body
     @PostMapping
-    public Servicio crearServicio(@RequestBody Servicio servicio) {
-        return servicioService.crearServicio(servicio);
+    public Servicio crearServicio(@RequestBody ServicioDTO dto) {
+        return servicioService.crearServicio(dto);
     }
-
     // PUT: Actualizar servicio por ID (solo prestador/admin)
     // URL: http://localhost:8080/servicios/1
     // Recibe JSON en el body
