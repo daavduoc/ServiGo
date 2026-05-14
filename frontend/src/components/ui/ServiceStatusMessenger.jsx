@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './ServiceStatusMessenger.css';
 
 /**
  * ServiceStatusMessenger - Sistema de Comunicación por Estados
@@ -24,6 +23,184 @@ export const ServiceStatusMessenger = ({
   servicioNombre,
   onStatusChange 
 }) => {
+  // Estilos globales del componente
+  const estilos = {
+    container: {
+      position: 'relative',
+      width: '100%'
+    },
+    toast: {
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      maxWidth: '400px',
+      padding: '16px',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      zIndex: 9999,
+      animation: 'slideInRight 0.3s ease-in-out',
+      '@media (max-width: 768px)': {
+        top: '10px',
+        right: '10px',
+        left: '10px',
+        maxWidth: 'none'
+      }
+    },
+    toastContent: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '12px'
+    },
+    toastIcono: {
+      fontSize: '24px',
+      flexShrink: 0
+    },
+    toastTexto: {
+      flex: 1
+    },
+    toastTitulo: {
+      margin: '0 0 4px 0',
+      fontSize: '14px',
+      fontWeight: 600
+    },
+    toastMensaje: {
+      margin: 0,
+      fontSize: '13px',
+      lineHeight: 1.4
+    },
+    btnCerrarToast: {
+      background: 'none',
+      border: 'none',
+      fontSize: '18px',
+      cursor: 'pointer',
+      padding: 0,
+      marginLeft: '8px',
+      opacity: 0.6,
+      transition: 'opacity 0.2s'
+    },
+    // Estilos por tipo de mensaje
+    toastInfo: {
+      backgroundColor: '#e7f3ff',
+      borderLeft: '4px solid #0066cc',
+      color: '#004399'
+    },
+    toastSuccess: {
+      backgroundColor: '#e6f4e6',
+      borderLeft: '4px solid #28a745',
+      color: '#1e5620'
+    },
+    toastWarning: {
+      backgroundColor: '#fff4e6',
+      borderLeft: '4px solid #ffc107',
+      color: '#856404'
+    },
+    toastDanger: {
+      backgroundColor: '#ffe6e6',
+      borderLeft: '4px solid #dc3545',
+      color: '#721c24'
+    },
+    // Panel de historial
+    panel: {
+      background: 'white',
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      padding: '16px',
+      marginTop: '16px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
+    },
+    panelHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '16px',
+      paddingBottom: '12px',
+      borderBottom: '2px solid #f0f0f0'
+    },
+    panelTitulo: {
+      margin: 0,
+      fontSize: '16px',
+      fontWeight: 600,
+      color: '#333'
+    },
+    mensajesLista: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px',
+      maxHeight: '500px',
+      overflowY: 'auto'
+    },
+    mensajeItem: {
+      padding: '12px',
+      borderRadius: '6px',
+      borderLeft: '4px solid',
+      position: 'relative',
+      transition: 'all 0.2s ease'
+    },
+    mensajeHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      marginBottom: '8px'
+    },
+    mensajeIcono: {
+      fontSize: '18px',
+      flexShrink: 0
+    },
+    mensajeTitulo: {
+      margin: 0,
+      fontSize: '13px',
+      fontWeight: 600,
+      flex: 1
+    },
+    btnCloseMensaje: {
+      background: 'none',
+      border: 'none',
+      fontSize: '14px',
+      cursor: 'pointer',
+      padding: 0,
+      opacity: 0.5,
+      transition: 'opacity 0.2s'
+    },
+    mensajeCuerpo: {
+      margin: '0 0 8px 0',
+      fontSize: '13px',
+      lineHeight: 1.5
+    },
+    mensajeTimestamp: {
+      color: '#999',
+      fontSize: '11px'
+    },
+    // Estilos por tipo en lista
+    mensajeInfo: {
+      backgroundColor: '#f0f7ff',
+      borderColor: '#0066cc',
+      color: '#004399'
+    },
+    mensajeSuccess: {
+      backgroundColor: '#f0f8f0',
+      borderColor: '#28a745',
+      color: '#1e5620'
+    },
+    mensajeWarning: {
+      backgroundColor: '#fff9f0',
+      borderColor: '#ffc107',
+      color: '#856404'
+    },
+    mensajeDanger: {
+      backgroundColor: '#fff0f0',
+      borderColor: '#dc3545',
+      color: '#721c24'
+    },
+    estadoVacio: {
+      textAlign: 'center',
+      padding: '32px 16px',
+      color: '#999'
+    },
+    textoVacio: {
+      margin: 0,
+      fontSize: '14px'
+    }
+  };
   const [mensajes, setMensajes] = useState([]);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(true);
 
@@ -108,18 +285,24 @@ export const ServiceStatusMessenger = ({
   };
 
   return (
-    <div className="service-status-messenger">
+    <div style={estilos.container}>
       {/* Notificación Emergente (Toast) */}
       {mostrarNotificacion && mensajes.length > 0 && (
-        <div className={`messenger-toast messenger-${mensajes[0].tipo}`}>
-          <div className="toast-content">
-            <span className="toast-icono">{mensajes[0].icono}</span>
-            <div className="toast-texto">
-              <h5 className="toast-titulo">{mensajes[0].titulo}</h5>
-              <p className="toast-mensaje">{mensajes[0].mensaje}</p>
+        <div style={{
+          ...estilos.toast,
+          ...(mensajes[0].tipo === 'info' && estilos.toastInfo),
+          ...(mensajes[0].tipo === 'success' && estilos.toastSuccess),
+          ...(mensajes[0].tipo === 'warning' && estilos.toastWarning),
+          ...(mensajes[0].tipo === 'danger' && estilos.toastDanger)
+        }}>
+          <div style={estilos.toastContent}>
+            <span style={estilos.toastIcono}>{mensajes[0].icono}</span>
+            <div style={estilos.toastTexto}>
+              <h5 style={estilos.toastTitulo}>{mensajes[0].titulo}</h5>
+              <p style={estilos.toastMensaje}>{mensajes[0].mensaje}</p>
             </div>
             <button 
-              className="btn-cerrar-toast"
+              style={estilos.btnCerrarToast}
               onClick={() => setMostrarNotificacion(false)}
             >
               ✕
@@ -130,9 +313,9 @@ export const ServiceStatusMessenger = ({
 
       {/* Panel de Historial de Mensajes */}
       {mensajes.length > 0 && (
-        <div className="messenger-panel">
-          <div className="panel-header">
-            <h5 className="panel-titulo">📬 Historial de Mensajes</h5>
+        <div style={estilos.panel}>
+          <div style={estilos.panelHeader}>
+            <h5 style={estilos.panelTitulo}>📬 Historial de Mensajes</h5>
             <button 
               className="btn btn-sm btn-outline-secondary"
               onClick={limpiarMensajes}
@@ -141,24 +324,30 @@ export const ServiceStatusMessenger = ({
             </button>
           </div>
 
-          <div className="mensajes-lista">
+          <div style={estilos.mensajesLista}>
             {mensajes.map((msg) => (
               <div 
                 key={msg.id}
-                className={`mensaje-item mensaje-${msg.tipo}`}
+                style={{
+                  ...estilos.mensajeItem,
+                  ...(msg.tipo === 'info' && estilos.mensajeInfo),
+                  ...(msg.tipo === 'success' && estilos.mensajeSuccess),
+                  ...(msg.tipo === 'warning' && estilos.mensajeWarning),
+                  ...(msg.tipo === 'danger' && estilos.mensajeDanger)
+                }}
               >
-                <div className="mensaje-header">
-                  <span className="mensaje-icono">{msg.icono}</span>
-                  <h6 className="mensaje-titulo">{msg.titulo}</h6>
+                <div style={estilos.mensajeHeader}>
+                  <span style={estilos.mensajeIcono}>{msg.icono}</span>
+                  <h6 style={estilos.mensajeTitulo}>{msg.titulo}</h6>
                   <button
-                    className="btn-close-mensaje"
+                    style={estilos.btnCloseMensaje}
                     onClick={() => cerrarMensaje(msg.id)}
                   >
                     ✕
                   </button>
                 </div>
-                <p className="mensaje-cuerpo">{msg.mensaje}</p>
-                <small className="mensaje-timestamp">
+                <p style={estilos.mensajeCuerpo}>{msg.mensaje}</p>
+                <small style={estilos.mensajeTimestamp}>
                   {msg.timestamp.toLocaleTimeString('es-CL')}
                 </small>
               </div>
@@ -169,8 +358,8 @@ export const ServiceStatusMessenger = ({
 
       {/* Estado vacío */}
       {mensajes.length === 0 && (
-        <div className="estado-vacio">
-          <p className="texto-vacio">📭 Sin mensajes en este momento</p>
+        <div style={estilos.estadoVacio}>
+          <p style={estilos.textoVacio}>📭 Sin mensajes en este momento</p>
         </div>
       )}
     </div>
