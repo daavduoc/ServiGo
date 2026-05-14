@@ -51,13 +51,21 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
     };
 
+    // Función para actualizar datos del usuario en el contexto
+    const updateUserData = (updatedUserData) => {
+        const newUserData = { ...user, ...updatedUserData };
+        setUser(newUserData);
+        localStorage.setItem('user', JSON.stringify(newUserData));
+    };
+
     // guardamos toda la informacion para enviarselo a los componentes   
     const contextValue = useMemo(() => ({
         user,
         isAuthenticated,
         isLoading,
         login,
-        logout
+        logout,
+        updateUserData
     }), [user, isAuthenticated, isLoading]);
 
     // Si está cargando al iniciar la app no se mostrará nada

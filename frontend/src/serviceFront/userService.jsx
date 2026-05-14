@@ -1,5 +1,6 @@
 
 const API_URL = 'http://localhost:8080/api';
+const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
 
 export const registerUserInDB = async (userData) => {
     try {
@@ -30,5 +31,55 @@ export const registerUserInDB = async (userData) => {
     } catch (error) {
         console.error("Falló la conexión con el Backend:", error);
         throw error; // mensage de error si no se CONECTA cpon backend
+    }
+};
+
+// GET: obtener perfil completo del usuario autenticado
+export const getMyProfile = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL_USUARIOS}/me/perfil`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al obtener perfil');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error al obtener perfil:", error);
+        throw error;
+    }
+};
+
+// PUT: actualizar datos del usuario autenticado
+export const updateUserProfile = async (userId, userData) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL_USUARIOS}/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al actualizar perfil');
+        }
+
+        const data = await response.json();
+        console.log("Perfil actualizado:", data);
+        return data;
+    } catch (error) {
+        console.error("Error al actualizar perfil:", error);
+        throw error;
     }
 };
