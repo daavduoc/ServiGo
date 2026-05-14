@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
-
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
-import { SeccionDetallesPrestador } from '../../sections/SeccionDetallesPrestador';
 
-// importaciones modulares
+// Ya NO importamos SeccionDetallesPrestador
+
 import { authValidations } from '../../../utils/authValidations';
-import { registrarUsuario } from '../../../serviceFront/authService';
+// Importamos subirFotoCloudinary para los dos pasos
+import { registrarUsuario, subirFotoCloudinary } from '../../../serviceFront/authService';
 
 export const ProviderRegisterView = () => {
-    // 1. Centralizamos el estado con los campos que pide el reporte técnico
+    // 1. Estado limpio: Sin experiencia, descripción, ni direccionLocal
     const [formData, setFormData] = useState({
         rut: '',
         nombre: '',
@@ -20,36 +20,29 @@ export const ProviderRegisterView = () => {
         direccion: '',
         comuna: '',
         region: '',
-        tipo_prestador: 'particular', // Valor por defecto
-        id_categoria: '',
-        descripcion: '',
-        experiencia: '',
-        direccion_local: '',
-        id_rol: 2,
+        tipoPrestador: 'particular',
+        idRol: 2,
         latitud: '',
         longitud: '',
-        foto_perfil: null // Para guardar el archivo de imagen
+        fotoPerfil: null
     });
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Captura entradas y normaliza direcciones
     const handleChange = (e) => {
         let { name, value } = e.target;
-        const camposMayusculas = ['region', 'comuna', 'direccion', 'direccion_local'];
+        const camposMayusculas = ['region', 'comuna', 'direccion'];
         if (camposMayusculas.includes(name)) value = value.toUpperCase();
 
         setFormData({ ...formData, [name]: value });
         if (error) setError(null);
     };
 
-    // Captura la foto desde el componente PhotoUpload
     const handleImageChange = (archivo) => {
-        setFormData(prev => ({ ...prev, foto_perfil: archivo }));
+        setFormData(prev => ({ ...prev, fotoPerfil: archivo }));
     };
 
-    // Captura coordenadas del mapa
     const handleMapCoords = (coords) => {
         setFormData(prev => ({ ...prev, latitud: coords.lat, longitud: coords.lng }));
     };
@@ -57,42 +50,45 @@ export const ProviderRegisterView = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validaciones (debes asegurar que authValidations acepte el nuevo esquema)
         const errorValidacion = authValidations(formData);
         if (errorValidacion) return setError(errorValidacion);
 
         setIsLoading(true);
-
-        // 2. IMPORTANTE: Usamos FormData para enviar textos + archivos
-        const data = new FormData();
-        data.append('rut', formData.rut);
-        data.append('nombre', formData.nombre);
-        // Si es empresa, mandamos apellido vacío como pide el backend
-        data.append('apellido', formData.tipo_prestador === 'empresa' ? '' : formData.apellido);
-        data.append('correo', formData.correo);
-        data.append('contrasena', formData.contrasena);
-        data.append('telefono', formData.telefono);
-        data.append('direccion', formData.direccion);
-        data.append('comuna', formData.comuna);
-        data.append('region', formData.region);
-        data.append('tipoPrestador', formData.tipo_prestador.toUpperCase());
-        data.append('idCategoria', formData.id_categoria);
-        data.append('descripcion', formData.descripcion);
-        data.append('experiencia', formData.experiencia);
-        data.append('direccionLocal', formData.direccion_local);
-        data.append('idRol', formData.id_rol);
-        data.append('latitud', formData.latitud);
-        data.append('longitud', formData.longitud);
-        data.append('tipoUsuario', "PRESTADOR");
-
-        if (formData.foto_perfil) {
-            data.append('foto_perfil', formData.foto_perfil);
-        }
+        setError(null);
 
         try {
-            await registrarUsuario(data);
+            let urlFotoCloudinary = null;
+
+            // PASO 1: Subir foto a Cloudinary si existe
+            if (formData.fotoPerfil) {
+                urlFotoCloudinary = await subirFotoCloudinary(formData.fotoPerfil);
+            }
+
+            // PASO 2: Armar JSON limpio para el DTO
+            const dataParaBackend = {
+                rut: formData.rut,
+                nombre: formData.nombre,
+                // Si es empresa, el apellido va vacío
+                apellido: formData.tipoPrestador === 'empresa' ? '' : formData.apellido,
+                correo: formData.correo,
+                contrasena: formData.contrasena,
+                telefono: formData.telefono,
+                direccion: formData.direccion,
+                comuna: formData.comuna,
+                region: formData.region,
+                tipoPrestador: formData.tipoPrestador.toUpperCase(),
+                idRol: formData.idRol,
+                latitud: formData.latitud,
+                longitud: formData.longitud,
+                tipoUsuario: "PRESTADOR",
+                fotoUrl: urlFotoCloudinary // URL obtenida de Cloudinary
+            };
+
+            await registrarUsuario(dataParaBackend);
+
             alert("¡Registro de Prestador exitoso!");
-            window.location.href = "/login"; // Redirigir al éxito
+            window.location.href = "/login";
+
         } catch (err) {
             setError(err.message || "Error al conectar con el servidor");
         } finally {
@@ -100,20 +96,21 @@ export const ProviderRegisterView = () => {
         }
     };
 
-    const direccionParaMapa = `${formData.direccion_local}, ${formData.comuna}, ${formData.region}, Chile`;
+    // Usamos la dirección general para el mapa, ya que quitamos direccionLocal
+    const direccionParaMapa = `${formData.direccion}, ${formData.comuna}, ${formData.region}, Chile`;
 
     return (
         <CardContainer titulo="Registro de Prestador">
             <div className="mx-auto" style={{ maxWidth: '600px' }}>
                 <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow-sm">
 
-                    {/* --- PASO 1: TIPO DE PRESTADOR (Movido al inicio) --- */}
+                    {/* Selector de Tipo de Prestador */}
                     <div className="mb-4 p-3 border rounded bg-light">
                         <label className="form-label fw-bold text-primary">¿Cómo deseas registrarte?</label>
                         <select
                             className="form-select shadow-sm"
-                            name="tipo_prestador"
-                            value={formData.tipo_prestador}
+                            name="tipoPrestador"
+                            value={formData.tipoPrestador}
                             onChange={handleChange}
                         >
                             <option value="particular">Persona Natural (Particular)</option>
@@ -124,24 +121,19 @@ export const ProviderRegisterView = () => {
                         </small>
                     </div>
 
-                    {/* --- PASO 2: DATOS BASE (Nombre/Apellido condicional) --- */}
+                    {/* Datos Base y Dirección */}
                     <SeccionUsuarioBase handleChange={handleChange} formData={formData} />
 
                     <hr className="my-4" />
 
-                    {/* --- PASO 3: DETALLES (Categoría, Descrip, etc) --- */}
-                    <SeccionDetallesPrestador handleChange={handleChange} formData={formData} />
-
-                    <hr className="my-4" />
-
-                    {/* --- PASO 4: MAPA Y FOTO --- */}
+                    {/* Mapa y Foto */}
                     <div className="col-12 mb-3">
-                        <MapSection label="Ubicación del Local/Servicio" fullAddress={direccionParaMapa} onCoordsChange={handleMapCoords} />
+                        <MapSection label="Verificación de Geolocalización" fullAddress={direccionParaMapa} onCoordsChange={handleMapCoords} />
                     </div>
 
                     <div className="col-12 mb-3">
                         <PhotoUpload
-                            label="Foto de Perfil o Logo de Empresa"
+                            label={formData.tipoPrestador === 'empresa' ? "Logo de la Empresa" : "Foto de Perfil"}
                             onImageSelect={handleImageChange}
                         />
                     </div>

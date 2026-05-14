@@ -3,18 +3,21 @@ import { FormRow } from '../ui';
 
 export const SeccionUsuarioBase = ({ handleChange, formData }) => {
     // Variable para saber si es empresa
-    const esEmpresa = formData.tipo_prestador === 'empresa';
+    const esEmpresa = formData.tipoPrestador === 'empresa';
 
     return (
         <>
-            <h5 className="text-primary mb-4 border-bottom pb-2">Datos Personales (Tabla USUARIO)</h5>
+            {/* TÍTULO DINÁMICO: Cambia según el tipo de prestador */}
+            <h5 className="text-primary mb-4 border-bottom pb-2">
+                {esEmpresa ? "Datos de la Empresa" : "Datos Personales"}
+            </h5>
+
             <div className="row">
                 <div className="col-12">
                     <FormRow label="RUT" name="rut" type="text" value={formData.rut} onChange={handleChange} placeholder="Ej: 12345678-9" />
                 </div>
 
                 <div className="col-12">
-                    {/* El label cambia dinámicamente */}
                     <FormRow
                         label={esEmpresa ? "Nombre de la Empresa" : "Nombres"}
                         name="nombre"
@@ -42,7 +45,7 @@ export const SeccionUsuarioBase = ({ handleChange, formData }) => {
                 </div>
             </div>
 
-            <h5 className="text-primary mb-4 mt-4 border-bottom pb-2">Dirección (Tabla USUARIO)</h5>
+            <h5 className="text-primary mb-4 mt-4 border-bottom pb-2">Dirección</h5>
             <div className="row">
                 <div className="col-12">
                     <FormRow label="Región" name="region" type="text" value={formData.region} onChange={handleChange} />
