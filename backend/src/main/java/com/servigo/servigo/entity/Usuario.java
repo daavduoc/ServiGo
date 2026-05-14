@@ -46,4 +46,10 @@ public class Usuario {
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private Rol rol;
+
+    @Column(name = "fecha_registro", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime fechaRegistro = LocalDateTime.now();
+
+    @Column(name = "ultima_actividad")
+    private LocalDateTime ultimaActividad;
 }
