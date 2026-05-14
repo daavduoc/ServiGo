@@ -41,10 +41,21 @@ public class FotoPerfilService {
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        FotoPerfil fotoExistente = fotoPerfilRepository
+                .findByUsuarioIdUsuario(idUsuario)
+                .orElse(null);
+
         Map resultado = cloudinaryService.subirImagen(file, "servigo/fotos-perfil");
 
         String url = resultado.get("secure_url").toString();
         String publicId = resultado.get("public_id").toString();
+
+        if (fotoExistente != null) {
+            fotoExistente.setUrlFotoCloud(url);
+            fotoExistente.setPublicId(publicId);
+
+            return fotoPerfilRepository.save(fotoExistente);
+        }
 
         FotoPerfil fotoPerfil = new FotoPerfil();
         fotoPerfil.setUsuario(usuario);

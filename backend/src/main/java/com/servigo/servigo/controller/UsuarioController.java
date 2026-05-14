@@ -208,6 +208,10 @@ public class UsuarioController {
     }
 
 
+    
+    // PUT: cambiar contraseña del usuario autenticado
+    // URL: http://localhost:8080/usuarios/me/password
+
     @PutMapping("/me/password")
     public String cambiarMiPassword(
             Authentication authentication,

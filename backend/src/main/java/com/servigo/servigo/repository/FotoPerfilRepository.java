@@ -7,5 +7,7 @@ import java.util.Optional;
 
 public interface FotoPerfilRepository extends JpaRepository<FotoPerfil, Long> {
 
+    Optional<FotoPerfil> findByUsuarioIdUsuario(Long idUsuario);
+
     Optional<FotoPerfil> findByUsuario_IdUsuario(Long idUsuario);
 }

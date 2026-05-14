@@ -2,11 +2,13 @@ package com.servigo.servigo.controller;
 
 import com.servigo.servigo.entity.Certificacion;
 import com.servigo.servigo.service.CertificacionService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
-// Controlador REST para gestionar certificaciones de prestadores
 @RestController
 @RequestMapping("/certificaciones")
 public class CertificacionController {
@@ -17,36 +19,46 @@ public class CertificacionController {
         this.certificacionService = certificacionService;
     }
 
-    // GET: listar certificaciones
-    // URL: http://localhost:8080/certificaciones
     @GetMapping
     public List<Certificacion> listarCertificaciones() {
         return certificacionService.listarCertificaciones();
     }
 
-    // GET: obtener certificación por ID
-    // URL: http://localhost:8080/certificaciones/{id}
     @GetMapping("/{id}")
     public Certificacion obtenerCertificacion(@PathVariable Long id) {
         return certificacionService.obtenerCertificacionPorId(id);
     }
 
-    // POST: crear certificación
-    // URL: http://localhost:8080/certificaciones
-    @PostMapping
-    public Certificacion crearCertificacion(@RequestBody Certificacion certificacion) {
-        return certificacionService.crearCertificacion(certificacion);
+    @GetMapping("/prestador/{idPrestador}")
+    public List<Certificacion> listarPorPrestador(@PathVariable Long idPrestador) {
+        return certificacionService.listarPorPrestador(idPrestador);
     }
 
-    // PUT: actualizar certificación
-    // URL: http://localhost:8080/certificaciones/{id}
-    @PutMapping("/{id}")
-    public Certificacion actualizarCertificacion(@PathVariable Long id, @RequestBody Certificacion certificacionActualizada) {
-        return certificacionService.actualizarCertificacion(id, certificacionActualizada);
+    @PostMapping(
+            value = "/upload/{idPrestador}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public Certificacion subirCertificacion(
+            @PathVariable Long idPrestador,
+            @RequestParam("nombreDocumento") String nombreDocumento,
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+
+        return certificacionService.subirCertificacion(
+                idPrestador,
+                nombreDocumento,
+                file
+        );
     }
 
-    // DELETE: eliminar certificación
-    // URL: http://localhost:8080/certificaciones/{id}
+    @PutMapping("/{id}/estado")
+    public Certificacion actualizarEstado(
+            @PathVariable Long id,
+            @RequestParam String estado
+    ) {
+        return certificacionService.actualizarEstado(id, estado);
+    }
+
     @DeleteMapping("/{id}")
     public void eliminarCertificacion(@PathVariable Long id) {
         certificacionService.eliminarCertificacion(id);
