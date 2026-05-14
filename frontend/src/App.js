@@ -45,6 +45,9 @@ function App() {
               {/* El dashboard del prestador va aparte, porque él tendrá su propia vista/menú */}
               <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
 
+              {/* Buscador público: accesible desde el banner sin estar registrado */}
+              <Route path="/buscar" element={<SearchView />} />
+
               {/* =========================================
                   2. RUTAS PRIVADAS DEL CLIENTE
                   (Todas estas páginas SÍ tendrán el Sidebar a la izquierda)
@@ -52,9 +55,7 @@ function App() {
               <Route element={<ClientLayout />}>
                 <Route path="/dashboard-cliente" element={<ClientDashboard />} />
                 <Route path="/perfil" element={<ProfileView />} />
-                {/* Dejamos tu SearchView real para que busque con el mapa */}
-                <Route path="/buscar" element={<SearchView />} /> 
-                <Route path="/editar-perfil" element={<h2>Aquí irá el formulario de edición</h2>} />
+                <Route path="/mis-reservas" element={<h2>Mis Horas y Reservas</h2>} />
               </Route>
           
           </Routes>

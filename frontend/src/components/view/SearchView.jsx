@@ -1,93 +1,110 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+// Importamos la tarjeta que acabas de crear
+import { ServiceCard } from '../ui/ServiceCard';
 
 export const SearchView = () => {
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedArea, setSelectedArea] = useState(searchParams.get('area') || 'Todos');
+  const [query, setQuery] = useState(searchParams.get('query') || '');
 
-  // Base de Datos de Prueba (Mock Data)
-  const [tecnicos] = useState([
-    { id: 1, nombre: "Dra. María González", profesion: "Médico General", area: "Salud", precio: "$25.000" },
-    { id: 2, nombre: "Juan Pérez", profesion: "Gasfíter Certificado", area: "Técnica", precio: "$15.000" },
-    { id: 3, nombre: "Carlos Rojas", profesion: "Electricista SEC", area: "Técnica", precio: "$20.000" },
-    { id: 4, nombre: "Ana Silva", profesion: "Enfermera", area: "Salud", precio: "$18.000" }
-  ]);
+  useEffect(() => {
+    setSelectedArea(searchParams.get('area') || 'Todos');
+    setQuery(searchParams.get('query') || '');
+  }, [searchParams]);
 
-  const [textoBusqueda, setTextoBusqueda] = useState('');
-  const [areaSeleccionada, setAreaSeleccionada] = useState('');
+  const especialistas = [
+    { id: 1, nombre: 'Dra. María González', profesion: 'Médico General', area: 'Salud', precio: 25000 },
+    { id: 2, nombre: 'Juan Pérez', profesion: 'Gasfíter Certificado', area: 'Técnica', precio: 15000 },
+    { id: 3, nombre: 'Carlos Rojas', profesion: 'Electricista SEC', area: 'Técnica', precio: 20000 },
+    { id: 4, nombre: 'Ana Silva', profesion: 'Enfermera', area: 'Salud', precio: 18000 },
+  ];
 
-  const tecnicosFiltrados = tecnicos.filter((tecnico) => {
-    const coincideTexto = tecnico.profesion.toLowerCase().includes(textoBusqueda.toLowerCase()) || 
-                          tecnico.nombre.toLowerCase().includes(textoBusqueda.toLowerCase());
-    const coincideArea = areaSeleccionada === "" || tecnico.area === areaSeleccionada;
-    return coincideTexto && coincideArea;
+  const actualizarFiltros = (area) => {
+    const params = {};
+    if (area && area !== 'Todos') params.area = area;
+    if (query.trim()) params.query = query.trim();
+    setSearchParams(params);
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    actualizarFiltros(selectedArea);
+  };
+
+  const listaMostrada = especialistas.filter((especialista) => {
+    const cumpleArea = selectedArea === 'Todos' || especialista.area === selectedArea;
+    const termino = query.trim().toLowerCase();
+    const cumpleQuery = !termino || especialista.nombre.toLowerCase().includes(termino) || especialista.profesion.toLowerCase().includes(termino);
+    return cumpleArea && cumpleQuery;
   });
 
   return (
-    <div className="container mt-5 mb-5">
+    <div className="container py-5">
       <h2 className="fw-bold mb-4">Encuentra a tu especialista</h2>
-      
-      {/* Barra de Búsqueda y Filtros */}
-      <div className="card shadow-sm p-4 mb-5 border-0 bg-light">
-        <div className="row g-3">
-          <div className="col-md-5">
-            <input 
-              type="text" 
-              className="form-control form-control-lg" 
-              placeholder="¿Qué servicio buscas? (Ej: Gasfíter)" 
-              value={textoBusqueda}
-              onChange={(e) => setTextoBusqueda(e.target.value)} 
-            />
-          </div>
-          <div className="col-md-4">
-            <select 
-              className="form-select form-select-lg"
-              value={areaSeleccionada}
-              onChange={(e) => setAreaSeleccionada(e.target.value)}
-            >
-              <option value="">Todas las áreas</option>
-              <option value="Salud">Área de Salud</option>
-              <option value="Técnica">Área Técnica</option>
-            </select>
-          </div>
-          <div className="col-md-3">
-            <button className="btn btn-success btn-lg w-100 fw-bold">Buscar</button>
+
+      <form className="row g-2 align-items-center mb-4" onSubmit={handleSearchSubmit}>
+        <div className="col-sm-6 col-md-4">
+          <input
+            type="search"
+            className="form-control"
+            placeholder="Buscar por nombre o profesión"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <div className="col-auto">
+          <button type="submit" className="btn btn-success">
+            Buscar
+          </button>
+        </div>
+        <div className="col-12">
+          <div className="btn-group" role="group" aria-label="Filtro de área">
+            {['Todos', 'Salud', 'Técnica'].map((area) => (
+              <button
+                key={area}
+                type="button"
+                className={`btn ${selectedArea === area ? 'btn-success' : 'btn-outline-success'}`}
+                onClick={() => actualizarFiltros(area)}
+              >
+                {area}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+      </form>
 
-      {/* Lista de Resultados */}
-      <h4 className="mb-3">Resultados ({tecnicosFiltrados.length})</h4>
-      
-      <div className="row">
-        {tecnicosFiltrados.map((tecnico) => (
-          <div className="col-md-6 col-lg-3 mb-4" key={tecnico.id}>
-            <div className="card h-100 shadow-sm border-0">
-              <div className="card-body text-center">
-                <div className="bg-secondary bg-opacity-25 rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style={{ width: '80px', height: '80px' }}>
-                  <span className="fs-1">👤</span>
-                </div>
-                <h5 className="card-title fw-bold">{tecnico.nombre}</h5>
-                <p className="card-text text-muted mb-1">{tecnico.profesion}</p>
-                <span className={`badge ${tecnico.area === 'Salud' ? 'bg-info' : 'bg-warning text-dark'} mb-2`}>
-                  {tecnico.area}
-                </span>
-                <p className="fw-bold text-success">{tecnico.precio}</p>
-              </div>
-              <div className="card-footer bg-white border-0 pb-3 text-center">
-                
-                {/* AQUÍ ESTÁ EL BOTÓN QUE TE LLEVA AL PERFIL */}
-                <button 
-                  onClick={() => navigate('/perfil')} 
-                  className="btn btn-outline-success w-100"
-                >
-                  Ver Perfil
-                </button>
+      {selectedArea !== 'Todos' && (
+        <div className="alert alert-success d-flex justify-content-between align-items-center">
+          <span>
+            Mostrando resultados para el área: <strong>{selectedArea}</strong>
+          </span>
+          <Link to="/buscar" className="btn btn-sm btn-outline-success">
+            Ver todas las áreas
+          </Link>
+        </div>
+      )}
 
-              </div>
+      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-2">
+        {listaMostrada.length > 0 ? (
+          listaMostrada.map((especialista) => (
+            <div className="col" key={especialista.id}>
+              <ServiceCard 
+                nombre={especialista.nombre}
+                profesion={especialista.profesion}
+                area={especialista.area}
+                precio={especialista.precio}
+              />
             </div>
+          ))
+        ) : (
+          <div className="col-12">
+            <div className="alert alert-warning">No se encontraron especialistas para esa búsqueda.</div>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
 };
+
+export default SearchView;
