@@ -51,8 +51,8 @@ const AdminSidebar = () => {
 
       <div className="sidebar-footer">
         <div className={`user-info ${isCollapsed ? 'hidden' : ''}`}>
-          <p className="user-name">Admin</p>
-          <p className="user-role">Administrator</p>
+          <p className="user-name">AdminGenerico</p>
+          <p className="user-role">Administrador</p>
         </div>
         <button className="btn-logout" onClick={handleLogout}>
           {isCollapsed ? '🚪' : 'Cerrar sesión'}

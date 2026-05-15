@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AdminTable from '../ui/AdminTable';
 import FilterPanel from '../ui/FilterPanel';
 import UsuarioDetalleModal from './UsuarioDetalleModal';
+import { listarUsuarios } from '../../serviceFront/adminService';
 
 const AdminUsuariosView = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -13,49 +14,26 @@ const AdminUsuariosView = () => {
     cargarUsuarios();
   }, []);
 
-  const cargarUsuarios = async () => {
-    try {
-      setLoading(true);
-      // TODO: Conectar con endpoint /admin/usuarios cuando esté disponible
-      // Por ahora, datos de ejemplo
-      const usuariosEjemplo = [
-        {
-          idUsuario: 1,
-          rut: '12345678-9',
-          nombre: 'Juan',
-          apellido: 'Pérez',
-          correo: 'juan@servigo.cl',
-          telefono: '912345678',
-          rol: 'CLIENTE',
-          estado: 'activo',
-          region: 'Metropolitana',
-          comuna: 'Santiago',
-          correoValidado: true,
-          fechaRegistro: new Date()
-        },
-        {
-          idUsuario: 2,
-          rut: '87654321-0',
-          nombre: 'María',
-          apellido: 'González',
-          correo: 'maria@servigo.cl',
-          telefono: '987654321',
-          rol: 'PRESTADOR',
-          estado: 'bloqueado',
-          region: 'Metropolitana',
-          comuna: 'Providencia',
-          correoValidado: true,
-          fechaRegistro: new Date()
-        }
-      ];
-      setUsuarios(usuariosEjemplo);
-      setUsuariosFiltrados(usuariosEjemplo);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+const [error, setError] = useState(null);
+
+const cargarUsuarios = async () => {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const data = await listarUsuarios();
+    console.log('Usuarios cargados:', data);
+    setUsuarios(data);
+    setUsuariosFiltrados(data);
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error);
+    setError(error.message || 'Error al cargar usuarios');
+    setUsuarios([]);
+    setUsuariosFiltrados([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const columns = [
     { key: 'nombre', label: 'Nombre' },
@@ -87,6 +65,7 @@ const AdminUsuariosView = () => {
     <div className="admin-usuarios">
       <h1>Gestión de Usuarios</h1>
       
+      {error && <div className="alert alert-danger">{error}</div>}
       <FilterPanel 
         columns={columns}
         onApplyFilter={handleFilterApply}

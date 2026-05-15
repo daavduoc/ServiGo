@@ -60,6 +60,16 @@ export const desactivarUsuario = async (id, motivo) => {
   });
 };
 
+export const listarUsuarios = async (page = 0, size = 100, rol = '', estado = '') => {
+  let url = `${API_BASE_URL}/admin/usuarios?page=${page}&size=${size}`;
+  if (rol) url += `&rol=${rol}`;
+  if (estado) url += `&estado=${estado}`;
+
+  return fetchRequest(url, {
+    method: 'GET'
+  });
+};
+
 // ========================
 // PRESTADORES (VALIDACIÓN ADMIN)
 // ========================
