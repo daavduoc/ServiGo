@@ -1,6 +1,6 @@
 package com.servigo.servigo.controller;
 
-import com.servigo.servigo.entity.Certificacion;
+import com.servigo.servigo.dto.CertificacionResponseDTO;
 import com.servigo.servigo.service.CertificacionService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,17 +20,17 @@ public class CertificacionController {
     }
 
     @GetMapping
-    public List<Certificacion> listarCertificaciones() {
+    public List<CertificacionResponseDTO> listarCertificaciones() {
         return certificacionService.listarCertificaciones();
     }
 
     @GetMapping("/{id}")
-    public Certificacion obtenerCertificacion(@PathVariable Long id) {
+    public CertificacionResponseDTO obtenerCertificacion(@PathVariable Long id) {
         return certificacionService.obtenerCertificacionPorId(id);
     }
 
     @GetMapping("/prestador/{idPrestador}")
-    public List<Certificacion> listarPorPrestador(@PathVariable Long idPrestador) {
+    public List<CertificacionResponseDTO> listarPorPrestador(@PathVariable Long idPrestador) {
         return certificacionService.listarPorPrestador(idPrestador);
     }
 
@@ -38,7 +38,7 @@ public class CertificacionController {
             value = "/upload/{idPrestador}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public Certificacion subirCertificacion(
+    public CertificacionResponseDTO subirCertificacion(
             @PathVariable Long idPrestador,
             @RequestParam("nombreDocumento") String nombreDocumento,
             @RequestParam("file") MultipartFile file
@@ -52,7 +52,7 @@ public class CertificacionController {
     }
 
     @PutMapping("/{id}/estado")
-    public Certificacion actualizarEstado(
+    public CertificacionResponseDTO actualizarEstado(
             @PathVariable Long id,
             @RequestParam String estado
     ) {

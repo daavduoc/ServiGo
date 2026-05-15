@@ -63,4 +63,9 @@ public class PrestadorService {
     public void eliminarPrestador(Long id) {
         prestadorRepository.deleteById(id);
     }
+
+
+    public List<Prestador> listarPorCategoria(String categoria) {
+        return prestadorRepository.findByCategoriaPrestadorNombreIgnoreCase(categoria);
+    }
 }

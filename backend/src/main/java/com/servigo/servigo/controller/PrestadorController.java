@@ -21,7 +21,13 @@ public class PrestadorController {
     // GET: Listar todos los prestadores
     // URL: http://localhost:8080/prestadores
     @GetMapping
-    public List<Prestador> listarPrestadores() {
+    public List<Prestador> listarPrestadores(
+            @RequestParam(required = false) String categoria
+    ) {
+        if (categoria != null && !categoria.isBlank()) {
+            return prestadorService.listarPorCategoria(categoria);
+        }
+
         return prestadorService.listarPrestadores();
     }
 

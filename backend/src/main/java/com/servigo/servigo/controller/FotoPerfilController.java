@@ -1,13 +1,14 @@
 package com.servigo.servigo.controller;
 
+import com.servigo.servigo.dto.FotoPerfilResponseDTO;
 import com.servigo.servigo.entity.FotoPerfil;
 import com.servigo.servigo.service.FotoPerfilService;
-import org.springframework.web.bind.annotation.*;
+
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-
 import java.util.List;
 
 // Controlador REST para gestionar fotos de perfil
@@ -24,45 +25,58 @@ public class FotoPerfilController {
     // GET: listar fotos de perfil
     // URL: http://localhost:8080/fotos-perfil
     @GetMapping
-    public List<FotoPerfil> listarFotos() {
+    public List<FotoPerfilResponseDTO> listarFotos() {
+
         return fotoPerfilService.listarFotos();
     }
 
     // GET: obtener foto por ID
     // URL: http://localhost:8080/fotos-perfil/{id}
     @GetMapping("/{id}")
-    public FotoPerfil obtenerFoto(@PathVariable Long id) {
+    public FotoPerfilResponseDTO obtenerFoto(@PathVariable Long id) {
+
         return fotoPerfilService.obtenerFotoPorId(id);
     }
 
     // POST: crear foto de perfil
     // URL: http://localhost:8080/fotos-perfil
     @PostMapping
-    public FotoPerfil crearFoto(@RequestBody FotoPerfil fotoPerfil) {
+    public FotoPerfilResponseDTO crearFoto(
+            @RequestBody FotoPerfil fotoPerfil
+    ) {
+
         return fotoPerfilService.crearFoto(fotoPerfil);
     }
 
     // PUT: actualizar foto de perfil
     // URL: http://localhost:8080/fotos-perfil/{id}
     @PutMapping("/{id}")
-    public FotoPerfil actualizarFoto(@PathVariable Long id, @RequestBody FotoPerfil fotoActualizada) {
-        return fotoPerfilService.actualizarFoto(id, fotoActualizada);
+    public FotoPerfilResponseDTO actualizarFoto(
+            @PathVariable Long id,
+            @RequestBody FotoPerfil fotoActualizada
+    ) {
+
+        return fotoPerfilService.actualizarFoto(
+                id,
+                fotoActualizada
+        );
     }
 
     // DELETE: eliminar foto de perfil
     // URL: http://localhost:8080/fotos-perfil/{id}
     @DeleteMapping("/{id}")
     public void eliminarFoto(@PathVariable Long id) {
+
         fotoPerfilService.eliminarFoto(id);
     }
 
     // POST: subir foto perfil a Cloudinary
-// URL: http://localhost:8080/fotos-perfil/upload/{idUsuario}
+    // URL: http://localhost:8080/fotos-perfil/upload/{idUsuario}
     @PostMapping(
             value = "/upload/{idUsuario}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public FotoPerfil subirFotoPerfil(
+    public FotoPerfilResponseDTO subirFotoPerfil(
             @PathVariable Long idUsuario,
             @RequestParam("file") MultipartFile file
     ) throws IOException {

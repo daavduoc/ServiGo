@@ -1,5 +1,6 @@
 package com.servigo.servigo.service;
 
+import com.servigo.servigo.dto.FotoPerfilResponseDTO;
 import com.servigo.servigo.entity.FotoPerfil;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.repository.FotoPerfilRepository;
@@ -28,15 +29,21 @@ public class FotoPerfilService {
         this.cloudinaryService = cloudinaryService;
     }
 
-    public List<FotoPerfil> listarFotos() {
-        return fotoPerfilRepository.findAll();
+    public List<FotoPerfilResponseDTO> listarFotos() {
+        return fotoPerfilRepository.findAll()
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
-    public FotoPerfil obtenerFotoPorId(Long id) {
-        return fotoPerfilRepository.findById(id).orElse(null);
+    public FotoPerfilResponseDTO obtenerFotoPorId(Long id) {
+        FotoPerfil fotoPerfil = fotoPerfilRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Foto de perfil no encontrada"));
+
+        return convertirDTO(fotoPerfil);
     }
 
-    public FotoPerfil subirFotoPerfil(Long idUsuario, MultipartFile file) throws IOException {
+    public FotoPerfilResponseDTO subirFotoPerfil(Long idUsuario, MultipartFile file) throws IOException {
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -54,7 +61,8 @@ public class FotoPerfilService {
             fotoExistente.setUrlFotoCloud(url);
             fotoExistente.setPublicId(publicId);
 
-            return fotoPerfilRepository.save(fotoExistente);
+            FotoPerfil fotoActualizada = fotoPerfilRepository.save(fotoExistente);
+            return convertirDTO(fotoActualizada);
         }
 
         FotoPerfil fotoPerfil = new FotoPerfil();
@@ -62,28 +70,43 @@ public class FotoPerfilService {
         fotoPerfil.setUrlFotoCloud(url);
         fotoPerfil.setPublicId(publicId);
 
-        return fotoPerfilRepository.save(fotoPerfil);
+        FotoPerfil fotoGuardada = fotoPerfilRepository.save(fotoPerfil);
+        return convertirDTO(fotoGuardada);
     }
 
-    public FotoPerfil crearFoto(FotoPerfil fotoPerfil) {
-        return fotoPerfilRepository.save(fotoPerfil);
+    public FotoPerfilResponseDTO crearFoto(FotoPerfil fotoPerfil) {
+        FotoPerfil fotoGuardada = fotoPerfilRepository.save(fotoPerfil);
+        return convertirDTO(fotoGuardada);
     }
 
-    public FotoPerfil actualizarFoto(Long id, FotoPerfil fotoActualizada) {
-        FotoPerfil foto = fotoPerfilRepository.findById(id).orElse(null);
+    public FotoPerfilResponseDTO actualizarFoto(Long id, FotoPerfil fotoActualizada) {
+        FotoPerfil foto = fotoPerfilRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Foto de perfil no encontrada"));
 
-        if (foto != null) {
-            foto.setUrlFotoCloud(fotoActualizada.getUrlFotoCloud());
-            foto.setPublicId(fotoActualizada.getPublicId());
-            foto.setUsuario(fotoActualizada.getUsuario());
+        foto.setUrlFotoCloud(fotoActualizada.getUrlFotoCloud());
+        foto.setPublicId(fotoActualizada.getPublicId());
+        foto.setUsuario(fotoActualizada.getUsuario());
 
-            return fotoPerfilRepository.save(foto);
-        }
+        FotoPerfil fotoGuardada = fotoPerfilRepository.save(foto);
 
-        return null;
+        return convertirDTO(fotoGuardada);
     }
 
     public void eliminarFoto(Long id) {
         fotoPerfilRepository.deleteById(id);
+    }
+
+    private FotoPerfilResponseDTO convertirDTO(FotoPerfil fotoPerfil) {
+        FotoPerfilResponseDTO dto = new FotoPerfilResponseDTO();
+
+        dto.setIdFoto(fotoPerfil.getIdFoto());
+        dto.setUrlFotoCloud(fotoPerfil.getUrlFotoCloud());
+        dto.setPublicId(fotoPerfil.getPublicId());
+
+        if (fotoPerfil.getUsuario() != null) {
+            dto.setIdUsuario(fotoPerfil.getUsuario().getIdUsuario());
+        }
+
+        return dto;
     }
 }

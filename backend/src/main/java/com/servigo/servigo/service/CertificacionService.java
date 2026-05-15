@@ -1,12 +1,12 @@
 package com.servigo.servigo.service;
 
+import com.servigo.servigo.dto.CertificacionResponseDTO;
 import com.servigo.servigo.entity.Certificacion;
 import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.repository.CertificacionRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,19 +30,28 @@ public class CertificacionService {
         this.cloudinaryService = cloudinaryService;
     }
 
-    public List<Certificacion> listarCertificaciones() {
-        return certificacionRepository.findAll();
+    public List<CertificacionResponseDTO> listarCertificaciones() {
+        return certificacionRepository.findAll()
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
-    public List<Certificacion> listarPorPrestador(Long idPrestador) {
-        return certificacionRepository.findByPrestadorIdPrestador(idPrestador);
+    public List<CertificacionResponseDTO> listarPorPrestador(Long idPrestador) {
+        return certificacionRepository.findByPrestadorIdPrestador(idPrestador)
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
-    public Certificacion obtenerCertificacionPorId(Long id) {
-        return certificacionRepository.findById(id).orElse(null);
+    public CertificacionResponseDTO obtenerCertificacionPorId(Long id) {
+        Certificacion certificacion = certificacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Certificación no encontrada"));
+
+        return convertirDTO(certificacion);
     }
 
-    public Certificacion subirCertificacion(
+    public CertificacionResponseDTO subirCertificacion(
             Long idPrestador,
             String nombreDocumento,
             MultipartFile file
@@ -64,19 +73,48 @@ public class CertificacionService {
         certificacion.setEstado("pendiente");
         certificacion.setFechaSubida(LocalDateTime.now());
 
-        return certificacionRepository.save(certificacion);
+        Certificacion guardada = certificacionRepository.save(certificacion);
+
+        return convertirDTO(guardada);
     }
 
-    public Certificacion actualizarEstado(Long id, String estado) {
+    public CertificacionResponseDTO actualizarEstado(Long id, String estado) {
+
+        if (!estado.equalsIgnoreCase("pendiente")
+                && !estado.equalsIgnoreCase("validado")
+                && !estado.equalsIgnoreCase("rechazado")) {
+            throw new RuntimeException("Estado de certificación inválido");
+        }
+
         Certificacion certificacion = certificacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Certificación no encontrada"));
 
-        certificacion.setEstado(estado);
+        certificacion.setEstado(estado.toLowerCase());
 
-        return certificacionRepository.save(certificacion);
+        Certificacion actualizada = certificacionRepository.save(certificacion);
+
+        return convertirDTO(actualizada);
     }
 
     public void eliminarCertificacion(Long id) {
         certificacionRepository.deleteById(id);
+    }
+
+    private CertificacionResponseDTO convertirDTO(Certificacion certificacion) {
+
+        CertificacionResponseDTO dto = new CertificacionResponseDTO();
+
+        dto.setIdCertificacion(certificacion.getIdCertificacion());
+        dto.setNombreDocumento(certificacion.getNombreDocumento());
+        dto.setUrlDocumento(certificacion.getUrlDocumento());
+        dto.setPublicId(certificacion.getPublicId());
+        dto.setEstado(certificacion.getEstado());
+        dto.setFechaSubida(certificacion.getFechaSubida());
+
+        if (certificacion.getPrestador() != null) {
+            dto.setIdPrestador(certificacion.getPrestador().getIdPrestador());
+        }
+
+        return dto;
     }
 }
