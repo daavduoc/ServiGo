@@ -3,6 +3,7 @@ package com.servigo.servigo.controller;
 import com.servigo.servigo.dto.AdminDashboardStatsDTO;
 import com.servigo.servigo.dto.AdminPrestadorValidacionDTO;
 import com.servigo.servigo.dto.AdminAuditoriaDTO;
+import com.servigo.servigo.dto.AdminUsuarioDTO;
 import com.servigo.servigo.entity.Certificacion;
 import com.servigo.servigo.service.AdminService;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,24 @@ public class AdminController {
     // ========================
     // 2-4. CONTROL DE USUARIOS (ESPECÍFICO ADMIN)
     // ========================
+
+    @GetMapping("/usuarios")
+    public ResponseEntity<List<AdminUsuarioDTO>> listarUsuarios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String rol,
+            @RequestParam(required = false) String estado,
+            Authentication authentication) {
+        log.info("Admin {} consultó listado de usuarios - rol: {}, estado: {}", 
+                 authentication.getName(), rol, estado);
+        try {
+            List<AdminUsuarioDTO> usuarios = adminService.listarUsuariosCompleto(page, size, rol, estado);
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            log.error("Error al listar usuarios", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @PutMapping("/control-usuarios/{id}/bloquear")
     public ResponseEntity<?> bloquearUsuario(
