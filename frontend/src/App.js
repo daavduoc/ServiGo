@@ -22,6 +22,15 @@ import { ProviderDashboard } from './components/view/ProviderDashboard';
 
 
 import { ClientLayout } from './components/ui/ClientLayout';
+// Importamos el layout y vistas del admin
+import AdminLayout from './components/layout/AdminLayout';
+import AdminDashboard from './components/view/AdminDashboard';
+import AdminUsuariosView from './components/view/AdminUsuariosView';
+import AdminPrestadoresView from './components/view/AdminPrestadoresView';
+import AdminServiciosView from './components/view/AdminServiciosView';
+import AdminSolicitudesView from './components/view/AdminSolicitudesView';
+import AdminReportesView from './components/view/AdminReportesView';
+import AdminAuditoriaView from './components/view/AdminAuditoriaView';
 
 
 function App() {
@@ -56,6 +65,16 @@ function App() {
                 <Route path="/dashboard-cliente" element={<ClientDashboard />} />
                 <Route path="/perfil" element={<ProfileView />} />
                 <Route path="/mis-reservas" element={<h2>Mis Horas y Reservas</h2>} />
+              </Route>
+              {/* Rutas para administrador */}
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/usuarios" element={<AdminUsuariosView />} />
+                <Route path="/admin/prestadores" element={<AdminPrestadoresView />} />
+                <Route path="/admin/servicios" element={<AdminServiciosView />} />
+                <Route path="/admin/solicitudes" element={<AdminSolicitudesView />} />
+                <Route path="/admin/reportes" element={<AdminReportesView />} />
+                <Route path="/admin/auditoria" element={<AdminAuditoriaView />} />
               </Route>
           
           </Routes>
