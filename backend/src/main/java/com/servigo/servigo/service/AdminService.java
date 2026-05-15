@@ -3,7 +3,6 @@ package com.servigo.servigo.service;
 import com.servigo.servigo.dto.*;
 import com.servigo.servigo.entity.*;
 import com.servigo.servigo.repository.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +11,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 @Transactional
 public class AdminService {
 
