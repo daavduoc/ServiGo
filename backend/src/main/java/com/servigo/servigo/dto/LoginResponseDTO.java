@@ -6,7 +6,11 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LoginResponseDTO {
+
     private String token;
+    private Long idUsuario;
+    private String nombre;
+    private String apellido;
     private String correo;
     private String rol;
 }

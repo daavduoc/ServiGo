@@ -99,7 +99,23 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setRut(dto.getRut());
         usuario.setNombre(dto.getNombre());
-        usuario.setApellido(dto.getApellido());
+
+        if (!("PRESTADOR".equals(tipoUsuario)
+                && "empresa".equalsIgnoreCase(dto.getTipoPrestador()))
+                && (dto.getApellido() == null || dto.getApellido().isBlank())) {
+
+            throw new RuntimeException("El apellido es obligatorio");
+        }
+
+        if ("PRESTADOR".equals(tipoUsuario)
+                && "empresa".equalsIgnoreCase(dto.getTipoPrestador())) {
+
+            usuario.setApellido("-");
+
+        } else {
+
+            usuario.setApellido(dto.getApellido());
+        }
         usuario.setCorreo(dto.getCorreo());
         usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
         usuario.setTelefono(dto.getTelefono());

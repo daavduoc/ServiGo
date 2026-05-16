@@ -51,6 +51,9 @@ public class AuthService {
 
         return new LoginResponseDTO(
                 token,
+                usuario.getIdUsuario(),
+                usuario.getNombre(),
+                usuario.getApellido(),
                 usuario.getCorreo(),
                 usuario.getRol().getNombre()
         );

@@ -3,7 +3,8 @@ package com.servigo.servigo.config;
 import com.servigo.servigo.jwt.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // <-- Cambiado
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,14 +29,23 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+                // Public endpoints (no auth required)
                 .requestMatchers(
-                    "/auth/**", 
+                    "/auth/**",
                     "/usuarios/registro",
+                    "/usuarios/registro-con-foto",
+                    "/cloudinary/upload",
                     "/swagger-ui/**",
                     "/v3/api-docs/**"
                 ).permitAll()
+                // Public GET browsing
+                .requestMatchers(HttpMethod.GET, "/prestadores/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/servicios/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/especialidades/**").permitAll()
+                // Admin only
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated() // Cambiado de permitAll a authenticated por seguridad
+                // Everything else requires authentication
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -4,7 +4,6 @@ import com.servigo.servigo.dto.ServicioDTO;
 import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.service.ServicioService;
 import org.springframework.web.bind.annotation.*;
-import com.servigo.servigo.dto.ServicioDTO;
 import java.util.List;
 
 // Indica que esta clase es un controlador REST (API)

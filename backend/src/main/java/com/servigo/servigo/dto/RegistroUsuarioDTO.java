@@ -15,7 +15,6 @@ public class RegistroUsuarioDTO {
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
-    @NotBlank(message = "El apellido es obligatorio")
     private String apellido;
 
     @Email(message = "Correo inválido")
