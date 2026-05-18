@@ -11,6 +11,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import { HomeView } from './components/view/HomeView';
 import { SearchView } from './components/view/SearchView';
 import { ProfileView } from './components/view/ProfileView';
+import SupportView from './components/view/SupportView';
 
 // 3. Importamos el Registro Modular
 import { RegisterSelectionView } from './components/view/auth/RegisterSelectionView';
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/dashboard-cliente" element={<ClientDashboard />} />
                 <Route path="/perfil" element={<ProfileView />} />
                 <Route path="/mis-reservas" element={<h2>Mis Horas y Reservas</h2>} />
+                <Route path="/soporte" element={<SupportView />} />
               </Route>
               {/* Rutas para administrador */}
               <Route element={<AdminLayout />}>

@@ -38,6 +38,11 @@ export const Sidebar = ({ usuario }) => {
             🔍 Explorar Plataforma
           </Link>
         </li>
+        <li className="nav-item mb-2">
+          <Link to="/soporte" className="nav-link link-dark">
+            🛠️ Centro de Ayuda y Soporte
+          </Link>
+        </li>
       </ul>
       
       <hr />
