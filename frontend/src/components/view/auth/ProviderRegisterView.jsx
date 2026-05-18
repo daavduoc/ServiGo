@@ -81,7 +81,13 @@ export const ProviderRegisterView = () => {
                 latitud: formData.latitud,
                 longitud: formData.longitud,
                 tipoUsuario: "PRESTADOR",
-                fotoUrl: urlFotoCloudinary // URL obtenida de Cloudinary
+                fotoUrl: urlFotoCloudinary, // URL obtenida de Cloudinary
+                
+                // Ajustes solicitados para prestador/empresa
+                idCategoria: formData.tipoPrestador === 'empresa' ? 2 : 1,
+                // El backend autogenera idEmpresa (es autoincremental)
+                idEmpresa: null, 
+                direccionLocal: formData.direccion
             };
 
             await registrarUsuario(dataParaBackend);

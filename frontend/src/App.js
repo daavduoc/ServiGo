@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// manejo de auth y mantiene la secion activa 
+// Maneja la sesion del usuario
 import { AuthProvider } from './context/AuthContext';
 
 // 1. Importamos tu nuevo Layout (El sándwich)
@@ -20,6 +20,10 @@ import { RegisterSelectionView } from './components/view/auth/RegisterSelectionV
 import { ClientRegisterView } from './components/view/auth/ClientRegisterView';
 import { ProviderRegisterView } from './components/view/auth/ProviderRegisterView';
 
+// 4. Importamos la vista para recuperar contraseña
+import { RecoverPasswordView } from './components/view/auth/RecoverPasswordView';
+
+// --- VISTAS DE USUARIOS ---
 import { ClientDashboard } from './components/view/ClientDashboard';
 import { ProviderDashboard } from './components/view/ProviderDashboard';
 
@@ -66,6 +70,12 @@ function App() {
                   (Aquí NO se muestra el Sidebar del cliente)
                   ========================================= */}
             <Route path="/" element={<HomeView />} />
+
+            {/* --- LOGIN Y RECUPERACIÓN --- */}
+            {/* <Route path="/login" element={<LoginView />} /> - IMPORTANTE: LoginView no está definido. Comentado para evitar crasheo */}
+            <Route path="/recuperar-password" element={<RecoverPasswordView />} />
+
+            {/* --- REGISTRO MODULAR --- */}
             <Route path="/registro" element={<RegisterSelectionView />} />
             <Route path="/registro/cliente" element={<ClientRegisterView />} />
             <Route path="/registro/prestador" element={<ProviderRegisterView />} />
