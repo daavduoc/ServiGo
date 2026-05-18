@@ -6,16 +6,37 @@ import { ButtonCustom } from './ButtonCustom';
 export const FormActions = ({ onCancel, onSave }) => {
   return (
     <div className="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
-      <ButtonCustom 
-        texto="Cancelar" 
-        color="light" 
-        className="border-dark px-4 w-auto" 
+      <ButtonCustom
+        texto="Cancelar"
+        color="light"
+        className="border-dark px-4 w-auto"
         onClick={onCancel}
       />
-      <ButtonCustom 
-        texto="Registrar" 
-        color="primary" 
-        className="px-5 shadow w-auto" 
+      <ButtonCustom
+        texto="Registrar"
+        color="primary"
+        className="px-5 shadow w-auto"
+        tipo="submit"
+        onClick={onSave}
+      />
+    </div>
+  );
+};
+
+// boton de aceptar generico para los modales
+export const FormActionsGeneric = ({ onCancel, onSave, textoSubmit = "Aceptar" }) => {
+  return (
+    <div className="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
+      <ButtonCustom
+        texto="Cancelar"
+        color="light"
+        className="border-dark px-4 w-auto"
+        onClick={onCancel}
+      />
+      <ButtonCustom
+        texto={textoSubmit}
+        color="primary"
+        className="px-5 shadow w-auto"
         tipo="submit"
         onClick={onSave}
       />

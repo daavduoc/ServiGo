@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CardContainer, FormActions } from '../../ui';
+// 1. IMPORTANTE: Cambiamos FormActions por FormActionsGeneric
+import { CardContainer, FormActionsGeneric } from '../../ui';
 import { recoverPassword } from '../../../serviceFront/authService';
 
 export const RecoverPasswordView = () => {
@@ -20,13 +21,11 @@ export const RecoverPasswordView = () => {
         setMensaje(null);
 
         try {
-            // El backend espera un objeto con el correo
             const emailData = { correo: correo };
             const respuesta = await recoverPassword(emailData);
 
-            // Si todo sale bien, mostramos el mensaje de éxito
             setMensaje(respuesta || 'Se han enviado las instrucciones a tu correo.');
-            setCorreo(''); // Limpiamos el campo
+            setCorreo('');
 
         } catch (err) {
             setError(err.message || 'Error al solicitar la recuperación. Verifica el correo e intenta de nuevo.');
@@ -57,14 +56,14 @@ export const RecoverPasswordView = () => {
                         />
                     </div>
 
-                    {/* Alertas de Error o Éxito */}
                     {error && <div className="alert alert-danger fw-bold">{error}</div>}
                     {mensaje && <div className="alert alert-success fw-bold">{mensaje}</div>}
 
-                    <FormActions
+                    {/* 2. CORRECCIÓN: Invocamos FormActionsGeneric usando 'textoSubmit' y 'disabled' */}
+                    <FormActionsGeneric
                         onCancel={() => window.history.back()}
-                        submitLabel={isLoading ? "Enviando..." : "Enviar Instrucciones"}
-                        submitDisabled={isLoading}
+                        textoSubmit={isLoading ? "Enviando..." : "Aceptar"}
+                        disabled={isLoading}
                     />
                 </form>
             </div>
