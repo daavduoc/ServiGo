@@ -1,69 +1,63 @@
-import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-// 1. Importamos el nuevo módulo de botones
-import { AuthButtons } from "../ui/AuthButtons";
-import { useNavigate, Link } from 'react-router-dom';
-import logoServigo from '../../assets/img/Logo-final.png';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const NavbarInicio = () => {
-  const [busqueda, setBusqueda] = useState('');
-  const navigate = useNavigate();
-  const handleBuscar = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (busqueda.trim()) {
-      params.set('query', busqueda.trim());
-    }
-    navigate(`/buscar?${params.toString()}`);
-  };
-
+const Navbar = () => {
   return (
-    <nav className="navbar" style={{ height: "80px", overflow: "visible", backgroundColor: "#FFFFFF" }}>
-      <div className="container-fluid h-100 d-flex align-items-center">
-        
-        {/* Izquierda: Logo */}
-        <div className="d-flex align-items-center" style={{ flex: 1 }}>
-          <Link className="navbar-brand fw-bold fs-1" to="/" style={{ color: '#4AD990' }}>
-            <img 
-              src={logoServigo} 
-              alt="Logo ServiGo" 
-              height="75" 
-              className="d-inline-block align-top"
-            />
-          </Link>
-        </div>
+    <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-3">
+      <div className="container">
+        {/* LOGO */}
+        <Link className="navbar-brand fw-bold fs-3 text-success" to="/">
+          Servi<span className="text-dark">Go</span>
+        </Link>
 
-        {/* Centro: Buscador */}
-        <div className="d-flex justify-content-center" style={{ flex: 1 }}>
-          <form 
-            className="d-flex align-items-center w-100" 
-            role="search" 
-            style={{ maxWidth: "460px" }}
-            onSubmit={handleBuscar}
-          >
-            <input 
-              className="form-control me-2" 
-              type="search" 
-              placeholder="buscar servicio" 
-              aria-label="Search" 
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-            <button className="btn btn-outline-success" type="submit">
-              Buscar
-            </button>
-          </form>
-        </div>
+        {/* BOTÓN PARA MÓVILES */}
+        <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-bs-target="#navbarNav">
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-        {/* Derecha: Botones Modulares */}
-        {/* Le agregamos justify-content-end para que los botones se peguen a la derecha */}
-        <div className="d-flex justify-content-end align-items-center" style={{ flex: 1 }}>
-          <AuthButtons />
-        </div>
+        {/* ENLACES Y MENÚ DE USUARIO */}
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+            <li className="nav-item">
+              <Link className="nav-link fw-medium text-dark hover-success" to="/">Inicio</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link fw-medium text-dark hover-success" to="/buscar">Explorar Servicios</Link>
+            </li>
+          </ul>
 
+          <div className="d-flex align-items-center gap-3">
+            {/* Botón para captar trabajadores (Llamado a la acción) */}
+            <Link to="/registro/prestador" className="text-success fw-bold text-decoration-none small d-none d-lg-block">
+              Únete como Especialista
+            </Link>
+            
+            <div className="vr d-none d-lg-block mx-2 text-muted"></div>
+
+            {/* Menú Desplegable del Usuario */}
+            <div className="dropdown">
+              <button 
+                className="btn btn-light rounded-pill px-3 py-2 border d-flex align-items-center gap-2" 
+                type="button" 
+                data-bs-toggle="dropdown" 
+                aria-expanded="false"
+              >
+                <div className="bg-success text-white rounded-circle d-flex justify-content-center align-items-center" style={{ width: '28px', height: '28px', fontSize: '12px' }}>
+                  NC
+                </div>
+                <span className="fw-medium small">Nicole Chávez</span>
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                <li><Link className="dropdown-item py-2 small" to="/dashboard-cliente">Panel de Cliente</Link></li>
+                <li><Link className="dropdown-item py-2 small" to="/perfil">Configurar Perfil</Link></li>
+                <li><hr className="dropdown-divider" /></li>
+                <li><button className="dropdown-item py-2 small text-danger">Cerrar Sesión</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </nav>
   );
 };
-
-export default NavbarInicio;
+export default Navbar;

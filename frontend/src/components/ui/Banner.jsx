@@ -1,76 +1,87 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import bannerMedico from '../../assets/img/banner-medico.png';
-import bannerTecnico from '../../assets/img/banner-tecnico.png';
 
-export const Banner = () => {
+// Mantenemos las rutas perfectas a las imágenes
+import imgTecnica from '../../assets/img/banner-medico.png';
+import imgSalud from '../../assets/img/banner-tecnico.png';
+
+const BannerInicio = () => {
   return (
-    <div id="heroCarousel" className="carousel slide shadow-sm rounded mb-4 position-relative" data-bs-ride="carousel" data-bs-interval="3000">
+    <div className="bg-light pb-5">
+      <div id="heroCarousel" className="carousel slide" data-bs-ride="carousel">
+        
+        <div className="carousel-indicators">
+          <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" className="active"></button>
+          <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        </div>
 
-      {/* Indicadores */}
-      <div className="carousel-indicators">
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-      </div>
-
-      <div className="carousel-inner rounded">
-
-        {/* Diapositiva 1: Área de Salud */}
-        <div className="carousel-item active">
-          <img src={bannerMedico} className="d-block w-100" alt="Área de Salud ServiGo" style={{ objectFit: 'cover', height: '400px' }} />
-          <div className="carousel-caption d-none d-md-flex flex-column justify-content-center h-100" style={{ top: 0, left: '8%', width: '40%', textAlign: 'left', zIndex: 10 }}>
-            <h1 className="fw-bold text-dark display-5">Salud y Bienestar a Domicilio</h1>
-            <p className="fs-5 text-dark mt-3">Profesionales listos para atenderte.</p>
-            <div>
-              {/* Usamos Link combinado con los z-index que habíamos configurado */}
-              <Link to="/buscar?area=Salud" className="btn btn-success btn-lg fw-bold mt-3 shadow position-relative" style={{ zIndex: 20 }}>
-                Buscar Especialista
+        <div className="carousel-inner" style={{ height: '500px' }}>
+          
+          {/* SLIDE 1: GASFITERÍA Y TÉCNICOS */}
+          <div className="carousel-item active h-100">
+            <img 
+              src={imgTecnica} 
+              className="d-block w-100 h-100" 
+              style={{ objectFit: 'cover' }} 
+              alt="Herramientas" 
+            />
+            {/* Opacidad clara al 35% */}
+            <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark" style={{ opacity: '0.35' }}></div>
+            
+            <div className="carousel-caption d-flex flex-column h-100 justify-content-center align-items-center pb-5">
+              {/* 🔽 CAMBIO 1: Eliminamos la etiqueta (badge) de aquí 🔽 */}
+              
+              <h1 className="display-4 fw-bold text-white mb-3 shadow-sm" style={{ maxWidth: '800px' }}>
+               Tu salud no espera, y nosotros estamos preparados para atenderte hoy mismo.
+              </h1>
+              
+              {/* Botón verde (btn-success) */}
+              <Link to="/buscar?area=Técnica" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                Encuentra tu Especialista
               </Link>
             </div>
           </div>
-        </div>
 
-        {/* Diapositiva 2: Área Técnica */}
-        <div className="carousel-item">
-          <img src={bannerTecnico} className="d-block w-100" alt="Área Técnica ServiGo" style={{ objectFit: 'cover', height: '400px' }} />
-          <div className="carousel-caption d-none d-md-flex flex-column justify-content-center h-100" style={{ top: 0, left: '8%', width: '40%', textAlign: 'left', zIndex: 10 }}>
-            <h1 className="fw-bold text-dark display-5">Soluciones Rápidas para tu Hogar</h1>
-            <p className="fs-5 text-dark mt-3">Gasfíteres, electricistas y más, garantizados.</p>
-            <div>
-              <Link to="/buscar?area=Técnica" className="btn btn-success btn-lg fw-bold mt-3 shadow position-relative" style={{ zIndex: 20 }}>
-                Pedir Servicio
+          {/* SLIDE 2: SALUD Y BIENESTAR */}
+          <div className="carousel-item h-100">
+            <img 
+              src={imgSalud} 
+              className="d-block w-100 h-100" 
+              style={{ objectFit: 'cover' }} 
+              alt="Salud" 
+            />
+            {/* Misma opacidad */}
+            <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark" style={{ opacity: '0.35' }}></div>
+            
+            <div className="carousel-caption d-flex flex-column h-100 justify-content-center align-items-center pb-5">
+              {/* 🔽 CAMBIO 2: Eliminamos la etiqueta "Área Salud" de aquí 🔽 */}
+              
+              <h1 className="display-4 fw-bold text-white mb-3 shadow-sm" style={{ maxWidth: '800px' }}>
+                Servicio tecnico a domicilio, sin complicaciones ni esperas.
+              </h1>
+              <p className="fs-5 text-light mb-4" style={{ maxWidth: '600px' }}>
+               
+              </p>
+              {/* 🔽 CAMBIO 3: Botón cambiado a Verde (btn-success) 🔽 */}
+              <Link to="/buscar?area=Salud" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                Agendar Atención tecnica
               </Link>
             </div>
           </div>
+
         </div>
 
+        <button className="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span className="visually-hidden">Anterior</span>
+        </button>
+        <button className="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+          <span className="visually-hidden">Siguiente</span>
+        </button>
       </div>
-
-      {/* CONTROLES MODIFICADOS: Ancho reducido para no tapar los botones */}
-      <button
-        className="carousel-control-prev"
-        type="button"
-        data-bs-target="#heroCarousel"
-        data-bs-slide="prev"
-        style={{ width: '5%' }}
-      >
-        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span className="visually-hidden">Previous</span>
-      </button>
-
-      <button
-        className="carousel-control-next"
-        type="button"
-        data-bs-target="#heroCarousel"
-        data-bs-slide="next"
-        style={{ width: '5%' }}
-      >
-        <span className="carousel-control-next-icon" aria-hidden="true"></span>
-        <span className="visually-hidden">Next</span>
-      </button>
-
     </div>
   );
 };
 
-export default Banner;
+export default BannerInicio;
