@@ -7,6 +7,7 @@ import com.servigo.servigo.dto.RecuperarPasswordDTO;
 import com.servigo.servigo.dto.ValidarCodigoDTO;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.jwt.JwtUtil;
+import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,19 @@ import java.security.SecureRandom;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final FotoPerfilRepository fotoPerfilRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public AuthService(
             UsuarioRepository usuarioRepository,
+            FotoPerfilRepository fotoPerfilRepository,
             JwtUtil jwtUtil,
             PasswordEncoder passwordEncoder
     ) {
         this.usuarioRepository = usuarioRepository;
+        this.fotoPerfilRepository = fotoPerfilRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
@@ -49,13 +53,19 @@ public class AuthService {
                 usuario.getRol().getNombre()
         );
 
+        String urlFotoCloud = fotoPerfilRepository
+                .findByUsuario_IdUsuario(usuario.getIdUsuario())
+                .map(foto -> foto.getUrlFotoCloud())
+                .orElse(null);
+
         return new LoginResponseDTO(
                 token,
                 usuario.getIdUsuario(),
                 usuario.getNombre(),
                 usuario.getApellido(),
                 usuario.getCorreo(),
-                usuario.getRol().getNombre()
+                usuario.getRol().getNombre(),
+                urlFotoCloud
         );
     }
 

@@ -13,4 +13,5 @@ public class LoginResponseDTO {
     private String apellido;
     private String correo;
     private String rol;
+    private String urlFotoCloud;
 }

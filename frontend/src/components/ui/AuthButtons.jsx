@@ -15,7 +15,7 @@ export const AuthButtons = () => {
         <span className="text-muted d-none d-md-inline">
           Bienvenido, <strong>{user.nombre || user.correo}</strong>
         </span>
-        <Link to="/perfil" className="btn btn-outline-primary btn-sm fw-bold">
+        <Link to="/perfil" className="btn btn-outline-success btn-sm fw-bold">
           Mi Perfil
         </Link>
         <button className="btn btn-outline-danger btn-sm fw-bold" onClick={logout}>
@@ -31,14 +31,14 @@ export const AuthButtons = () => {
       <div className="d-flex gap-2">
         {/* este botón muestra la ventaa de iniciar sesión */}
         <button
-          className="btn btn-outline-primary fw-bold"
+          className="btn btn-outline-success fw-bold"
           onClick={() => setShowLoginModal(true)}
         >
           Iniciar Sesión
         </button>
 
         {/* Este botón nos redirige a la página donde el usuario elige si ser Cliente o Prestador */}
-        <Link to="/registro" className="btn btn-primary fw-bold">
+        <Link to="/registro" className="btn btn-success fw-bold">
           Registrarse
         </Link>
       </div>

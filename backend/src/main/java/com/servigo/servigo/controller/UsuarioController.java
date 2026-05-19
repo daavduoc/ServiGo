@@ -2,8 +2,10 @@ package com.servigo.servigo.controller;
 
 import com.servigo.servigo.dto.PerfilUsuarioDTO;
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
+import com.servigo.servigo.dto.VincularFotoRegistroDTO;
 import com.servigo.servigo.dto.UsuarioResponseDTO;
 import com.servigo.servigo.entity.Usuario;
+import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.service.FotoPerfilService;
 import com.servigo.servigo.service.UsuarioService;
@@ -28,17 +30,20 @@ public class UsuarioController {
     private final FotoPerfilService fotoPerfilService;
     private final UsuarioRepository usuarioRepository;
     private final PrestadorRepository prestadorRepository;
+    private final FotoPerfilRepository fotoPerfilRepository;
 
     public UsuarioController(
             UsuarioService usuarioService,
             FotoPerfilService fotoPerfilService,
             UsuarioRepository usuarioRepository,
-            PrestadorRepository prestadorRepository
+            PrestadorRepository prestadorRepository,
+            FotoPerfilRepository fotoPerfilRepository
     ) {
         this.usuarioService = usuarioService;
         this.fotoPerfilService = fotoPerfilService;
         this.usuarioRepository = usuarioRepository;
         this.prestadorRepository = prestadorRepository;
+        this.fotoPerfilRepository = fotoPerfilRepository;
     }
 
     // GET: listar todos los usuarios
@@ -78,6 +83,16 @@ public class UsuarioController {
     @PostMapping("/registro")
     public Usuario registrar(@Valid @RequestBody RegistroUsuarioDTO dto) {
         return usuarioService.registrarNuevoUsuario(dto);
+    }
+
+    // POST: vincular foto ya subida a Cloudinary tras el registro JSON
+    // URL: http://localhost:8080/usuarios/registro/vincular-foto
+    @PostMapping("/registro/vincular-foto")
+    public void vincularFotoPostRegistro(@Valid @RequestBody VincularFotoRegistroDTO dto) {
+        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        fotoPerfilService.guardarFotoDesdeUrl(usuario.getIdUsuario(), dto.getFotoUrl());
     }
 
     // POST: registro con foto
@@ -203,6 +218,9 @@ public class UsuarioController {
                     dto.setExperiencia(prestador.getExperiencia());
                     dto.setEstadoValidacion(prestador.getEstadoValidacion());
                 });
+
+        fotoPerfilRepository.findByUsuario_IdUsuario(usuario.getIdUsuario())
+                .ifPresent(foto -> dto.setUrlFotoCloud(foto.getUrlFotoCloud()));
 
         return dto;
     }

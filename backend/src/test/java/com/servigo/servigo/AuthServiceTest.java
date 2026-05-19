@@ -5,6 +5,7 @@ import com.servigo.servigo.dto.LoginResponseDTO;
 import com.servigo.servigo.entity.Rol;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.jwt.JwtUtil;
+import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.service.AuthService;
 
@@ -25,6 +26,8 @@ public class AuthServiceTest {
 
     private UsuarioRepository usuarioRepository;
 
+    private FotoPerfilRepository fotoPerfilRepository;
+
     private JwtUtil jwtUtil;
 
     private PasswordEncoder passwordEncoder;
@@ -36,12 +39,15 @@ public class AuthServiceTest {
 
         usuarioRepository = Mockito.mock(UsuarioRepository.class);
 
+        fotoPerfilRepository = Mockito.mock(FotoPerfilRepository.class);
+
         jwtUtil = Mockito.mock(JwtUtil.class);
 
         passwordEncoder = new BCryptPasswordEncoder();
 
         authService = new AuthService(
                 usuarioRepository,
+                fotoPerfilRepository,
                 jwtUtil,
                 passwordEncoder
         );
@@ -55,6 +61,7 @@ public class AuthServiceTest {
 
         Usuario usuario = new Usuario();
 
+        usuario.setIdUsuario(1L);
         usuario.setCorreo("admin@test.com");
 
         usuario.setContrasena(
@@ -65,6 +72,9 @@ public class AuthServiceTest {
 
         when(usuarioRepository.findByCorreo("admin@test.com"))
                 .thenReturn(Optional.of(usuario));
+
+        when(fotoPerfilRepository.findByUsuario_IdUsuario(1L))
+                .thenReturn(Optional.empty());
 
         when(jwtUtil.generarToken("admin@test.com", "ADMIN"))
                 .thenReturn("TOKEN_TEST");

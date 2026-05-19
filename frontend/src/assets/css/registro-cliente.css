@@ -1,0 +1,404 @@
+/* Registro de cliente (/registro/cliente) */
+
+.registro-cliente-card-wrap {
+  max-width: 100% !important;
+}
+
+.registro-cliente-form {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.registro-cliente-page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.registro-cliente-page-header h1 {
+  font-size: clamp(1.5rem, 2.5vw, 1.85rem);
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.registro-cliente-page-header h1 i {
+  color: #2f9e44;
+  font-size: 1.35em;
+}
+
+.registro-cliente-page-header p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.registro-cliente-form .registro-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2f9e44;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e8f8ef;
+}
+
+.registro-cliente-form .registro-section-title:not(:first-of-type) {
+  margin-top: 1.75rem;
+}
+
+.registro-cliente-form .form-label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.registro-cliente-form .form-control,
+.registro-cliente-form .form-select {
+  border-radius: 8px;
+  border-color: #dee2e6;
+  min-height: 42px;
+  font-size: 0.95rem;
+}
+
+.registro-cliente-input-lg .input-group-text,
+.registro-cliente-input-lg .form-control {
+  min-height: 42px;
+}
+
+.registro-cliente-form .form-control:focus,
+.registro-cliente-form .form-select:focus {
+  border-color: #4ad990;
+  box-shadow: 0 0 0 0.2rem rgba(74, 217, 144, 0.2);
+}
+
+.registro-cliente-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.registro-cliente-hint {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 0.75rem;
+}
+
+.registro-cliente-hint--success {
+  background-color: #e8f8ef;
+  color: #1f5c32;
+  border: 1px solid #c8eed8;
+}
+
+.registro-cliente-hint--info {
+  background-color: #e7f1ff;
+  color: #0a3d7a;
+  border: 1px solid #cfe2ff;
+}
+
+.registro-cliente-hint i {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  font-size: 1.15rem;
+}
+
+.registro-cliente-geo-search .form-control {
+  background-color: #fff;
+  color: #495057;
+}
+
+/* Foto de perfil */
+.registro-photo-dropzone {
+  border: 2px dashed #c5d0dc;
+  border-radius: 12px;
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  background: #fafbfc;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.registro-photo-dropzone:hover {
+  border-color: #0d6efd;
+  background: #f0f7ff;
+}
+
+.registro-photo-dropzone__icon {
+  font-size: 3rem;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.registro-photo-dropzone__avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #e9ecef;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  color: #adb5bd;
+  font-size: 2.5rem;
+}
+
+.registro-photo-dropzone__title {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.registro-photo-dropzone__meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.registro-photo-dropzone__preview {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 0 auto 0.75rem;
+  display: block;
+}
+
+.registro-photo-btn-select {
+  border: 1px solid #dee2e6;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.registro-photo-btn-select:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+/* Mapa más alto */
+.registro-cliente-map-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.registro-cliente-map-wrap .form-label {
+  font-weight: 700;
+  color: #212529;
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+}
+
+.registro-cliente-map-wrap .map-section-map {
+  flex: 1;
+  min-height: 420px !important;
+  height: 420px !important;
+}
+
+.registro-cliente-footer-note {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.registro-cliente-footer-note i {
+  color: #2f9e44;
+  margin-right: 0.25rem;
+}
+
+.registro-cliente-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.registro-cliente-actions__buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.btn-volver-registro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2f9e44;
+  text-decoration: none;
+  padding: 0.5rem 0.25rem;
+  border-radius: 8px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-volver-registro:hover {
+  color: #1f5c32;
+  background-color: #e8f8ef;
+}
+
+.registro-prestador-form .btn-volver-registro {
+  color: #0d6efd;
+}
+
+.registro-prestador-form .btn-volver-registro:hover {
+  color: #0a58ca;
+  background-color: #e7f1ff;
+}
+
+.registro-cliente-actions .btn-cancelar {
+  min-width: 130px;
+  border: 1px solid #dee2e6;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.65rem 1.35rem;
+}
+
+.registro-cliente-actions .btn-cancelar:hover {
+  background: #f8f9fa;
+}
+
+.registro-cliente-actions .btn-crear {
+  min-width: 180px;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.65rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.registro-cliente-actions .btn-crear:hover:not(:disabled) {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  color: #fff;
+}
+
+.registro-cliente-actions .btn-crear:disabled {
+  opacity: 0.7;
+}
+
+@media (min-width: 992px) {
+  .registro-cliente-map-wrap .map-section-map {
+    min-height: 480px !important;
+    height: 480px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .registro-cliente-map-wrap .map-section-map {
+    min-height: 520px !important;
+    height: 520px !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .registro-cliente-map-wrap .map-section-map {
+    min-height: 340px !important;
+    height: 340px !important;
+  }
+
+  .registro-cliente-col-right {
+    margin-top: 0.5rem;
+  }
+}
+
+/* Registro de prestador: acentos azules (misma línea que /registro tarjeta prestador) */
+.registro-prestador-form {
+  --reg-accent: #0d6efd;
+  --reg-accent-dark: #0a58ca;
+  --reg-accent-light: #e7f1ff;
+  --reg-accent-border: #cfe2ff;
+}
+
+.registro-prestador-form .registro-cliente-page-header h1 i {
+  color: var(--reg-accent);
+}
+
+.registro-prestador-form .registro-section-title {
+  color: var(--reg-accent);
+  border-bottom-color: var(--reg-accent-light);
+}
+
+.registro-prestador-form .form-control:focus,
+.registro-prestador-form .form-select:focus {
+  border-color: var(--reg-accent);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+}
+
+.registro-prestador-form .registro-prestador-type-box {
+  background-color: var(--reg-accent-light) !important;
+  border-color: var(--reg-accent-border) !important;
+}
+
+.registro-prestador-form .registro-prestador-type-box > .form-label {
+  color: var(--reg-accent-dark);
+}
+
+.registro-prestador-form .registro-cliente-hint--provider {
+  background-color: var(--reg-accent-light);
+  color: #0a3d7a;
+  border: 1px solid var(--reg-accent-border);
+}
+
+.registro-prestador-form .registro-cliente-hint--provider i {
+  color: var(--reg-accent);
+}
+
+.registro-prestador-form .registro-cliente-footer-note i {
+  color: var(--reg-accent);
+}
+
+.registro-prestador-form .registro-photo-dropzone:hover {
+  border-color: var(--reg-accent);
+  background: #f0f7ff;
+}
+
+.registro-prestador-form .registro-photo-btn-select:hover {
+  border-color: var(--reg-accent);
+  color: var(--reg-accent-dark);
+}
+
+.registro-prestador-form .registro-cliente-actions .btn-crear {
+  background-color: var(--reg-accent);
+  border-color: var(--reg-accent);
+}
+
+.registro-prestador-form .registro-cliente-actions .btn-crear:hover:not(:disabled) {
+  background-color: var(--reg-accent-dark);
+  border-color: var(--reg-accent-dark);
+}

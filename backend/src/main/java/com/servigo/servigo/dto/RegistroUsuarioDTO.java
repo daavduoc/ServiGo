@@ -1,5 +1,7 @@
 package com.servigo.servigo.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -51,4 +53,9 @@ public class RegistroUsuarioDTO {
 
     private Long idEmpresa;
     private String direccionLocal;
+
+    /** URL de Cloudinary tras subir la foto en el frontend (opcional). */
+    @JsonProperty("fotoUrl")
+    @JsonAlias({ "foto_url", "urlFotoCloud", "urlFoto" })
+    private String fotoUrl;
 }

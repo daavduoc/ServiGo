@@ -1,6 +1,7 @@
 
 const API_URL = 'http://localhost:8080/api';
 const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
+const API_URL_FOTOS = 'http://localhost:8080/fotos-perfil';
 
 export const registerUserInDB = async (userData) => {
     try {
@@ -54,6 +55,32 @@ export const getMyProfile = async () => {
         return data;
     } catch (error) {
         console.error("Error al obtener perfil:", error);
+        throw error;
+    }
+};
+
+// POST: subir o actualizar foto de perfil (Cloudinary + BD)
+export const uploadProfilePhoto = async (userId, file) => {
+    try {
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`${API_URL_FOTOS}/upload/${userId}`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al subir la foto de perfil');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error al subir foto de perfil:', error);
         throw error;
     }
 };
