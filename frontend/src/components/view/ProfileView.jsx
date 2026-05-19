@@ -87,7 +87,6 @@ export const ProfileView = () => {
   };
 
   const handleCancel = () => {
-    // Revertir cambios
     if (user) {
       setProfileData({
         nombre: user.nombre || '',
@@ -107,7 +106,7 @@ export const ProfileView = () => {
     return (
       <div className="container mt-5 mb-5">
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
+          <div className="spinner-border text-success" role="status">
             <span className="visually-hidden">Cargando...</span>
           </div>
         </div>
@@ -140,8 +139,9 @@ export const ProfileView = () => {
             <hr />
 
             {!isEditing && (
+              /* CAMBIO AQUÍ: El botón ahora es Verde (btn-success) */
               <button 
-                className="btn btn-primary w-100"
+                className="btn btn-success w-100 shadow-sm text-white"
                 onClick={() => setIsEditing(true)}
               >
                 ✏️ Editar Perfil
@@ -172,7 +172,6 @@ export const ProfileView = () => {
             )}
 
             {isEditing ? (
-              // Formulario en modo edición
               <form>
                 <div className="row mb-3">
                   <div className="col-md-6">
@@ -205,7 +204,6 @@ export const ProfileView = () => {
                       className="form-control"
                       name="correo"
                       value={profileData.correo}
-                      onChange={handleInputChange}
                       disabled
                     />
                     <small className="text-muted">El correo no puede ser modificado</small>
@@ -278,7 +276,6 @@ export const ProfileView = () => {
                 </div>
               </form>
             ) : (
-              // Vista de solo lectura
               <div>
                 <div className="row mb-4">
                   <div className="col-md-6">
@@ -318,7 +315,8 @@ export const ProfileView = () => {
                   </div>
                 </div>
 
-                <div className="bg-light p-4 rounded-3 border-start border-primary border-4">
+                {/* CAMBIO AQUÍ: Borde decorativo ahora es verde (border-success) */}
+                <div className="bg-light p-4 rounded-3 border-start border-success border-4">
                   <p className="text-muted mb-0">
                     💡 Haz clic en <strong>"Editar Perfil"</strong> para actualizar tu información de contacto y dirección.
                   </p>
@@ -327,7 +325,6 @@ export const ProfileView = () => {
             )}
           </div>
 
-          {/* Sección adicional: Información de la cuenta */}
           <div className="card shadow-sm border-0 p-4 mt-4">
             <h5 className="fw-bold mb-3">⚙️ Configuración de Cuenta</h5>
             <div className="list-group list-group-flush">

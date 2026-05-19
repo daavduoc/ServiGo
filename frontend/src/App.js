@@ -26,6 +26,7 @@ import { RecoverPasswordView } from './components/view/auth/RecoverPasswordView'
 // --- VISTAS DE USUARIOS ---
 import { ClientDashboard } from './components/view/ClientDashboard';
 import { ProviderDashboard } from './components/view/ProviderDashboard';
+import SupportView from './components/view/SupportView'; // <-- CAMBIO 1: Importamos tu vista de soporte
 
 import { ClientLayout } from './components/ui/ClientLayout';
 // Importamos el layout y vistas del admin
@@ -98,6 +99,7 @@ function App() {
               <Route path="/dashboard-cliente" element={<ClientDashboard />} />
               <Route path="/perfil" element={<ProfileView />} />
               <Route path="/mis-reservas" element={<h2>Mis Horas y Reservas</h2>} />
+              <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
             </Route>
 
             {/* Rutas para administrador */}
