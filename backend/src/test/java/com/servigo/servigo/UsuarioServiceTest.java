@@ -68,7 +68,8 @@ public class UsuarioServiceTest {
                 prestadorRepository,
                 empresaRepository,
                 categoriaPrestadorRepository,
-                passwordEncoder
+                passwordEncoder,
+                Mockito.mock(com.servigo.servigo.service.FotoPerfilService.class)
         );
     }
 

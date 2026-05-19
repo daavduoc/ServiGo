@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getMyProfile, updateUserProfile } from '../../serviceFront/userService';
+import { getMyProfile, uploadProfilePhoto } from '../../serviceFront/userService';
 
 export const ProfileView = () => {
-  const { user, updateUserData } = useAuth();
+  const { user, isAuthenticated, updateUserData } = useAuth();
+  const fileInputRef = useRef(null);
   
   const [profileData, setProfileData] = useState({
     nombre: '',
@@ -13,13 +14,16 @@ export const ProfileView = () => {
     direccion: '',
     comuna: '',
     region: '',
-    rut: ''
+    rut: '',
+    urlFotoCloud: ''
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [fotoError, setFotoError] = useState(false);
 
   // Cargar datos del perfil al montar el componente
   useEffect(() => {
@@ -28,23 +32,32 @@ export const ProfileView = () => {
         setLoading(true);
         setError(null);
         
-        // Cuando el backend esté listo, descomenta esta línea:
-        // const data = await getMyProfile();
-        // setProfileData(data);
-        
-        // Por ahora usamos los datos del contexto
-        if (user) {
-          setProfileData({
-            nombre: user.nombre || '',
-            apellido: user.apellido || '',
-            correo: user.correo || '',
-            telefono: user.telefono || '',
-            direccion: user.direccion || '',
-            comuna: user.comuna || '',
-            region: user.region || '',
-            rut: user.rut || ''
-          });
-        }
+        const data = await getMyProfile();
+        const fotoUrl = data.urlFotoCloud || '';
+        setFotoError(false);
+        setProfileData({
+          nombre: data.nombre || '',
+          apellido: data.apellido || '',
+          correo: data.correo || '',
+          telefono: data.telefono || '',
+          direccion: data.direccion || '',
+          comuna: data.comuna || '',
+          region: data.region || '',
+          rut: data.rut || '',
+          urlFotoCloud: fotoUrl,
+        });
+        updateUserData({
+          idUsuario: data.idUsuario,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          correo: data.correo,
+          telefono: data.telefono,
+          direccion: data.direccion,
+          comuna: data.comuna,
+          region: data.region,
+          rut: data.rut,
+          urlFotoCloud: fotoUrl,
+        });
       } catch (err) {
         setError('Error al cargar el perfil');
         console.error(err);
@@ -53,8 +66,39 @@ export const ProfileView = () => {
       }
     };
 
-    loadProfile();
-  }, [user]);
+    const token = localStorage.getItem('token');
+    if (isAuthenticated && token) {
+      loadProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  const handlePhotoSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.idUsuario) return;
+
+    setUploadingPhoto(true);
+    setError(null);
+    setSuccessMessage('');
+
+    try {
+      const result = await uploadProfilePhoto(user.idUsuario, file);
+      const nuevaUrl = result.urlFotoCloud || '';
+      setFotoError(false);
+      setProfileData((prev) => ({ ...prev, urlFotoCloud: nuevaUrl }));
+      updateUserData({ urlFotoCloud: nuevaUrl });
+      setSuccessMessage('Foto de perfil actualizada');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError(err.message || 'No se pudo subir la foto');
+    } finally {
+      setUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -97,7 +141,8 @@ export const ProfileView = () => {
         direccion: user.direccion || '',
         comuna: user.comuna || '',
         region: user.region || '',
-        rut: user.rut || ''
+        rut: user.rut || '',
+        urlFotoCloud: user.urlFotoCloud || ''
       });
     }
     setIsEditing(false);
@@ -121,9 +166,37 @@ export const ProfileView = () => {
         {/* Lado Izquierdo: Foto y Datos Rápidos */}
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm border-0 p-4 text-center">
-            <div className="bg-secondary bg-opacity-25 rounded-circle d-inline-flex justify-content-center align-items-center mb-3 mx-auto" style={{ width: '150px', height: '150px' }}>
-              <span style={{ fontSize: '5rem' }}>👤</span>
+            <div
+              className="rounded-circle overflow-hidden d-inline-flex justify-content-center align-items-center mb-3 mx-auto bg-secondary bg-opacity-25"
+              style={{ width: '150px', height: '150px' }}
+            >
+              {profileData.urlFotoCloud && !fotoError ? (
+                <img
+                  src={profileData.urlFotoCloud}
+                  alt={`Foto de ${profileData.nombre}`}
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover' }}
+                  onError={() => setFotoError(true)}
+                />
+              ) : (
+                <span style={{ fontSize: '5rem' }} role="img" aria-label="Sin foto">👤</span>
+              )}
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/jpg"
+              className="d-none"
+              onChange={handlePhotoSelect}
+            />
+            <button
+              type="button"
+              className="btn btn-outline-primary btn-sm mb-3"
+              disabled={uploadingPhoto}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploadingPhoto ? 'Subiendo foto...' : '📸 Cambiar foto'}
+            </button>
             <h3 className="fw-bold">{profileData.nombre} {profileData.apellido}</h3>
             <p className="text-muted mb-2">{profileData.correo}</p>
             <p className="text-muted small">RUT: {profileData.rut}</p>
@@ -337,7 +410,12 @@ export const ProfileView = () => {
               <button className="list-group-item list-group-item-action text-start">
                 🔔 Preferencias de Notificaciones
               </button>
-              <button className="list-group-item list-group-item-action text-start">
+              <button
+                type="button"
+                className="list-group-item list-group-item-action text-start"
+                disabled={uploadingPhoto}
+                onClick={() => fileInputRef.current?.click()}
+              >
                 📸 Cambiar Foto de Perfil
               </button>
               <button className="list-group-item list-group-item-action text-danger">

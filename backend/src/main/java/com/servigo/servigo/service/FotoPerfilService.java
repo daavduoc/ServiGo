@@ -43,6 +43,30 @@ public class FotoPerfilService {
         return convertirDTO(fotoPerfil);
     }
 
+    public void guardarFotoDesdeUrl(Long idUsuario, String urlFotoCloud) {
+        if (urlFotoCloud == null || urlFotoCloud.isBlank()) {
+            return;
+        }
+
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        FotoPerfil fotoExistente = fotoPerfilRepository
+                .findByUsuarioIdUsuario(idUsuario)
+                .orElse(null);
+
+        if (fotoExistente != null) {
+            fotoExistente.setUrlFotoCloud(urlFotoCloud);
+            fotoPerfilRepository.save(fotoExistente);
+            return;
+        }
+
+        FotoPerfil fotoPerfil = new FotoPerfil();
+        fotoPerfil.setUsuario(usuario);
+        fotoPerfil.setUrlFotoCloud(urlFotoCloud);
+        fotoPerfilRepository.save(fotoPerfil);
+    }
+
     public FotoPerfilResponseDTO subirFotoPerfil(Long idUsuario, MultipartFile file) throws IOException {
 
         Usuario usuario = usuarioRepository.findById(idUsuario)

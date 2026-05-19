@@ -1,128 +1,188 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
-
-// IMPORTANTE: Asegúrate de importar la función subirFotoCloudinary
 import { authValidations } from '../../../utils/authValidations';
-import { registrarUsuario, subirFotoCloudinary } from '../../../serviceFront/authService';
+import { registrarUsuario, registrarUsuarioConFoto } from '../../../serviceFront/authService';
+import '../../../assets/css/registro-cliente.css';
 
 export const ClientRegisterView = () => {
-    const [formData, setFormData] = useState({
-        rut: '',
-        nombre: '',
-        apellido: '',
-        correo: '',
-        contrasena: '',
-        telefono: '',
-        direccion: '',
-        comuna: '',
-        region: '',
-        idRol: 1,
-        latitud: '',
-        longitud: '',
-        fotoPerfil: null // Archivo físico de la foto
-    });
+  const [formData, setFormData] = useState({
+    rut: '',
+    nombre: '',
+    apellido: '',
+    correo: '',
+    contrasena: '',
+    telefono: '',
+    direccion: '',
+    comuna: '',
+    region: '',
+    idRol: 1,
+    latitud: '',
+    longitud: '',
+    fotoPerfil: null,
+  });
 
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+  const [confirmContrasena, setConfirmContrasena] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const handleChange = (e) => {
-        let { name, value } = e.target;
-        const camposMayusculas = ['region', 'comuna', 'direccion'];
-        if (camposMayusculas.includes(name)) value = value.toUpperCase();
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+    const camposMayusculas = ['region', 'comuna', 'direccion'];
+    if (camposMayusculas.includes(name)) value = value.toUpperCase();
 
-        setFormData({ ...formData, [name]: value });
-        if (error) setError(null);
-    };
+    setFormData({ ...formData, [name]: value });
+    if (error) setError(null);
+  };
 
-    const handleImageChange = (archivo) => {
-        setFormData(prev => ({ ...prev, fotoPerfil: archivo }));
-    };
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmContrasena(e.target.value);
+    if (error) setError(null);
+  };
 
-    const handleMapCoords = (coords) => {
-        setFormData(prev => ({ ...prev, latitud: coords.lat, longitud: coords.lng }));
-        if (error) setError(null);
-    };
+  const handleImageChange = (archivo) => {
+    setFormData((prev) => ({ ...prev, fotoPerfil: archivo }));
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleMapCoords = (coords) => {
+    setFormData((prev) => ({ ...prev, latitud: coords.lat, longitud: coords.lng }));
+    if (error) setError(null);
+  };
 
-        const errorValidacion = authValidations(formData);
-        if (errorValidacion) return setError(errorValidacion);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        setIsLoading(true);
-        setError(null);
+    if (formData.contrasena !== confirmContrasena) {
+      return setError('Las contraseñas no coinciden.');
+    }
 
-        try {
-            let urlFotoCloudinary = null;
+    const errorValidacion = authValidations(formData);
+    if (errorValidacion) return setError(errorValidacion);
 
-            // PASO 1: Si hay foto, la subimos PRIMERO a Cloudinary
-            if (formData.fotoPerfil) {
-                // Llamamos a tu función que sube el FormData solo con la foto
-                urlFotoCloudinary = await subirFotoCloudinary(formData.fotoPerfil);
-            }
+    setIsLoading(true);
+    setError(null);
 
-            // PASO 2: Armamos el JSON con los textos y la URL que nos devolvió Cloudinary
-            const dataParaBackend = {
-                rut: formData.rut,
-                nombre: formData.nombre,
-                apellido: formData.apellido,
-                correo: formData.correo,
-                contrasena: formData.contrasena,
-                telefono: formData.telefono,
-                direccion: formData.direccion,
-                comuna: formData.comuna,
-                region: formData.region,
-                idRol: formData.idRol,
-                latitud: formData.latitud,
-                longitud: formData.longitud,
-                tipoUsuario: "CLIENTE",
-                // Le pasamos la URL como texto al backend
-                fotoUrl: urlFotoCloudinary
-            };
+    try {
+      const dataParaBackend = {
+        rut: formData.rut,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        correo: formData.correo,
+        contrasena: formData.contrasena,
+        telefono: formData.telefono,
+        direccion: formData.direccion,
+        comuna: formData.comuna,
+        region: formData.region,
+        latitud: formData.latitud ? Number(formData.latitud) : null,
+        longitud: formData.longitud ? Number(formData.longitud) : null,
+        tipoUsuario: 'CLIENTE',
+      };
 
-            // Llamamos a tu función de registro que envía el JSON
-            await registrarUsuario(dataParaBackend);
+      if (formData.fotoPerfil) {
+        await registrarUsuarioConFoto(dataParaBackend, formData.fotoPerfil);
+      } else {
+        await registrarUsuario(dataParaBackend);
+      }
 
-            alert("¡Registro de Cliente exitoso!");
-            window.location.href = "/login";
+      alert('¡Registro de Cliente exitoso!');
+      window.location.href = '/login';
+    } catch (err) {
+      setError(err.message || 'Error al registrar en el servidor');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        } catch (err) {
-            setError(err.message || "Error al registrar en el servidor");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const direccionParaMapa = `${formData.direccion}, ${formData.comuna}, ${formData.region}, Chile`;
+  const direccionVisible = direccionParaMapa
+    .replace(/,\s*,/g, ',')
+    .replace(/^,\s*/, '')
+    .replace(/,\s*Chile$/, '')
+    .trim();
 
-    const direccionParaMapa = `${formData.direccion}, ${formData.comuna}, ${formData.region}, Chile`;
+  return (
+    <CardContainer maxwidth="1320px" className="registro-cliente-card-wrap">
+      <form onSubmit={handleSubmit} className="registro-cliente-form">
+        <header className="registro-cliente-page-header">
+          <h1>
+            <i className="bi bi-person-plus-fill" aria-hidden="true" />
+            Crear cuenta de cliente
+          </h1>
+          <p>Completa tu información para comenzar a contratar servicios.</p>
+        </header>
 
-    return (
-        <CardContainer titulo="Registro de Cliente">
-            <div className="mx-auto" style={{ maxWidth: '600px' }}>
-                <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow-sm">
-                    <SeccionUsuarioBase handleChange={handleChange} formData={formData} />
-                    <hr className="my-4" />
-                    <div className="col-12 mb-3">
-                        <MapSection
-                            label="Verificación de Geolocalización"
-                            fullAddress={direccionParaMapa}
-                            onCoordsChange={handleMapCoords}
-                        />
-                    </div>
-                    <div className="col-12 mb-3">
-                        <PhotoUpload
-                            label="Foto de Perfil"
-                            onImageSelect={handleImageChange}
-                        />
-                    </div>
-                    {error && <div className="alert alert-danger mt-3 text-center fw-bold">{error}</div>}
-                    <FormActions
-                        onCancel={() => window.history.back()}
-                        submitLabel={isLoading ? "Enviando..." : "Registrar Cliente"}
-                        submitDisabled={isLoading}
-                    />
-                </form>
+        <div className="row g-4 g-xl-5">
+          <div className="col-lg-7">
+            <SeccionUsuarioBase
+              handleChange={handleChange}
+              formData={formData}
+              layout="client"
+              showConfirmPassword
+              confirmContrasena={confirmContrasena}
+              onConfirmPasswordChange={handleConfirmPasswordChange}
+            />
+
+            <h5 className="registro-section-title">Verificación de geolocalización</h5>
+            <div className="registro-cliente-geo-search mb-2">
+              <div className="input-group registro-cliente-input-lg">
+                <span className="input-group-text bg-white">
+                  <i className="bi bi-search text-muted" aria-hidden="true" />
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={direccionVisible}
+                  readOnly
+                  placeholder="Busca tu dirección o arrastra el marcador en el mapa"
+                  aria-label="Dirección para ubicación en mapa"
+                />
+              </div>
             </div>
-        </CardContainer>
-    );
+            <div className="registro-cliente-hint registro-cliente-hint--success mb-0">
+              <i className="bi bi-check-circle-fill" aria-hidden="true" />
+              <span>
+                Asegúrate de que el marcador esté en la ubicación exacta donde recibirás los servicios.
+              </span>
+            </div>
+          </div>
+
+          <div className="col-lg-5 registro-cliente-col-right">
+            <PhotoUpload
+              label="Foto de Perfil"
+              onImageSelect={handleImageChange}
+              variant="dropzone"
+            />
+
+            <MapSection
+              label="Ubicación en el mapa"
+              fullAddress={direccionParaMapa}
+              onCoordsChange={handleMapCoords}
+              displayMode="map-only"
+              mapHint="Puedes mover el marcador para ajustar tu ubicación exacta."
+              mapClassName="map-section-map"
+              allowMarkerDrag
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="alert alert-danger mt-4 text-center fw-bold mb-0" role="alert">
+            {error}
+          </div>
+        )}
+
+        <FormActions
+          variant="client"
+          onCancel={() => window.history.back()}
+          submitLabel={isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
+          submitDisabled={isLoading}
+        />
+
+        <p className="registro-cliente-footer-note">
+          <i className="bi bi-lock-fill" aria-hidden="true" />
+          Tus datos están protegidos y se usan solo para mejorar tu experiencia en ServiGo.
+        </p>
+      </form>
+    </CardContainer>
+  );
 };

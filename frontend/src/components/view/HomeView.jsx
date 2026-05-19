@@ -1,93 +1,96 @@
 import React from 'react';
-// Importamos tu banner desde la carpeta ui
 import BannerInicio from '../ui/Banner';
+import '../../assets/css/home.css';
+
+const BENEFITS = [
+  {
+    icon: 'bi-shield-check',
+    title: 'Especialistas Verificados',
+    text: 'Revisamos los antecedentes y certificaciones de cada profesional para que tu hogar esté en buenas manos.',
+  },
+  {
+    icon: 'bi-lightning-charge',
+    title: 'Respuestas Rápidas',
+    text: 'Conectamos tu solicitud con los técnicos más cercanos a tu comuna en tiempo real.',
+  },
+  {
+    icon: 'bi-star',
+    title: 'Calidad Garantizada',
+    text: 'Lee las evaluaciones de otros clientes y califica el servicio una vez que el trabajo esté terminado.',
+  },
+];
+
+const STEPS = [
+  {
+    icon: 'bi-search',
+    title: '1. Busca',
+    text: 'Encuentra al especialista ideal según tu necesidad y ubicación.',
+  },
+  {
+    icon: 'bi-calendar-event',
+    title: '2. Reserva',
+    text: 'Agenda la visita en el horario que mejor te acomode.',
+  },
+  {
+    icon: 'bi-check2-square',
+    title: '3. Soluciona',
+    text: 'Recibe al especialista en tu hogar y resuelve el problema.',
+  },
+];
 
 export const HomeView = () => {
   return (
-    <>
+    <div className="home-view">
       <BannerInicio />
-      
-      {/* SECCIÓN 1: ¿Por qué elegir ServiGo? */}
-      <div className="container my-5">
-        <h3 className="text-center fw-bold mb-4">¿Por qué elegir ServiGo?</h3>
-        <div className="row g-4 text-center">
-          
-          {/* Tarjeta 1: Seguridad */}
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 h-100 p-4">
-              <div className="card-body">
-                <div className="mb-3">
-                  <span className="fs-1">🛡️</span>
-                </div>
-                <h5 className="card-title fw-bold">Especialistas Verificados</h5>
-                <p className="card-text text-muted">Revisamos los antecedentes y certificaciones de cada profesional para que tu hogar esté en buenas manos.</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Tarjeta 2: Rapidez */}
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 h-100 p-4">
-              <div className="card-body">
-                <div className="mb-3">
-                  <span className="fs-1">⚡</span>
+      {/* ¿Por qué elegir ServiGo? */}
+      <section className="my-5" aria-labelledby="home-benefits-title">
+        <h3 id="home-benefits-title" className="home-section-title">
+          ¿Por qué elegir ServiGo?
+        </h3>
+        <div className="row g-4 justify-content-center">
+          {BENEFITS.map((item) => (
+            <div key={item.title} className="col-md-4 col-sm-6">
+              <article className="home-benefit-card">
+                <div className="home-icon-circle" aria-hidden="true">
+                  <i className={`bi ${item.icon}`} />
                 </div>
-                <h5 className="card-title fw-bold">Respuestas Rápidas</h5>
-                <p className="card-text text-muted">Conectamos tu solicitud con los técnicos más cercanos a tu comuna en tiempo real.</p>
-              </div>
+                <h5>{item.title}</h5>
+                <p>{item.text}</p>
+              </article>
             </div>
-          </div>
-
-          {/* Tarjeta 3: Confianza */}
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 h-100 p-4">
-              <div className="card-body">
-                <div className="mb-3">
-                  <span className="fs-1">⭐</span>
-                </div>
-                <h5 className="card-title fw-bold">Calidad Garantizada</h5>
-                <p className="card-text text-muted">Lee las evaluaciones de otros clientes y califica el servicio una vez que el trabajo esté terminado.</p>
-              </div>
-            </div>
-          </div>
-
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* SECCIÓN 2: ¿Cómo funciona ServiGo? */}
-      <div className="bg-light py-5 my-5">
-        <div className="container">
-          <h3 className="text-center fw-bold mb-5">¿Cómo funciona ServiGo?</h3>
-          <div className="row text-center">
-            
-            <div className="col-md-4 mb-4">
-              <div className="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style={{width: '80px', height: '80px'}}>
-                <span className="fs-2">🔍</span>
-              </div>
-              <h5 className="fw-bold">1. Busca</h5>
-              <p className="text-muted">Encuentra al especialista ideal según tu necesidad y ubicación.</p>
-            </div>
-            
-            <div className="col-md-4 mb-4">
-              <div className="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style={{width: '80px', height: '80px'}}>
-                <span className="fs-2">📅</span>
-              </div>
-              <h5 className="fw-bold">2. Reserva</h5>
-              <p className="text-muted">Agenda la visita en el horario que mejor te acomode.</p>
-            </div>
-            
-            <div className="col-md-4 mb-4">
-              <div className="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style={{width: '80px', height: '80px'}}>
-                <span className="fs-2">✅</span>
-              </div>
-              <h5 className="fw-bold">3. Soluciona</h5>
-              <p className="text-muted">Recibe al especialista en tu hogar y resuelve el problema.</p>
-            </div>
+      {/* ¿Cómo funciona ServiGo? */}
+      <section className="home-how-box" aria-labelledby="home-how-title">
+        <h3 id="home-how-title" className="home-section-title">
+          ¿Cómo funciona ServiGo?
+        </h3>
 
-          </div>
+        <div className="home-steps-row">
+          <svg
+            className="home-step-connectors d-none d-md-block"
+            viewBox="0 0 900 60"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path d="M 180 45 Q 300 5, 450 45" />
+            <path d="M 450 45 Q 600 5, 720 45" />
+          </svg>
+
+          {STEPS.map((step) => (
+            <div className="home-step" key={step.title}>
+              <div className="home-icon-circle" aria-hidden="true">
+                <i className={`bi ${step.icon}`} />
+              </div>
+              <h5>{step.title}</h5>
+              <p>{step.text}</p>
+            </div>
+          ))}
         </div>
-      </div>
-      
-    </>
+      </section>
+    </div>
   );
 };

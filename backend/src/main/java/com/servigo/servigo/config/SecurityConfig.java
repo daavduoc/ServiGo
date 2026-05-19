@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/auth/**",
                     "/usuarios/registro",
+                    "/usuarios/registro/**",
                     "/usuarios/registro-con-foto",
                     "/cloudinary/upload",
                     "/swagger-ui/**",

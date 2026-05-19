@@ -21,15 +21,19 @@ const getAuthHeaders = (isFormData = false) => {
 };
 
 
+const extraerUrlCloudinary = (data) => {
+    if (!data) return null;
+    if (typeof data === 'string') return data;
+    return data.secure_url || data.secureUrl || data.url || null;
+};
+
 export const subirFotoCloudinary = async (file) => {
     try {
         const formData = new FormData();
-        //
         formData.append('file', file);
 
         const response = await fetch(`${API_URL_CLOUDINARY}/upload`, {
             method: 'POST',
-            // Usamos getAuthHeaders(true) porque enviamos FormData
             headers: getAuthHeaders(true),
             body: formData
         });
@@ -39,10 +43,65 @@ export const subirFotoCloudinary = async (file) => {
         }
 
         const data = await response.json();
-        // Tu controlador devuelve un Map, accedemos a la URL de Cloudinary
-        return data.url;
+        const url = extraerUrlCloudinary(data);
+        if (!url) {
+            throw new Error('Cloudinary no devolvió la URL de la imagen');
+        }
+        return url;
     } catch (error) {
         console.error("Error en subirFotoCloudinary:", error);
+        throw error;
+    }
+};
+
+const CAMPOS_REGISTRO_FORM = [
+    'rut', 'nombre', 'apellido', 'correo', 'contrasena', 'telefono',
+    'direccion', 'comuna', 'region', 'latitud', 'longitud', 'tipoUsuario',
+    'tipoPrestador', 'idCategoria', 'idEmpresa', 'direccionLocal',
+];
+
+const appendRegistroFields = (formData, userData) => {
+    CAMPOS_REGISTRO_FORM.forEach((key) => {
+        const value = userData[key];
+        if (value !== null && value !== undefined && value !== '') {
+            formData.append(key, value);
+        }
+    });
+};
+
+export const vincularFotoRegistro = async (correo, fotoUrl) => {
+    const response = await fetch(`${API_URL_USUARIOS}/registro/vincular-foto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo, fotoUrl }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'No se pudo guardar la foto en el perfil');
+    }
+};
+
+/** Registro multipart: crea usuario y sube la foto en el servidor (recomendado). */
+export const registrarUsuarioConFoto = async (userData, file) => {
+    try {
+        const formData = new FormData();
+        appendRegistroFields(formData, userData);
+        formData.append('file', file);
+
+        const response = await fetch(`${API_URL_USUARIOS}/registro-con-foto`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Error al registrar en el servidor');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error en registrarUsuarioConFoto:', error);
         throw error;
     }
 };
@@ -91,10 +150,11 @@ export const recoverPassword = async (emailData) => {
 // Registrar usuario (Recibe el objeto con la URL de la foto ya lista)
 export const registrarUsuario = async (dataUsuario) => {
     try {
+        const { fotoUrl, ...resto } = dataUsuario;
         const response = await fetch(`${API_URL_USUARIOS}/registro`, {
             method: 'POST',
-            headers: getAuthHeaders(false), // Ya enviamos JSON con la URL de la foto
-            body: JSON.stringify(dataUsuario)
+            headers: getAuthHeaders(false),
+            body: JSON.stringify({ ...resto, fotoUrl }),
         });
 
         if (!response.ok) {
@@ -102,7 +162,13 @@ export const registrarUsuario = async (dataUsuario) => {
             throw new Error(errorText || "Error al registrar en el servidor");
         }
 
-        return true;
+        const usuario = await response.json();
+
+        if (fotoUrl) {
+            await vincularFotoRegistro(dataUsuario.correo, fotoUrl);
+        }
+
+        return usuario;
     } catch (error) {
         console.error("Error en registrarUsuario:", error);
         throw error;

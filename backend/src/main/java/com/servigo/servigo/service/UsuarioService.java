@@ -31,6 +31,7 @@ public class UsuarioService {
     private final EmpresaRepository empresaRepository;
     private final CategoriaPrestadorRepository categoriaPrestadorRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FotoPerfilService fotoPerfilService;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
@@ -39,7 +40,8 @@ public class UsuarioService {
             PrestadorRepository prestadorRepository,
             EmpresaRepository empresaRepository,
             CategoriaPrestadorRepository categoriaPrestadorRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            FotoPerfilService fotoPerfilService
     ) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
@@ -48,6 +50,7 @@ public class UsuarioService {
         this.empresaRepository = empresaRepository;
         this.categoriaPrestadorRepository = categoriaPrestadorRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fotoPerfilService = fotoPerfilService;
     }
 
         public List<UsuarioResponseDTO> listarUsuarios() {
@@ -176,6 +179,11 @@ public class UsuarioService {
             }
 
             prestadorRepository.save(prestador);
+        }
+
+        String fotoUrl = dto.getFotoUrl();
+        if (fotoUrl != null && !fotoUrl.isBlank()) {
+            fotoPerfilService.guardarFotoDesdeUrl(usuario.getIdUsuario(), fotoUrl.trim());
         }
 
         return usuario;
