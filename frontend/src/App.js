@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ServiceDetailView } from './components/view/ServiceDetailView';
+import { ClientReservationsView } from './components/view/ClientReservationsView';
 
 // Maneja la sesion del usuario
 import { AuthProvider } from './context/AuthContext';
@@ -98,8 +100,11 @@ function App() {
             <Route element={<ClientLayout />}>
               <Route path="/dashboard-cliente" element={<ClientDashboard />} />
               <Route path="/perfil" element={<ProfileView />} />
-              <Route path="/mis-reservas" element={<h2>Mis Horas y Reservas</h2>} />
+             {/* Reemplaza la que tiene el <h2> por esta: */}
+            <Route path="/mis-reservas" element={<ClientReservationsView />} />
               <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
+              <Route path="/servicio-detalle" element={<ServiceDetailView />} /> {/* <-- NUEVA RUTA AQUÍ */}
+              
             </Route>
 
             {/* Rutas para administrador */}

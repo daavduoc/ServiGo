@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const ServiceCard = ({ nombre, profesion, area, precio, imagen }) => {
   // Le damos un color diferente a la etiqueta dependiendo si es de Salud o Técnica
@@ -22,7 +23,10 @@ export const ServiceCard = ({ nombre, profesion, area, precio, imagen }) => {
         <h6 className="fw-bold text-success">${precio.toLocaleString('es-CL')}</h6>
       </div>
       <div className="px-3">
-        <button className="btn btn-outline-success w-100 rounded-pill">Ver Perfil</button>
+        {/* CAMBIO AQUÍ: Reemplazamos el <button> por <Link> apuntando a tu nueva vista */}
+        <Link to="/servicio-detalle" className="btn btn-outline-success w-100 rounded-pill">
+          Ver Perfil
+        </Link>
       </div>
     </div>
   );
