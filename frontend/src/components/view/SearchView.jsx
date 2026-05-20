@@ -13,11 +13,12 @@ export const SearchView = () => {
     setQuery(searchParams.get('query') || '');
   }, [searchParams]);
 
+  // CAMBIO 1: Actualizamos las áreas en los datos de los especialistas
   const especialistas = [
-    { id: 1, nombre: 'Dra. María González', profesion: 'Médico General', area: 'Salud', precio: 25000 },
-    { id: 2, nombre: 'Juan Pérez', profesion: 'Gasfíter Certificado', area: 'Técnica', precio: 15000 },
-    { id: 3, nombre: 'Carlos Rojas', profesion: 'Electricista SEC', area: 'Técnica', precio: 20000 },
-    { id: 4, nombre: 'Ana Silva', profesion: 'Enfermera', area: 'Salud', precio: 18000 },
+    { id: 1, nombre: 'Dra. María González', profesion: 'Médico General', area: 'Profesionales', precio: 25000 },
+    { id: 2, nombre: 'Juan Pérez', profesion: 'Gasfíter Certificado', area: 'Técnicos / Oficios', precio: 15000 },
+    { id: 3, nombre: 'Carlos Rojas', profesion: 'Electricista SEC', area: 'Técnicos / Oficios', precio: 20000 },
+    { id: 4, nombre: 'Ana Silva', profesion: 'Enfermera', area: 'Profesionales', precio: 18000 },
   ];
 
   const actualizarFiltros = (area) => {
@@ -58,9 +59,10 @@ export const SearchView = () => {
             Buscar
           </button>
         </div>
-        <div className="col-12">
-          <div className="btn-group" role="group" aria-label="Filtro de área">
-            {['Todos', 'Salud', 'Técnica'].map((area) => (
+        <div className="col-12 mt-3">
+          <div className="btn-group flex-wrap" role="group" aria-label="Filtro de área">
+            {/* CAMBIO 2: Actualizamos los nombres de los botones */}
+            {['Todos', 'Profesionales', 'Técnicos / Oficios'].map((area) => (
               <button
                 key={area}
                 type="button"
@@ -77,10 +79,10 @@ export const SearchView = () => {
       {selectedArea !== 'Todos' && (
         <div className="alert alert-success d-flex justify-content-between align-items-center">
           <span>
-            Mostrando resultados para el área: <strong>{selectedArea}</strong>
+            Mostrando resultados para: <strong>{selectedArea}</strong>
           </span>
           <Link to="/buscar" className="btn btn-sm btn-outline-success">
-            Ver todas las áreas
+            Ver todas las categorías
           </Link>
         </div>
       )}

@@ -79,7 +79,8 @@ export const Sidebar = () => {
               }`
             }
           >
-            <span>🔍</span> Explorar Plataforma
+            {/* NUEVO TEXTO: Más directo a la acción */}
+            <span>🔍</span> Buscar Especialistas
           </NavLink>
         </li>
 
