@@ -1,6 +1,10 @@
 import React from 'react';
 // Importamos tu banner desde la carpeta ui
 import BannerInicio from '../ui/Banner';
+// 1. Importamos tu nueva sección de Quiénes Somos
+import { AboutUs } from './AboutUs';
+import { ContactCTA } from './ContactCTA';
+
 
 export const HomeView = () => {
   return (
@@ -94,6 +98,11 @@ export const HomeView = () => {
         </div>
       </div>
       
+      {/* 2. AQUÍ AGREGAMOS LA NUEVA SECCIÓN */}
+      {/* SECCIÓN 3: Quiénes Somos */}
+      <AboutUs />
+      <ContactCTA />
+
     </>
   );
 };
