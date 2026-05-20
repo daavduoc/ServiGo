@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ServiceDetailView } from './components/view/ServiceDetailView';
 import { ClientReservationsView } from './components/view/ClientReservationsView';
+import { NotificationsView } from './components/view/NotificationsView'; 
+
 
 // Maneja la sesion del usuario
 import { AuthProvider } from './context/AuthContext';
@@ -104,6 +106,7 @@ function App() {
             <Route path="/mis-reservas" element={<ClientReservationsView />} />
               <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
               <Route path="/servicio-detalle" element={<ServiceDetailView />} /> {/* <-- NUEVA RUTA AQUÍ */}
+               <Route path="/notificaciones" element={<NotificationsView />} />
               
             </Route>
 
@@ -116,6 +119,7 @@ function App() {
               <Route path="/admin/solicitudes" element={<AdminSolicitudesView />} />
               <Route path="/admin/reportes" element={<AdminReportesView />} />
               <Route path="/admin/auditoria" element={<AdminAuditoriaView />} />
+             
             </Route>
 
           </Routes>

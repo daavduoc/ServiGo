@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { NotificationCenter } from './NotificationCenter';
+
 
 const Navbar = () => {
   // 1. Creamos un estado (una memoria temporal) para saber si estás logueada
@@ -59,26 +61,31 @@ const Navbar = () => {
 
             {/* 🔽 AQUÍ ESTÁ LA MAGIA DEL RENDERIZADO CONDICIONAL 🔽 */}
             {isLoggedIn ? (
-              /* SI isLoggedIn ES TRUE -> MUESTRA EL PERFIL DE NICOLE */
-              <div className="dropdown">
-                <button 
-                  className="btn btn-light rounded-pill px-3 py-2 border d-flex align-items-center gap-2" 
-                  type="button" 
-                  data-bs-toggle="dropdown" 
-                  aria-expanded="false"
-                >
-                  <div className="bg-success text-white rounded-circle d-flex justify-content-center align-items-center" style={{ width: '28px', height: '28px', fontSize: '12px' }}>
-                    NC
-                  </div>
-                  <span className="fw-medium small">Nicole Chávez</span>
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                  <li><Link className="dropdown-item py-2 small" to="/dashboard-cliente">Panel de Cliente</Link></li>
-                  <li><Link className="dropdown-item py-2 small" to="/perfil">Configurar Perfil</Link></li>
-                  <li><hr className="dropdown-divider" /></li>
-                  <li><button onClick={handleLogout} className="dropdown-item py-2 small text-danger">Cerrar Sesión</button></li>
-                </ul>
-              </div>
+              /* SI isLoggedIn ES TRUE -> MUESTRA CAMPANITA Y PERFIL */
+              <>
+                {/* AQUÍ INTEGRAMOS LA CAMPANITA */}
+                <NotificationCenter />
+
+                <div className="dropdown">
+                  <button 
+                    className="btn btn-light rounded-pill px-3 py-2 border d-flex align-items-center gap-2" 
+                    type="button" 
+                    data-bs-toggle="dropdown" 
+                    aria-expanded="false"
+                  >
+                    <div className="bg-success text-white rounded-circle d-flex justify-content-center align-items-center" style={{ width: '28px', height: '28px', fontSize: '12px' }}>
+                      NC
+                    </div>
+                    <span className="fw-medium small">Nicole Chávez</span>
+                  </button>
+                  <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                    <li><Link className="dropdown-item py-2 small" to="/dashboard-cliente">Panel de Cliente</Link></li>
+                    <li><Link className="dropdown-item py-2 small" to="/perfil">Configurar Perfil</Link></li>
+                    <li><hr className="dropdown-divider" /></li>
+                    <li><button onClick={handleLogout} className="dropdown-item py-2 small text-danger">Cerrar Sesión</button></li>
+                  </ul>
+                </div>
+              </>
             ) : (
               /* SI isLoggedIn ES FALSE -> MUESTRA BOTONES DE ENTRAR/REGISTRARSE */
               <div className="d-flex gap-2">
