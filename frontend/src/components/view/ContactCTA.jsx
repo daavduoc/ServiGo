@@ -25,7 +25,8 @@ export const ContactCTA = () => {
                     <div className="bg-white text-success rounded-circle d-flex justify-content-center align-items-center" style={{ width: '35px', height: '35px' }}>
                       <i className="bi bi-envelope-fill"></i>
                     </div>
-                    <span className="fw-medium">contacto@servigo.cl</span>
+                    {/* AQUÍ ACTUALIZAMOS EL CORREO */}
+                    <span className="fw-medium">Contacto.servigo@gmail.com</span>
                   </div>
                 </div>
                 
