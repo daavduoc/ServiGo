@@ -25,6 +25,11 @@ export const ProfileView = () => {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [fotoError, setFotoError] = useState(false);
 
+  // --- NUEVOS ESTADOS PARA LOS MODALES ---
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showNotifModal, setShowNotifModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   // Cargar datos del perfil al montar el componente
   useEffect(() => {
     const loadProfile = async () => {
@@ -72,7 +77,7 @@ export const ProfileView = () => {
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, updateUserData]);
 
   const handlePhotoSelect = async (e) => {
     const file = e.target.files?.[0];
@@ -160,7 +165,7 @@ export const ProfileView = () => {
   }
 
   return (
-    <div className="container mt-5 mb-5">
+    <div className="container mt-5 mb-5 position-relative">
       <div className="row">
         {/* Lado Izquierdo: Foto y Datos Rápidos */}
         <div className="col-md-4 mb-4">
@@ -190,7 +195,7 @@ export const ProfileView = () => {
             />
             <button
               type="button"
-              className="btn btn-outline-primary btn-sm mb-3"
+              className="btn btn-outline-success btn-sm mb-3"
               disabled={uploadingPhoto}
               onClick={() => fileInputRef.current?.click()}
             >
@@ -212,9 +217,8 @@ export const ProfileView = () => {
             <hr />
 
             {!isEditing && (
-              /* CAMBIO AQUÍ: El botón ahora es Verde (btn-success) */
               <button 
-                className="btn btn-success w-100 shadow-sm text-white"
+                className="btn btn-success w-100 shadow-sm text-white fw-medium"
                 onClick={() => setIsEditing(true)}
               >
                 ✏️ Editar Perfil
@@ -334,14 +338,14 @@ export const ProfileView = () => {
                 <div className="d-flex gap-2 mt-4">
                   <button 
                     type="button"
-                    className="btn btn-success flex-grow-1"
+                    className="btn btn-success flex-grow-1 fw-bold"
                     onClick={handleSave}
                   >
                     💾 Guardar Cambios
                   </button>
                   <button 
                     type="button"
-                    className="btn btn-secondary flex-grow-1"
+                    className="btn btn-secondary flex-grow-1 fw-bold"
                     onClick={handleCancel}
                   >
                     ❌ Cancelar
@@ -388,7 +392,6 @@ export const ProfileView = () => {
                   </div>
                 </div>
 
-                {/* CAMBIO AQUÍ: Borde decorativo ahora es verde (border-success) */}
                 <div className="bg-light p-4 rounded-3 border-start border-success border-4">
                   <p className="text-muted mb-0">
                     💡 Haz clic en <strong>"Editar Perfil"</strong> para actualizar tu información de contacto y dirección.
@@ -401,12 +404,21 @@ export const ProfileView = () => {
           <div className="card shadow-sm border-0 p-4 mt-4">
             <h5 className="fw-bold mb-3">⚙️ Configuración de Cuenta</h5>
             <div className="list-group list-group-flush">
-              <button className="list-group-item list-group-item-action text-start">
+              {/* CAMBIO: Conectamos los botones a los modales */}
+              <button 
+                onClick={() => setShowPasswordModal(true)} 
+                className="list-group-item list-group-item-action text-start"
+              >
                 🔑 Cambiar Contraseña
               </button>
-              <button className="list-group-item list-group-item-action text-start">
+              
+              <button 
+                onClick={() => setShowNotifModal(true)} 
+                className="list-group-item list-group-item-action text-start"
+              >
                 🔔 Preferencias de Notificaciones
               </button>
+              
               <button
                 type="button"
                 className="list-group-item list-group-item-action text-start"
@@ -415,13 +427,105 @@ export const ProfileView = () => {
               >
                 📸 Cambiar Foto de Perfil
               </button>
-              <button className="list-group-item list-group-item-action text-danger">
+              
+              <button 
+                onClick={() => setShowDeleteModal(true)} 
+                className="list-group-item list-group-item-action text-danger text-start fw-medium"
+              >
                 🗑️ Eliminar Cuenta
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* ==========================================================
+          MODALES (VENTANAS EMERGENTES) 
+          ========================================================== */}
+
+      {/* MODAL: CAMBIAR CONTRASEÑA */}
+      {showPasswordModal && (
+        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 rounded-4 shadow">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="fw-bold mb-0">🔑 Cambiar Contraseña</h5>
+                <button onClick={() => setShowPasswordModal(false)} className="btn-close"></button>
+              </div>
+              <div className="modal-body py-4">
+                <label className="form-label small fw-bold text-muted">Contraseña Actual</label>
+                <input type="password" placeholder="Ingresa tu contraseña actual" className="form-control mb-3 rounded-pill px-3 py-2" />
+                
+                <label className="form-label small fw-bold text-muted">Nueva Contraseña</label>
+                <input type="password" placeholder="Ingresa la nueva contraseña" className="form-control mb-3 rounded-pill px-3 py-2" />
+                
+                <label className="form-label small fw-bold text-muted">Confirmar Nueva Contraseña</label>
+                <input type="password" placeholder="Repite la nueva contraseña" className="form-control rounded-pill px-3 py-2" />
+              </div>
+              <div className="modal-footer border-0 pt-0">
+                <button onClick={() => setShowPasswordModal(false)} className="btn btn-light rounded-pill px-4 fw-medium">Cancelar</button>
+                <button onClick={() => setShowPasswordModal(false)} className="btn btn-success rounded-pill px-4 fw-bold">Actualizar Clave</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: PREFERENCIAS NOTIFICACIONES */}
+      {showNotifModal && (
+        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 rounded-4 shadow">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="fw-bold mb-0">🔔 Mis Notificaciones</h5>
+                <button onClick={() => setShowNotifModal(false)} className="btn-close"></button>
+              </div>
+              <div className="modal-body py-4">
+                <p className="text-muted small mb-4">Elige cómo quieres que ServiGo se comunique contigo.</p>
+                <div className="form-check form-switch mb-3 d-flex align-items-center gap-2">
+                  <input className="form-check-input fs-5 mt-0" type="checkbox" defaultChecked />
+                  <label className="form-check-label fw-medium">Notificaciones por Correo Electrónico</label>
+                </div>
+                <div className="form-check form-switch d-flex align-items-center gap-2">
+                  <input className="form-check-input fs-5 mt-0" type="checkbox" />
+                  <label className="form-check-label fw-medium">Alertas SMS a mi teléfono</label>
+                </div>
+              </div>
+              <div className="modal-footer border-0 pt-0">
+                <button onClick={() => setShowNotifModal(false)} className="btn btn-success rounded-pill w-100 fw-bold py-2">Guardar Preferencias</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ELIMINAR CUENTA */}
+      {showDeleteModal && (
+        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 rounded-4 shadow">
+              <div className="modal-header border-0 pb-0">
+                <button onClick={() => setShowDeleteModal(false)} className="btn-close"></button>
+              </div>
+              <div className="modal-body text-center p-4 pt-0">
+                <div className="fs-1 mb-3">⚠️</div>
+                <h4 className="fw-bold text-danger mb-3">Zona de Peligro</h4>
+                <h6 className="fw-bold text-dark">¿Estás segura de eliminar tu cuenta?</h6>
+                <p className="text-muted small mt-2">
+                  Esta acción es permanente y borrará todo tu historial de servicios, reservas y mensajes en ServiGo.
+                </p>
+              </div>
+              <div className="modal-footer border-0 justify-content-center bg-light rounded-bottom-4">
+                <button onClick={() => setShowDeleteModal(false)} className="btn btn-secondary rounded-pill px-4 fw-medium">Me arrepentí</button>
+                <button onClick={() => setShowDeleteModal(false)} className="btn btn-danger rounded-pill px-4 fw-bold">Sí, Eliminar Todo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
+export default ProfileView;
