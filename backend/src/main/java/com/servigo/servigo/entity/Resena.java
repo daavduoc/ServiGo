@@ -25,4 +25,6 @@ public class Resena {
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
+
+
 }

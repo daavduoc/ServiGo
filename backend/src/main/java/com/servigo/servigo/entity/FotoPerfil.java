@@ -13,9 +13,10 @@ public class FotoPerfil {
     private Long idFoto;
 
     private String urlFotoCloud;
+
     private String publicId;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
 }

@@ -49,4 +49,11 @@ public class RolController {
     public void eliminarRol(@PathVariable Long id) {
         rolService.eliminarRol(id);
     }
+
+    // PUT: actualizar rol
+    // URL: http://localhost:8080/roles/{id}
+    @PutMapping("/{id}")
+    public Rol actualizarRol(@PathVariable Long id, @RequestBody Rol rolActualizado) {
+        return rolService.actualizarRol(id, rolActualizado);
+    }
 }

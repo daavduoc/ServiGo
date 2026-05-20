@@ -1,14 +1,15 @@
+import React from 'react';
+
 // Boton generico
-// inicio Boton generico
-export const ButtonCustom = ({ texto, onClick, tipo = "button", color = "primary" }) => {
+export const ButtonCustom = ({ texto, onClick, tipo = "button", color = "primary", className = "", disabled = false }) => {
   return (
-    <button 
-      type={tipo} 
-      className={`btn btn-${color} w-100 fw-bold`} 
+    <button
+      type={tipo}
+      className={`btn btn-${color} w-100 fw-bold ${className}`}
       onClick={onClick}
+      disabled={disabled}
     >
       {texto}
     </button>
   );
 };
-// fin Boton generico {texto} cambiara segun la necesidad

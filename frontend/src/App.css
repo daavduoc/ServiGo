@@ -36,3 +36,44 @@
     transform: rotate(360deg);
   }
 }
+
+
+
+/* BOTONES */
+
+/* 1. La paleta de colores ServiGo */
+:root {
+  --servigo-primary: #0d6efd;      
+  --servigo-primary-hover: #0b5ed7; 
+  --servigo-bg-app: #f4f6f9;       
+  --servigo-radius: 12px;          
+}
+
+/* 2. El Molde de las Tarjetas (Para que TODAS sean iguales) */
+.servigo-card {
+  background-color: #ffffff;
+  border-radius: var(--servigo-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); 
+  padding: 2rem;
+}
+
+/* 3. Botones  (Se sobreescribe el diseño base de Bootstrap) */
+.btn-servigo {
+  background-color: var(--servigo-primary);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-servigo:hover {
+  background-color: var(--servigo-primary-hover);
+  color: white;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+/* 4. Título */
+.text-servigo-title {
+  color: var(--servigo-primary);
+  font-weight: 700;
+}

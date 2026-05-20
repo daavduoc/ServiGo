@@ -1,7 +1,7 @@
 package com.servigo.servigo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Entity
@@ -13,4 +13,5 @@ public class Especialidad {
     private Long idEspecialidad;
 
     private String nombre;
+    private String descripcion;
 }

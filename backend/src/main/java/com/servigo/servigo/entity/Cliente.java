@@ -15,4 +15,12 @@ public class Cliente {
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
+
+    public Usuario getUsuario() {
+    return usuario;
+}
+
+    public void setUsuario(Usuario usuario) {
+    this.usuario = usuario;
+}
 }
