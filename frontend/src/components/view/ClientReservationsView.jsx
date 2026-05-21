@@ -32,7 +32,14 @@ export const ClientReservationsView = () => {
 
   return (
     <div className="container mt-4 mb-5" style={{ maxWidth: '900px' }}>
-      <h2 className="fw-bold mb-4">📅 Mis Horas y Reservas</h2>
+      
+      {/* HEADER CON BOTÓN AGREGADO */}
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
+        <h2 className="fw-bold m-0">📅 Mis Horas y Reservas</h2>
+        <Link to="/buscar" className="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm hover-btn-success">
+          <i className="bi bi-plus-lg me-2"></i>Agendar Nueva Cita
+        </Link>
+      </div>
 
       {/* SECCIÓN 1: PRÓXIMAS CITAS */}
       <h5 className="fw-bold text-dark mb-3">Próximas Citas</h5>
@@ -97,7 +104,7 @@ export const ClientReservationsView = () => {
                   <span className={`badge bg-${cita.etiqueta} px-3 py-1 rounded-pill`}>
                     {cita.estado}
                   </span>
-                  <button className="btn btn-sm btn-outline-secondary rounded-pill">Volver a agendar</button>
+                  <Link to="/buscar" className="btn btn-sm btn-outline-secondary rounded-pill">Volver a agendar</Link>
                 </div>
 
               </div>
@@ -106,6 +113,12 @@ export const ClientReservationsView = () => {
         ))}
       </div>
 
+      <style>{`
+        .hover-btn-success:hover {
+          background-color: #157347;
+          color: white;
+        }
+      `}</style>
     </div>
   );
 };

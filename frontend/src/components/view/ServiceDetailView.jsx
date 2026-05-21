@@ -26,12 +26,34 @@ export const ServiceDetailView = () => {
   // Horas simuladas disponibles
   const bloquesHorarios = ["09:00", "11:00", "14:30", "16:30"];
 
+  // ==========================================
+  // LÓGICA DE CONTROL DE TIEMPO ACTUAL
+  // ==========================================
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+  
+  // Obtiene la fecha de hoy en formato "YYYY-MM-DD"
+  const fechaHoyString = `${anio}-${mes}-${dia}`; 
+
+  // Obtiene la hora actual en formato "HH:MM"
+  const horaActualString = String(hoy.getHours()).padStart(2, '0') + ":" + String(hoy.getMinutes()).padStart(2, '0');
+  // ==========================================
+
   const handleAgendar = (e) => {
     e.preventDefault();
     if (!fechaSeleccionada || !horaSeleccionada) {
       alert("Por favor, selecciona una fecha y una hora para continuar.");
       return;
     }
+
+    // Validación de seguridad extra por si acaso
+    if (fechaSeleccionada === fechaHoyString && horaSeleccionada < horaActualString) {
+      alert("El horario seleccionado ya ha pasado. Por favor, elige un bloque posterior.");
+      return;
+    }
+
     setMensajeExito(`¡Excelente! Tu cita para "${servicio.titulo}" con ${servicio.proveedor} ha sido reservada con éxito para el día ${fechaSeleccionada} a las ${horaSeleccionada} hrs.`);
   };
 
@@ -112,9 +134,12 @@ export const ServiceDetailView = () => {
                     type="date" 
                     id="fecha"
                     className="form-control border-2 focus-success"
-                    min="2026-05-19"
+                    min={fechaHoyString} // Restringe los días anteriores dinámicamente
                     value={fechaSeleccionada}
-                    onChange={(e) => setFechaSeleccionada(e.target.value)}
+                    onChange={(e) => {
+                      setFechaSeleccionada(e.target.value);
+                      setHoraSeleccionada(''); // Resetea la hora elegida al cambiar de día
+                    }}
                     required
                   />
                 </div>
@@ -125,25 +150,33 @@ export const ServiceDetailView = () => {
                     2. Selecciona una hora disponible
                   </label>
                   <div className="row g-2">
-                    {bloquesHorarios.map((hora) => (
-                      <div key={hora} className="col-6">
-                        <button
-                          type="button"
-                          className={`btn w-100 py-2.5 rounded-3 fw-medium transition-all small ${
-                            horaSeleccionada === hora 
-                              ? 'btn-success text-white shadow-sm' 
-                              : 'btn-outline-secondary border-2 hover-hour'
-                          }`}
-                          onClick={() => setHoraSeleccionada(hora)}
-                        >
-                          🕒 {hora} hrs
-                        </button>
-                      </div>
-                    ))}
+                    {bloquesHorarios.map((hora) => {
+                      // Evaluamos si el bloque ya pasó únicamente si se seleccionó el día de hoy
+                      const esHoy = fechaSeleccionada === fechaHoyString;
+                      const horaPasada = esHoy && hora < horaActualString;
+
+                      return (
+                        <div key={hora} className="col-6">
+                          <button
+                            type="button"
+                            className={`btn w-100 py-2.5 rounded-3 fw-medium transition-all small ${
+                              horaSeleccionada === hora 
+                                ? 'btn-success text-white shadow-sm' 
+                                : 'btn-outline-secondary border-2 hover-hour'
+                            }`}
+                            onClick={() => setHoraSeleccionada(hora)}
+                            disabled={horaPasada} // Deshabilita el botón si la hora ya pasó
+                            style={horaPasada ? { cursor: 'not-allowed', opacity: 0.4 } : {}}
+                          >
+                            {horaPasada ? '❌ Pasado' : `🕒 ${hora} hrs`}
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Botón de Acción Principal (Seguro sin errores) */}
+                {/* Botón de Acción Principal */}
                 <div className="d-grid mt-4 pt-2">
                   <button type="submit" className="btn btn-success py-2 fw-bold text-white shadow-sm hover-btn-success">
                     {fechaSeleccionada && horaSeleccionada ? `Confirmar para el ${fechaSeleccionada}` : "Selecciona fecha y hora"}
@@ -158,7 +191,7 @@ export const ServiceDetailView = () => {
       )}
 
       <style>{`
-        .hover-hour:hover {
+        .hover-hour:hover:not(:disabled) {
           border-color: #198754 !important;
           color: #198754 !important;
           background-color: #f0fff4 !important;
