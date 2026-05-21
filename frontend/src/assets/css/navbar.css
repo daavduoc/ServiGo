@@ -1,0 +1,103 @@
+/* Barra superior pública (MainLayout) */
+
+.servigo-navbar {
+  --nav-green: #4ad990;
+  --nav-green-dark: #2f9e44;
+  background: #fff;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0.65rem 0;
+}
+
+.servigo-navbar__brand {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.servigo-navbar__logo {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: min(200px, 46vw);
+  object-fit: contain;
+}
+
+.servigo-navbar .nav-link {
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.85rem !important;
+}
+
+.servigo-navbar .nav-link:hover {
+  color: var(--nav-green-dark);
+}
+
+.servigo-navbar .nav-link.active {
+  color: var(--nav-green-dark) !important;
+  font-weight: 600;
+  position: relative;
+}
+
+.servigo-navbar .nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.15rem;
+  height: 2px;
+  background: var(--nav-green);
+  border-radius: 2px;
+}
+
+.servigo-navbar .nav-location {
+  color: var(--nav-green-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.servigo-navbar .btn-nav-login {
+  border: 1.5px solid var(--nav-green);
+  color: var(--nav-green-dark);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  background: #fff;
+}
+
+.servigo-navbar .btn-nav-login:hover {
+  background: #e8f8ef;
+  color: var(--nav-green-dark);
+}
+
+.servigo-navbar .btn-nav-register {
+  background: var(--nav-green);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.45rem 1.15rem;
+}
+
+.servigo-navbar .btn-nav-register:hover {
+  background: var(--nav-green-dark);
+  color: #fff;
+}
+
+.servigo-navbar .navbar-search {
+  max-width: 220px;
+}
+
+@media (max-width: 991.98px) {
+  .servigo-navbar .navbar-actions {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding-top: 0.75rem;
+  }
+
+  .servigo-navbar .navbar-search {
+    max-width: 100%;
+  }
+}
