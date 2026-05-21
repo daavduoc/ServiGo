@@ -10,6 +10,7 @@ import com.servigo.servigo.repository.EmpresaRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.RolRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
+import com.servigo.servigo.service.EmailService;
 import com.servigo.servigo.service.UsuarioService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +70,8 @@ public class UsuarioServiceTest {
                 empresaRepository,
                 categoriaPrestadorRepository,
                 passwordEncoder,
-                Mockito.mock(com.servigo.servigo.service.FotoPerfilService.class)
+                Mockito.mock(com.servigo.servigo.service.FotoPerfilService.class),
+                Mockito.mock(EmailService.class)
         );
     }
 

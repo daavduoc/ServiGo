@@ -26,6 +26,7 @@ import { ProviderRegisterView } from './components/view/auth/ProviderRegisterVie
 
 // 4. Importamos la vista para recuperar contraseña
 import { RecoverPasswordView } from './components/view/auth/RecoverPasswordView';
+import { VerifyEmailView } from './components/view/auth/VerifyEmailView';
 
 // --- VISTAS DE USUARIOS ---
 import { ClientDashboard } from './components/view/ClientDashboard';
@@ -79,6 +80,7 @@ function App() {
             {/* --- LOGIN Y RECUPERACIÓN --- */}
             {/* <Route path="/login" element={<LoginView />} /> - IMPORTANTE: LoginView no está definido. Comentado para evitar crasheo */}
             <Route path="/recuperar-password" element={<RecoverPasswordView />} />
+            <Route path="/verificar-correo" element={<VerifyEmailView />} />
 
             {/* --- REGISTRO MODULAR --- */}
             <Route path="/registro" element={<RegisterSelectionView />} />

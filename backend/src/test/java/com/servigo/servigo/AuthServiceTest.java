@@ -8,6 +8,7 @@ import com.servigo.servigo.jwt.JwtUtil;
 import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.service.AuthService;
+import com.servigo.servigo.service.EmailService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,8 @@ public class AuthServiceTest {
                 usuarioRepository,
                 fotoPerfilRepository,
                 jwtUtil,
-                passwordEncoder
+                passwordEncoder,
+                Mockito.mock(EmailService.class)
         );
     }
 

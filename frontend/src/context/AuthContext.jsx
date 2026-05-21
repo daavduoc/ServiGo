@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 
 // Creamos el contexto vacio que ocuparemos para guardar la informacion del usuario
 const AuthContext = createContext(null);
@@ -31,32 +31,30 @@ export const AuthProvider = ({ children }) => {
         checkSession();
     }, []);
 
-    // Login de usuario
-    const login = (userData) => {
+    const login = useCallback((userData) => {
         setUser(userData);
         setIsAuthenticated(true);
         localStorage.setItem('user', JSON.stringify(userData));
 
-        // guardamos el token en el localStorage        
         if (userData.token) {
             localStorage.setItem('token', userData.token);
         }
-    };
+    }, []);
 
-    // Función para borrar al usuario cuando selecciona el botón cerrar sesión
-    const logout = () => {
+    const logout = useCallback(() => {
         setUser(null);
         setIsAuthenticated(false);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-    };
+    }, []);
 
-    // Función para actualizar datos del usuario en el contexto
-    const updateUserData = (updatedUserData) => {
-        const newUserData = { ...user, ...updatedUserData };
-        setUser(newUserData);
-        localStorage.setItem('user', JSON.stringify(newUserData));
-    };
+    const updateUserData = useCallback((updatedUserData) => {
+        setUser((prev) => {
+            const newUserData = { ...prev, ...updatedUserData };
+            localStorage.setItem('user', JSON.stringify(newUserData));
+            return newUserData;
+        });
+    }, []);
 
     // guardamos toda la informacion para enviarselo a los componentes   
     const contextValue = useMemo(() => ({
@@ -66,7 +64,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUserData
-    }), [user, isAuthenticated, isLoading]);
+    }), [user, isAuthenticated, isLoading, login, logout, updateUserData]);
 
     // Si está cargando al iniciar la app no se mostrará nada
     if (isLoading) return null;

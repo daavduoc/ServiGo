@@ -22,18 +22,21 @@ public class AuthService {
     private final FotoPerfilRepository fotoPerfilRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public AuthService(
             UsuarioRepository usuarioRepository,
             FotoPerfilRepository fotoPerfilRepository,
             JwtUtil jwtUtil,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            EmailService emailService
     ) {
         this.usuarioRepository = usuarioRepository;
         this.fotoPerfilRepository = fotoPerfilRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     public LoginResponseDTO login(LoginRequestDTO dto) {
@@ -45,7 +48,7 @@ public class AuthService {
                 dto.getContrasena(),
                 usuario.getContrasena()
         )) {
-            throw new RuntimeException("Contraseña incorrecta");
+            throw new RuntimeException("Contrase?a incorrecta");
         }
 
         String token = jwtUtil.generarToken(
@@ -81,9 +84,9 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
 
-        System.out.println("Código de recuperación para " + usuario.getCorreo() + ": " + codigo);
+        System.out.println("C?digo de recuperaci?n para " + usuario.getCorreo() + ": " + codigo);
 
-        return "Código de recuperación generado. Revisa tu correo.";
+        return "C?digo de recuperaci?n generado. Revisa tu correo.";
     }
 
     public String validarCodigo(ValidarCodigoDTO dto) {
@@ -92,18 +95,67 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (usuario.getCodigoRecuperacion() == null) {
-            throw new RuntimeException("No hay código activo");
+            throw new RuntimeException("No hay c?digo activo");
         }
 
         if (usuario.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El código expiró");
+            throw new RuntimeException("El c?digo expir?");
         }
 
         if (!usuario.getCodigoRecuperacion().equals(dto.getCodigo())) {
-            throw new RuntimeException("Código inválido");
+            throw new RuntimeException("C?digo inv?lido");
         }
 
-        return "Código válido";
+        return "C?digo v?lido";
+    }
+
+    public String verificarCorreo(ValidarCodigoDTO dto) {
+
+        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getCorreoValidado()) {
+            return "El correo ya est? verificado";
+        }
+
+        if (usuario.getCodigoRecuperacion() == null) {
+            throw new RuntimeException("No hay c?digo de verificaci?n activo");
+        }
+
+        if (usuario.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("El c?digo de verificaci?n expir?");
+        }
+
+        if (!usuario.getCodigoRecuperacion().equals(dto.getCodigo())) {
+            throw new RuntimeException("C?digo de verificaci?n inv?lido");
+        }
+
+        usuario.setCorreoValidado(true);
+        usuario.setCodigoRecuperacion(null);
+        usuario.setCodigoExpiracion(null);
+        usuarioRepository.save(usuario);
+
+        return "Correo verificado correctamente";
+    }
+
+    public String reenviarCodigoVerificacion(RecuperarPasswordDTO dto) {
+
+        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (Boolean.TRUE.equals(usuario.getCorreoValidado())) {
+            return "El correo ya est? verificado";
+        }
+
+        String codigo = String.valueOf(100000 + secureRandom.nextInt(900000));
+
+        usuario.setCodigoRecuperacion(codigo);
+        usuario.setCodigoExpiracion(LocalDateTime.now().plusHours(24));
+        usuarioRepository.save(usuario);
+
+        emailService.enviarCodigoVerificacion(usuario.getCorreo(), codigo);
+
+        return "C?digo reenviado. Revisa tu correo.";
     }
 
     public String cambiarPassword(CambiarPasswordDTO dto) {
@@ -112,15 +164,15 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (usuario.getCodigoRecuperacion() == null) {
-            throw new RuntimeException("No hay código activo");
+            throw new RuntimeException("No hay c?digo activo");
         }
 
         if (usuario.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El código expiró");
+            throw new RuntimeException("El c?digo expir?");
         }
 
         if (!usuario.getCodigoRecuperacion().equals(dto.getCodigo())) {
-            throw new RuntimeException("Código inválido");
+            throw new RuntimeException("C?digo inv?lido");
         }
 
         usuario.setContrasena(
@@ -132,6 +184,6 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
 
-        return "Contraseña actualizada correctamente";
+        return "Contrase?a actualizada correctamente";
     }
 }

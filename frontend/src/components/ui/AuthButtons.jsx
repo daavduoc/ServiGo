@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoginModal } from './LoginModal';
 import { useAuth } from '../../context/AuthContext';
+import { getDisplayName } from '../../utils/userDisplay';
 
 export const AuthButtons = () => {
   // 1. Estado local: generamos un switch para mostrar u ocultar el boton de Iniciar Sesión
@@ -13,7 +14,7 @@ export const AuthButtons = () => {
     return (
       <div className="d-flex align-items-center gap-2">
         <span className="text-muted d-none d-md-inline">
-          Bienvenido, <strong>{user.nombre || user.correo}</strong>
+          Bienvenido, <strong>{getDisplayName(user)}</strong>
         </span>
         <Link to="/perfil" className="btn btn-outline-success btn-sm fw-bold">
           Mi Perfil

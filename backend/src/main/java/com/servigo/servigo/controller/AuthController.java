@@ -51,4 +51,20 @@ public class AuthController {
     ) {
         return authService.cambiarPassword(dto);
     }
+
+    // POST: verificar correo electrónico con código
+    @PostMapping("/verificar-correo")
+    public String verificarCorreo(
+            @Valid @RequestBody ValidarCodigoDTO dto
+    ) {
+        return authService.verificarCorreo(dto);
+    }
+
+    // POST: reenviar código de verificación tras registro
+    @PostMapping("/reenviar-codigo-verificacion")
+    public String reenviarCodigoVerificacion(
+            @Valid @RequestBody RecuperarPasswordDTO dto
+    ) {
+        return authService.reenviarCodigoVerificacion(dto);
+    }
 }

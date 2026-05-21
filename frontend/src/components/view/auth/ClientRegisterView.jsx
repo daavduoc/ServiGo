@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
 import { authValidations } from '../../../utils/authValidations';
@@ -6,6 +7,7 @@ import { registrarUsuario, registrarUsuarioConFoto } from '../../../serviceFront
 import '../../../assets/css/registro-cliente.css';
 
 export const ClientRegisterView = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     rut: '',
     nombre: '',
@@ -84,8 +86,7 @@ export const ClientRegisterView = () => {
         await registrarUsuario(dataParaBackend);
       }
 
-      alert('¡Registro de Cliente exitoso!');
-      window.location.href = '/login';
+      navigate('/verificar-correo', { state: { correo: formData.correo } });
     } catch (err) {
       setError(err.message || 'Error al registrar en el servidor');
     } finally {

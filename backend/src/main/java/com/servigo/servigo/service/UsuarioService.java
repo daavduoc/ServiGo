@@ -18,7 +18,8 @@ import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -32,6 +33,8 @@ public class UsuarioService {
     private final CategoriaPrestadorRepository categoriaPrestadorRepository;
     private final PasswordEncoder passwordEncoder;
     private final FotoPerfilService fotoPerfilService;
+    private final EmailService emailService;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
@@ -41,7 +44,8 @@ public class UsuarioService {
             EmpresaRepository empresaRepository,
             CategoriaPrestadorRepository categoriaPrestadorRepository,
             PasswordEncoder passwordEncoder,
-            FotoPerfilService fotoPerfilService
+            FotoPerfilService fotoPerfilService,
+            EmailService emailService
     ) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
@@ -51,6 +55,7 @@ public class UsuarioService {
         this.categoriaPrestadorRepository = categoriaPrestadorRepository;
         this.passwordEncoder = passwordEncoder;
         this.fotoPerfilService = fotoPerfilService;
+        this.emailService = emailService;
     }
 
         public List<UsuarioResponseDTO> listarUsuarios() {
@@ -180,6 +185,13 @@ public class UsuarioService {
 
             prestadorRepository.save(prestador);
         }
+
+        String codigoVerificacion = String.valueOf(100000 + secureRandom.nextInt(900000));
+        usuario.setCodigoRecuperacion(codigoVerificacion);
+        usuario.setCodigoExpiracion(LocalDateTime.now().plusHours(24));
+        usuarioRepository.save(usuario);
+
+        emailService.enviarCodigoVerificacion(usuario.getCorreo(), codigoVerificacion);
 
         String fotoUrl = dto.getFotoUrl();
         if (fotoUrl != null && !fotoUrl.isBlank()) {

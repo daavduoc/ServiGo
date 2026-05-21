@@ -77,7 +77,7 @@ export const ProfileView = () => {
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated, updateUserData]);
+  }, [isAuthenticated]);
 
   const handlePhotoSelect = async (e) => {
     const file = e.target.files?.[0];

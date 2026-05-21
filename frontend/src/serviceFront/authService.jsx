@@ -21,6 +21,21 @@ const getAuthHeaders = (isFormData = false) => {
 };
 
 
+const parseApiError = async (response, fallback) => {
+    const text = await response.text().catch(() => '');
+    try {
+        const data = JSON.parse(text);
+        if (data?.error) return data.error;
+        if (typeof data === 'object' && data !== null) {
+            const first = Object.values(data)[0];
+            if (first) return String(first);
+        }
+    } catch {
+        // respuesta plana
+    }
+    return text || fallback;
+};
+
 const extraerUrlCloudinary = (data) => {
     if (!data) return null;
     if (typeof data === 'string') return data;
@@ -123,6 +138,45 @@ export const loginUser = async (credentials) => {
         return await response.json();
     } catch (error) {
         console.error("Error en loginUser:", error);
+        throw error;
+    }
+};
+
+// Verificar correo tras registro (código SMTP de 6 dígitos)
+export const verificarCorreo = async ({ correo, codigo }) => {
+    try {
+        const response = await fetch(`${API_URL_AUTH}/verificar-correo`, {
+            method: 'POST',
+            headers: getAuthHeaders(false),
+            body: JSON.stringify({ correo, codigo }),
+        });
+
+        if (!response.ok) {
+            throw new Error(await parseApiError(response, 'Código de verificación inválido'));
+        }
+
+        return await response.text();
+    } catch (error) {
+        console.error('Error en verificarCorreo:', error);
+        throw error;
+    }
+};
+
+export const reenviarCodigoVerificacion = async ({ correo }) => {
+    try {
+        const response = await fetch(`${API_URL_AUTH}/reenviar-codigo-verificacion`, {
+            method: 'POST',
+            headers: getAuthHeaders(false),
+            body: JSON.stringify({ correo }),
+        });
+
+        if (!response.ok) {
+            throw new Error(await parseApiError(response, 'No se pudo reenviar el código'));
+        }
+
+        return await response.text();
+    } catch (error) {
+        console.error('Error en reenviarCodigoVerificacion:', error);
         throw error;
     }
 };

@@ -1,70 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { getMyProfile } from '../../serviceFront/userService';
+import { getDisplayName } from '../../utils/userDisplay';
 
 export const ClientDashboard = () => {
-  // Mock: usuario
-  const [usuario] = useState({
-    nombre: 'Nicole Chávez',
-    correo: 'nicole.chavez@ejemplo.cl',
-    comuna: 'Puente Alto',
-    telefono: '+56 9 1234 5678',
-  });
+  const { user, updateUserData } = useAuth();
 
-  // Mock: servicios contratados
-  const [servicios] = useState([
-    { id: 1, nombre: 'Limpieza profunda', proveedor: 'Limpieza YA', fechaContratacion: '02/03/2024' },
-    { id: 2, nombre: 'Mantenimiento caldera', proveedor: 'CalderasChile', fechaContratacion: '10/04/2024' },
-  ]);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-  // Mock: citas del cliente
-  const [citas] = useState([
-    { id: 201, servicio: 'Mantenimiento caldera', fecha: '25/05/2026 10:00', estado: 'Pendiente' },
-    { id: 202, servicio: 'Limpieza profunda', fecha: '05/05/2026 14:00', estado: 'Confirmada' },
-  ]);
+    getMyProfile()
+      .then((data) => {
+        updateUserData({
+          idUsuario: data.idUsuario,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          correo: data.correo,
+          telefono: data.telefono,
+          comuna: data.comuna,
+          region: data.region,
+          rut: data.rut,
+          urlFotoCloud: data.urlFotoCloud,
+          rol: data.rol,
+        });
+      })
+      .catch(() => {});
+  }, []);
 
-  // Mock: historial (servicios completados)
-  const [historial] = useState([
-    { id: 101, servicio: 'Gasfitería', especialista: 'Juan Pérez', fecha: '15/05/2024', estado: 'Completado' },
-    { id: 102, servicio: 'Kinesiología', especialista: 'Dra. María González', fecha: '20/05/2024', estado: 'Completado' },
-  ]);
+  const nombreVisible = getDisplayName(user);
+  const correo = user?.correo || '';
+  const comuna = user?.comuna || '—';
+  const telefono = user?.telefono || '—';
 
-  const pendientes = citas.filter(c => c.estado === 'Pendiente');
-  const confirmadas = citas.filter(c => c.estado === 'Confirmada');
+  // Datos de citas/servicios: pendiente de API (sin mock de usuario)
+  const [servicios] = useState([]);
+  const [citas] = useState([]);
+  const [historial] = useState([]);
+
+  const pendientes = citas.filter((c) => c.estado === 'Pendiente');
+  const confirmadas = citas.filter((c) => c.estado === 'Confirmada');
 
   return (
     <div className="p-4">
       <h2 className="fw-bold mb-4">Panel Personal del Cliente</h2>
 
       <div className="row">
-        {/* Columna izquierda: perfil y servicios contratados */}
         <div className="col-lg-4 col-md-5 mb-4">
           <div className="card shadow-sm border-0 mb-3">
             <div className="card-body text-center">
-              <div className="mb-3"><span className="fs-1">👤</span></div>
-              <h4 className="fw-bold">{usuario.nombre}</h4>
-              <p className="text-muted">{usuario.comuna}, Chile</p>
-              <p className="small text-muted">{usuario.correo} • {usuario.telefono}</p>
+              {user?.urlFotoCloud ? (
+                <img
+                  src={user.urlFotoCloud}
+                  alt=""
+                  className="rounded-circle mb-3 object-fit-cover"
+                  style={{ width: 80, height: 80 }}
+                />
+              ) : (
+                <div className="mb-3"><span className="fs-1" aria-hidden="true">👤</span></div>
+              )}
+              <h4 className="fw-bold">{nombreVisible}</h4>
+              <p className="text-muted">{comuna}{comuna !== '—' ? ', Chile' : ''}</p>
+              <p className="small text-muted">{correo} • {telefono}</p>
             </div>
           </div>
 
           <div className="card shadow-sm border-0">
             <div className="card-body">
               <h5 className="fw-bold">Servicios contratados</h5>
-              <ul className="list-group list-group-flush mt-2">
-                {servicios.map(s => (
-                  <li key={s.id} className="list-group-item d-flex justify-content-between align-items-start">
-                    <div>
-                      <div className="fw-bold">{s.nombre}</div>
-                      <div className="small text-muted">{s.proveedor}</div>
-                    </div>
-                    <div className="small text-muted">{s.fechaContratacion}</div>
-                  </li>
-                ))}
-              </ul>
+              {servicios.length === 0 ? (
+                <p className="text-muted small mt-2 mb-0">Aún no tienes servicios contratados.</p>
+              ) : (
+                <ul className="list-group list-group-flush mt-2">
+                  {servicios.map((s) => (
+                    <li key={s.id} className="list-group-item d-flex justify-content-between align-items-start">
+                      <div>
+                        <div className="fw-bold">{s.nombre}</div>
+                        <div className="small text-muted">{s.proveedor}</div>
+                      </div>
+                      <div className="small text-muted">{s.fechaContratacion}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Columna derecha: citas y historial */}
         <div className="col-lg-8 col-md-7">
           <div className="card shadow-sm border-0 mb-4 p-3">
             <h5 className="fw-bold">Citas</h5>
@@ -76,7 +98,7 @@ export const ClientDashboard = () => {
                   <div className="text-muted">No tienes citas pendientes.</div>
                 ) : (
                   <ul className="list-group mt-2">
-                    {pendientes.map(c => (
+                    {pendientes.map((c) => (
                       <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                           <div className="fw-bold">{c.servicio}</div>
@@ -95,7 +117,7 @@ export const ClientDashboard = () => {
                   <div className="text-muted">No tienes citas confirmadas.</div>
                 ) : (
                   <ul className="list-group mt-2">
-                    {confirmadas.map(c => (
+                    {confirmadas.map((c) => (
                       <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                           <div className="fw-bold">{c.servicio}</div>
@@ -112,28 +134,38 @@ export const ClientDashboard = () => {
 
           <div className="card shadow-sm border-0 p-4">
             <h5 className="fw-bold mb-3">Historial de Servicios</h5>
-            <div className="table-responsive">
-              <table className="table table-hover align-middle">
-                <thead className="table-light">
-                  <tr>
-                    <th>Servicio</th>
-                    <th>Especialista</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {historial.map(item => (
-                    <tr key={item.id}>
-                      <td className="fw-bold">{item.servicio}</td>
-                      <td>{item.especialista}</td>
-                      <td>{item.fecha}</td>
-                      <td><span className={`badge ${item.estado === 'Completado' ? 'bg-success' : 'bg-secondary'}`}>{item.estado}</span></td>
+            {historial.length === 0 ? (
+              <p className="text-muted mb-0">No hay historial de servicios completados.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-hover align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Servicio</th>
+                      <th>Especialista</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {historial.map((item) => (
+                      <tr key={item.id}>
+                        <td className="fw-bold">{item.servicio}</td>
+                        <td>{item.especialista}</td>
+                        <td>{item.fecha}</td>
+                        <td>
+                          <span
+                            className={`badge ${item.estado === 'Completado' ? 'bg-success' : 'bg-secondary'}`}
+                          >
+                            {item.estado}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>
