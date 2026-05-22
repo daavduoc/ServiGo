@@ -6,57 +6,51 @@ import { authValidations } from '../../../utils/authValidations';
 import { registrarUsuario, registrarUsuarioConFoto } from '../../../serviceFront/authService';
 import '../../../assets/css/registro-cliente.css';
 
+// Limpia y formatea la dirección en pantalla  
+const limpiarDireccionFormato = (dir, com, reg) => {
+  return `${dir || ''}, ${com || ''}, ${reg || ''}`
+    .replace(/,\s*,/g, ',')
+    .replace(/^,\s*|,\s*$/g, '')
+    .trim();
+};
+
 export const ClientRegisterView = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    rut: '',
-    nombre: '',
-    apellido: '',
-    correo: '',
-    contrasena: '',
-    telefono: '',
-    direccion: '',
-    comuna: '',
-    region: '',
-    idRol: 1,
-    latitud: '',
-    longitud: '',
-    fotoPerfil: null,
-  });
-
   const [confirmContrasena, setConfirmContrasena] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    rut: '', 
+    nombre: '', 
+    apellido: '', 
+    correo: '', 
+    contrasena: '',
+    telefono: '', 
+    direccion: '', 
+    comuna: '', 
+    region: '',
+    idRol: 1, 
+    latitud: '', 
+    longitud: '', 
+    fotoPerfil: null,
+  });
 
   const handleChange = (e) => {
     let { name, value } = e.target;
-    const camposMayusculas = ['region', 'comuna', 'direccion'];
-    if (camposMayusculas.includes(name)) value = value.toUpperCase();
-
-    setFormData({ ...formData, [name]: value });
+    if (['region', 'comuna', 'direccion'].includes(name)) value = value.toUpperCase();
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (error) setError(null);
   };
 
-  const handleConfirmPasswordChange = (e) => {
-    setConfirmContrasena(e.target.value);
-    if (error) setError(null);
-  };
-
-  const handleImageChange = (archivo) => {
-    setFormData((prev) => ({ ...prev, fotoPerfil: archivo }));
-  };
-
-  const handleMapCoords = (coords) => {
-    setFormData((prev) => ({ ...prev, latitud: coords.lat, longitud: coords.lng }));
+  const handleMapCoords = ({ lat, lng }) => {
+    setFormData(prev => ({ ...prev, latitud: lat, longitud: lng }));
     if (error) setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.contrasena !== confirmContrasena) {
-      return setError('Las contraseñas no coinciden.');
-    }
+    if (formData.contrasena !== confirmContrasena) return setError('Las contraseñas no coinciden.');
 
     const errorValidacion = authValidations(formData);
     if (errorValidacion) return setError(errorValidacion);
@@ -66,19 +60,12 @@ export const ClientRegisterView = () => {
 
     try {
       const dataParaBackend = {
-        rut: formData.rut,
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        correo: formData.correo,
-        contrasena: formData.contrasena,
-        telefono: formData.telefono,
-        direccion: formData.direccion,
-        comuna: formData.comuna,
-        region: formData.region,
+        ...formData,
         latitud: formData.latitud ? Number(formData.latitud) : null,
         longitud: formData.longitud ? Number(formData.longitud) : null,
         tipoUsuario: 'CLIENTE',
       };
+      delete dataParaBackend.fotoPerfil; // Se remueve para evitar duplicados
 
       if (formData.fotoPerfil) {
         await registrarUsuarioConFoto(dataParaBackend, formData.fotoPerfil);
@@ -95,20 +82,13 @@ export const ClientRegisterView = () => {
   };
 
   const direccionParaMapa = `${formData.direccion}, ${formData.comuna}, ${formData.region}, Chile`;
-  const direccionVisible = direccionParaMapa
-    .replace(/,\s*,/g, ',')
-    .replace(/^,\s*/, '')
-    .replace(/,\s*Chile$/, '')
-    .trim();
 
   return (
     <CardContainer maxwidth="1320px" className="registro-cliente-card-wrap">
       <form onSubmit={handleSubmit} className="registro-cliente-form">
+        
         <header className="registro-cliente-page-header">
-          <h1>
-            <i className="bi bi-person-plus-fill" aria-hidden="true" />
-            Crear cuenta de cliente
-          </h1>
+          <h1><i className="bi bi-person-plus-fill" aria-hidden="true" /> Crear cuenta de cliente</h1>
           <p>Completa tu información para comenzar a contratar servicios.</p>
         </header>
 
@@ -120,36 +100,30 @@ export const ClientRegisterView = () => {
               layout="client"
               showConfirmPassword
               confirmContrasena={confirmContrasena}
-              onConfirmPasswordChange={handleConfirmPasswordChange}
+              onConfirmPasswordChange={(e) => { setConfirmContrasena(e.target.value); if (error) setError(null); }}
             />
 
             <h5 className="registro-section-title">Verificación de geolocalización</h5>
             <div className="registro-cliente-geo-search mb-2">
               <div className="input-group registro-cliente-input-lg">
-                <span className="input-group-text bg-white">
-                  <i className="bi bi-search text-muted" aria-hidden="true" />
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={direccionVisible}
-                  readOnly
-                  placeholder="Busca tu dirección o arrastra el marcador en el mapa"
-                  aria-label="Dirección para ubicación en mapa"
+                <span className="input-group-text bg-white"><i className="bi bi-search text-muted" aria-hidden="true" /></span>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  value={limpiarDireccionFormato(formData.direccion, formData.comuna, formData.region)} 
+                  readOnly 
+                  placeholder="Busca tu dirección o arrastra el marcador en el mapa" 
                 />
               </div>
             </div>
             <div className="registro-cliente-hint registro-cliente-hint--success mb-0">
               <i className="bi bi-check-circle-fill" aria-hidden="true" />
-              <span>
-                Asegúrate de que el marcador esté en la ubicación exacta donde recibirás los servicios.
-              </span>
+              <span> Asegúrate de que el marcador esté en la ubicación exacta donde recibirás los servicios.</span>
             </div>
           </div>
 
           <div className="col-lg-5 registro-cliente-col-right">
-            <PhotoUpload label="Foto de Perfil" onImageSelect={handleImageChange} />
-
+            <PhotoUpload label="Foto de Perfil" onImageSelect={(archivo) => setFormData(p => ({ ...p, fotoPerfil: archivo }))} />
             <MapSection
               label="Ubicación en el mapa"
               fullAddress={direccionParaMapa}
@@ -161,11 +135,7 @@ export const ClientRegisterView = () => {
           </div>
         </div>
 
-        {error && (
-          <div className="alert alert-danger mt-4 text-center fw-bold mb-0" role="alert">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-danger mt-4 text-center fw-bold mb-0" role="alert">{error}</div>}
 
         <FormActions
           onCancel={() => window.history.back()}
@@ -174,8 +144,7 @@ export const ClientRegisterView = () => {
         />
 
         <p className="registro-cliente-footer-note">
-          <i className="bi bi-lock-fill" aria-hidden="true" />
-          Tus datos están protegidos y se usan solo para mejorar tu experiencia en ServiGo.
+          <i className="bi bi-lock-fill" aria-hidden="true" /> Tus datos están protegidos y se usan solo para mejorar tu experiencia en ServiGo.
         </p>
       </form>
     </CardContainer>

@@ -3,12 +3,11 @@ const API_URL_AUTH = 'http://localhost:8080/auth';
 const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
 const API_URL_CLOUDINARY = 'http://localhost:8080/cloudinary';
 
-// Cabeceras para usar en Spring Boot 
+// Cabeceras para usar ÚNICAMENTE en rutas privadas que requieran Token JWT
 const getAuthHeaders = (isFormData = false) => {
     const token = localStorage.getItem('token');
     const headers = {};
 
-    // Si enviamos fotos (FormData), el navegador pone el Content-Type solo con el boundary.
     if (!isFormData) {
         headers['Content-Type'] = 'application/json';
     }
@@ -19,7 +18,6 @@ const getAuthHeaders = (isFormData = false) => {
 
     return headers;
 };
-
 
 const parseApiError = async (response, fallback) => {
     const text = await response.text().catch(() => '');
@@ -42,7 +40,7 @@ const extraerUrlCloudinary = (data) => {
     return data.secure_url || data.secureUrl || data.url || null;
 };
 
-/** Sube imagen vía Spring → Cloudinary; devuelve la URL segura. */
+/** Sube imagen vía Spring → Cloudinary */
 export const subirFotoCloudinary = async (file) => {
     try {
         const formData = new FormData();
@@ -50,7 +48,7 @@ export const subirFotoCloudinary = async (file) => {
 
         const response = await fetch(`${API_URL_CLOUDINARY}/upload`, {
             method: 'POST',
-            headers: getAuthHeaders(true),
+            headers: getAuthHeaders(true), // Usa multipart/form-data automático
             body: formData,
         });
 
@@ -73,7 +71,7 @@ export const subirFotoCloudinary = async (file) => {
 const CAMPOS_REGISTRO_FORM = [
     'rut', 'nombre', 'apellido', 'correo', 'contrasena', 'telefono',
     'direccion', 'comuna', 'region', 'latitud', 'longitud', 'tipoUsuario',
-    'tipoPrestador', 'idCategoria', 'idEmpresa', 'direccionLocal',
+    'tipoPrestador', 'idCategoria', 'idEmpresa', 'direccionLocal', 'fotoUrl'
 ];
 
 const appendRegistroFields = (formData, userData) => {
@@ -85,11 +83,12 @@ const appendRegistroFields = (formData, userData) => {
     });
 };
 
+/** Sincronizado con VincularFotoRegistroDTO */
 export const vincularFotoRegistro = async (correo, fotoUrl) => {
     const response = await fetch(`${API_URL_USUARIOS}/registro/vincular-foto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo, fotoUrl }),
+        body: JSON.stringify({ correo, fotoUrl }), // Genera exactamente VincularFotoRegistroDTO
     });
 
     if (!response.ok) {
@@ -98,16 +97,18 @@ export const vincularFotoRegistro = async (correo, fotoUrl) => {
     }
 };
 
-/** Registro multipart: crea usuario y sube la foto en el servidor (recomendado). */
+/** Registro multipart con Foto */
 export const registrarUsuarioConFoto = async (userData, file) => {
     try {
         const formData = new FormData();
         appendRegistroFields(formData, userData);
-        formData.append('file', file);
+        if (file) {
+            formData.append('file', file);
+        }
 
         const response = await fetch(`${API_URL_USUARIOS}/registro-con-foto`, {
             method: 'POST',
-            body: formData,
+            body: formData, // El navegador gestiona el Content-Type automáticamente
         });
 
         if (!response.ok) {
@@ -122,13 +123,19 @@ export const registrarUsuarioConFoto = async (userData, file) => {
     }
 };
 
-// Iniciar sesión
+/** Iniciar sesión - Sincronizado Estricto con LoginRequestDTO */
 export const loginUser = async (credentials) => {
     try {
         const response = await fetch(`${API_URL_AUTH}/login`, {
             method: 'POST',
-            headers: getAuthHeaders(false),
-            body: JSON.stringify(credentials)
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                correo: credentials.correo,
+                contrasena: credentials.contrasena
+            })
         });
 
         if (!response.ok) {
@@ -136,19 +143,19 @@ export const loginUser = async (credentials) => {
             throw new Error(errorData?.message || 'Credenciales incorrectas');
         }
 
-        return await response.json();
+        return await response.json(); // Retorna LoginResponseDTO
     } catch (error) {
         console.error("Error en loginUser:", error);
         throw error;
     }
 };
 
-// Verificar correo tras registro (código SMTP de 6 dígitos)
+/** Verificar correo - Sincronizado con ValidarCodigoDTO */
 export const verificarCorreo = async ({ correo, codigo }) => {
     try {
         const response = await fetch(`${API_URL_AUTH}/verificar-correo`, {
             method: 'POST',
-            headers: getAuthHeaders(false),
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo, codigo }),
         });
 
@@ -163,11 +170,13 @@ export const verificarCorreo = async ({ correo, codigo }) => {
     }
 };
 
+/** Reenviar código */
 export const reenviarCodigoVerificacion = async ({ correo }) => {
     try {
+        // Nota: Si tu backend espera un DTO o un parámetro simple, se envía como JSON estructurado
         const response = await fetch(`${API_URL_AUTH}/reenviar-codigo-verificacion`, {
             method: 'POST',
-            headers: getAuthHeaders(false),
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo }),
         });
 
@@ -182,13 +191,13 @@ export const reenviarCodigoVerificacion = async ({ correo }) => {
     }
 };
 
-// Recuperación de contraseña
+/** Recuperación de contraseña - Sincronizado con RecuperarPasswordDTO */
 export const recoverPassword = async (emailData) => {
     try {
         const response = await fetch(`${API_URL_AUTH}/recuperar-password`, {
             method: 'POST',
-            headers: getAuthHeaders(false),
-            body: JSON.stringify(emailData)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo: emailData.correo })
         });
 
         if (!response.ok) {
@@ -202,14 +211,13 @@ export const recoverPassword = async (emailData) => {
     }
 };
 
-// Registrar usuario (Recibe el objeto con la URL de la foto ya lista)
+/** Registrar usuario - Sincronizado con RegistroUsuarioDTO */
 export const registrarUsuario = async (dataUsuario) => {
     try {
-        const { fotoUrl, ...resto } = dataUsuario;
         const response = await fetch(`${API_URL_USUARIOS}/registro`, {
             method: 'POST',
-            headers: getAuthHeaders(false),
-            body: JSON.stringify({ ...resto, fotoUrl }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataUsuario), // Mapea directo las propiedades de RegistroUsuarioDTO
         });
 
         if (!response.ok) {
@@ -219,11 +227,11 @@ export const registrarUsuario = async (dataUsuario) => {
 
         const usuario = await response.json();
 
-        if (fotoUrl) {
-            await vincularFotoRegistro(dataUsuario.correo, fotoUrl);
+        if (dataUsuario.fotoUrl) {
+            await vincularFotoRegistro(dataUsuario.correo, dataUsuario.fotoUrl);
         }
 
-        return usuario;
+        return usuario; // Retorna UsuarioResponseDTO
     } catch (error) {
         console.error("Error en registrarUsuario:", error);
         throw error;

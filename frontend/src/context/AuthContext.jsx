@@ -9,6 +9,14 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Función para cerrar sesión, ahora definida con useCallback para evitar problemas de dependencia en useEffect
+    const logout = useCallback(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+    }, []);
+
     // Al iniciar el sistema, se revisa si el navegador guardó la sesión anterior
     useEffect(() => {
         const checkSession = () => {
@@ -22,14 +30,14 @@ export const AuthProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error("Error al recuperar la sesión:", error);
-                logout();
+                logout(); // <-- Ahora sí puede llamarlo con total seguridad
             } finally {
                 setIsLoading(false);
             }
         };
 
         checkSession();
-    }, []);
+    }, [logout]); // logout se incluye como dependencia para asegurar que el efecto se actualice si logout cambia (aunque no debería cambiar)
 
     const login = useCallback((userData) => {
         setUser(userData);
@@ -39,13 +47,6 @@ export const AuthProvider = ({ children }) => {
         if (userData.token) {
             localStorage.setItem('token', userData.token);
         }
-    }, []);
-
-    const logout = useCallback(() => {
-        setUser(null);
-        setIsAuthenticated(false);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
     }, []);
 
     const updateUserData = useCallback((updatedUserData) => {
@@ -75,6 +76,7 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+
 // Hook personalizado para utilizar el context
 export const useAuth = () => {
     const context = useContext(AuthContext);

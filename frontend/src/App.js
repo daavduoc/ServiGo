@@ -5,40 +5,37 @@ import { ClientReservationsView } from './components/view/ClientReservationsView
 import { NotificationsView } from './components/view/NotificationsView';
 import { NotFoundView } from './components/view/NotFoundView'; 
 
-
 // Maneja la sesion del usuario
 import { AuthProvider } from './context/AuthContext';
 
-// 1. Importamos tu nuevo Layout (El sándwich)
+// Layouts
 import { MainLayout } from './components/layout/MainLayout';
+import { ClientLayout } from './components/ui/ClientLayout';
+import AdminLayout from './components/layout/AdminLayout';
 
-// 2. Importamos las Vistas (Las páginas)
+// Vistas Públicas y Generales
 import { HomeView } from './components/view/HomeView';
 import { UneteComoEspecialistaView } from './components/view/UneteComoEspecialistaView';
 import { PoliticasView } from './components/view/PoliticasView';
 import { SearchView } from './components/view/SearchView';
 import { ProfileView } from './components/view/ProfileView';
 
-// --- IMPORTACIÓN DE LA CÁMARA PARA PRUEBAS ---
-import { CameraCaptureView } from './components/view/CameraCaptureView';
-
-// 3. Importamos el Registro Modular
+// Autenticación y Registro Modular
 import { RegisterSelectionView } from './components/view/auth/RegisterSelectionView';
 import { ClientRegisterView } from './components/view/auth/ClientRegisterView';
 import { ProviderRegisterView } from './components/view/auth/ProviderRegisterView';
-
-// 4. Importamos la vista para recuperar contraseña
 import { RecoverPasswordView } from './components/view/auth/RecoverPasswordView';
 import { VerifyEmailView } from './components/view/auth/VerifyEmailView';
 
-// --- VISTAS DE USUARIOS ---
-import { ClientDashboard } from './components/view/ClientDashboard';
-import { ProviderDashboard } from './components/view/ProviderDashboard';
-import SupportView from './components/view/SupportView'; // <-- CAMBIO 1: Importamos tu vista de soporte
+// --- VISTAS GENÉRICAS Y DE CLIENTE ---
+import { UserDashboardView } from './components/view/UserDashboardView'; 
+import SupportView from './components/view/SupportView'; 
 
-import { ClientLayout } from './components/ui/ClientLayout';
-// Importamos el layout y vistas del admin
-import AdminLayout from './components/layout/AdminLayout';
+// --- VISTAS DEL PRESTADOR ---
+import { ProviderServicesView } from './components/view/ProviderServicesView'; 
+import { ProviderProfileView } from './components/view/ProviderProfileView';   
+
+// --- VISTAS DE ADMINISTRADOR ---
 import AdminDashboard from './components/view/AdminDashboard';
 import AdminUsuariosView from './components/view/AdminUsuariosView';
 import AdminPrestadoresView from './components/view/AdminPrestadoresView';
@@ -47,94 +44,64 @@ import AdminSolicitudesView from './components/view/AdminSolicitudesView';
 import AdminReportesView from './components/view/AdminReportesView';
 import AdminAuditoriaView from './components/view/AdminAuditoriaView';
 
-/* =========================================================================
-   GUÍA DE IMPLEMENTACIONES FUTURAS (CÁMARA MODULAR)
-   -------------------------------------------------------------------------
-   Actualmente la camara esta en una ruta separada solo para pruebas
-   Cuando se tenga que unir la cámara a tus vistas reales, ya no se usará una ruta 
-   separada. En su lugar, abrirás el archivo de la vista (ej: ProfileView.jsx), 
-   importarás la cámara y la colocarás dentro del HTML así:
-   
-   1. Si el usuario quiere cambiar su foto de perfil en ProfileView.jsx: 
-      <CameraCaptureView modo="perfil" />
-
-   2. Para el Login Biométrico o control de seguridad: 
-      <CameraCaptureView modo="verificacion" />
-
-   3. Para capturar el rostro durante el registro (ClientRegisterView.jsx):
-      <CameraCaptureView modo="registro" />
-   ========================================================================= */
+// Cámara para Pruebas
+import { CameraCaptureView } from './components/view/CameraCaptureView';
 
 function App() {
   return (
-    //  Envolvemos la app para que reconozca a los usuarios utilizando { ej: vista }
     <AuthProvider>
       <Router>
-        {/* habilitacion del layout */}
-        <MainLayout>
-          <Routes>
+        <Routes>
+          {/* =========================================================
+              1. VISTAS PÚBLICAS (Envueltas individualmente con MainLayout)
+             ========================================================= */}
+          <Route path="/" element={<MainLayout><HomeView /></MainLayout>} />
+          <Route path="/recuperar-password" element={<MainLayout><RecoverPasswordView /></MainLayout>} />
+          <Route path="/verificar-correo" element={<MainLayout><VerifyEmailView /></MainLayout>} />
+          <Route path="/registro" element={<MainLayout><RegisterSelectionView /></MainLayout>} />
+          <Route path="/registro/cliente" element={<MainLayout><ClientRegisterView /></MainLayout>} />
+          <Route path="/registro/prestador" element={<MainLayout><ProviderRegisterView /></MainLayout>} />
+          <Route path="/buscar" element={<MainLayout><SearchView /></MainLayout>} />
+          <Route path="/unete-especialista" element={<MainLayout><UneteComoEspecialistaView /></MainLayout>} />
+          <Route path="/unete-como-especialista" element={<MainLayout><UneteComoEspecialistaView /></MainLayout>} />
+          <Route path="/politicas" element={<MainLayout><PoliticasView /></MainLayout>} />
+          <Route path="/test-camara" element={<MainLayout><CameraCaptureView modo="verificacion" /></MainLayout>} />
 
-            {/* =========================================
-                  1. RUTAS PÚBLICAS Y GENERALES
-                  (Aquí NO se muestra el Sidebar del cliente)
-                  ========================================= */}
-            <Route path="/" element={<HomeView />} />
-
-            {/* --- LOGIN Y RECUPERACIÓN --- */}
-            {/* <Route path="/login" element={<LoginView />} /> - IMPORTANTE: LoginView no está definido. Comentado para evitar crasheo */}
-            <Route path="/recuperar-password" element={<RecoverPasswordView />} />
-            <Route path="/verificar-correo" element={<VerifyEmailView />} />
-
-            {/* --- REGISTRO MODULAR --- */}
-            <Route path="/registro" element={<RegisterSelectionView />} />
-            <Route path="/registro/cliente" element={<ClientRegisterView />} />
-            <Route path="/registro/prestador" element={<ProviderRegisterView />} />
-
-            {/* --- RUTA DE PRUEBA PARA LA CÁMARA --- 
-                  Ingresa a http://localhost:3000/test-camara para probarla */}
-            <Route path="/test-camara" element={<CameraCaptureView modo="verificacion" />} />
-
-            {/* El dashboard del prestador va aparte, porque él tendrá su propia vista/menú */}
-            <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
-
-            {/* Buscador público: accesible desde el banner sin estar registrado */}
-            <Route path="/buscar" element={<SearchView />} />
-            <Route path="/unete-especialista" element={<UneteComoEspecialistaView />} />
-            {/* Alias por si el enlace antiguo apuntaba al formulario directo desde el menú */}
-            <Route path="/unete-como-especialista" element={<UneteComoEspecialistaView />} />
-            <Route path="/politicas" element={<PoliticasView />} />
-
-            {/* =========================================
-                  2. RUTAS PRIVADAS DEL CLIENTE
-                  (Todas estas páginas SÍ tendrán el Sidebar a la izquierda)
-                  ========================================= */}
-            <Route element={<ClientLayout />}>
-              <Route path="/dashboard-cliente" element={<ClientDashboard />} />
-              <Route path="/perfil" element={<ProfileView />} />
-             {/* Reemplaza la que tiene el <h2> por esta: */}
+          {/* =========================================================
+              2 y 3. PANEL PRIVADO INTEGRADO (Hereda Navbar, Sidebar y Footer)
+              Tanto el cliente como el prestador usan este contenedor global.
+             ========================================================= */}
+          <Route element={<ClientLayout />}>
+            {/* Rutas específicas del Cliente */}
+            <Route path="/dashboard-cliente" element={<UserDashboardView />} />
+            <Route path="/perfil" element={<ProfileView />} />
             <Route path="/mis-reservas" element={<ClientReservationsView />} />
-              <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
-              <Route path="/servicio-detalle" element={<ServiceDetailView />} /> {/* <-- NUEVA RUTA AQUÍ */}
-               <Route path="/notificaciones" element={<NotificationsView />} />
-              
-            </Route>
+            <Route path="/soporte" element={<SupportView />} /> 
+            <Route path="/servicio-detalle" element={<ServiceDetailView />} /> 
+            <Route path="/notificaciones" element={<NotificationsView />} />
 
-            {/* Rutas para administrador */}
-            <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/usuarios" element={<AdminUsuariosView />} />
-              <Route path="/admin/prestadores" element={<AdminPrestadoresView />} />
-              <Route path="/admin/servicios" element={<AdminServiciosView />} />
-              <Route path="/admin/solicitudes" element={<AdminSolicitudesView />} />
-              <Route path="/admin/reportes" element={<AdminReportesView />} />
-              <Route path="/admin/auditoria" element={<AdminAuditoriaView />} />
-             
-            </Route>
+            {/* Rutas específicas del Prestador (¡Ahora protegidas dentro de la estructura!) */}
+            <Route path="/dashboard-prestador" element={<UserDashboardView />} /> 
+            <Route path="/prestador/mis-servicios" element={<ProviderServicesView />} /> 
+            <Route path="/prestador/perfil" element={<ProviderProfileView />} /> 
+          </Route>
 
-            <Route path="*" element={<NotFoundView />} />
-          </Routes>
-        </MainLayout>
+          {/* =========================================================
+              4. RUTAS DEL ADMINISTRADOR
+             ========================================================= */}
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/usuarios" element={<AdminUsuariosView />} />
+            <Route path="/admin/prestadores" element={<AdminPrestadoresView />} />
+            <Route path="/admin/servicios" element={<AdminServiciosView />} />
+            <Route path="/admin/solicitudes" element={<AdminSolicitudesView />} />
+            <Route path="/admin/reportes" element={<AdminReportesView />} />
+            <Route path="/admin/auditoria" element={<AdminAuditoriaView />} />
+          </Route>
+
+          <Route path="*" element={<NotFoundView />} />
+        </Routes>
       </Router>
     </AuthProvider>
   );

@@ -1,7 +1,13 @@
 // validaciones para el Registro de Usuario comun Cliente y prestador de servicio
 
 export const authValidations = (formData) => {
-    const camposRequeridos = ['rut', 'nombre', 'apellido', 'correo', 'contrasena', 'telefono'];
+    // El apellido NO es obligatorio si el tipo de prestador es empresa
+    const camposRequeridos = ['rut', 'nombre', 'correo', 'contrasena', 'telefono'];
+    
+    if (formData.tipoPrestador !== 'empresa' && formData.tipoPrestador !== 'EMPRESA') {
+        camposRequeridos.push('apellido');
+    }
+
     const faltanDatos = camposRequeridos.some(campo => !formData[campo] || String(formData[campo]).trim() === '');
 
     // regla todos los campos deben ser rellenados

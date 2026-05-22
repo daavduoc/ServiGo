@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoginModal } from './LoginModal';
 import { useAuth } from '../../context/AuthContext';
 import { getDisplayName, isAdminUser, isPrestadorUser } from '../../utils/userDisplay';
 
 export const AuthButtons = () => {
-  // Estado para la ventana de Iniciar Sesión
   const [showLoginModal, setShowLoginModal] = useState(false);
-  
-  // NUEVO: Estado para controlar el puntito verde de las notificaciones
   const [hayNotificacionesNuevas, setHayNotificacionesNuevas] = useState(true);
 
   const { isAuthenticated, user, logout } = useAuth();
+  
+  // Inicializa navigate
+  const navigate = useNavigate(); 
+
+  // la función que limpia y redirige al usar logout
+  const handleCerrarSesion = () => {
+    logout();
+    navigate('/'); 
+  };
 
   if (isAuthenticated && user) {
     const esAdmin = isAdminUser(user);
@@ -42,16 +48,20 @@ export const AuthButtons = () => {
                 </span>
               )}
             </Link>
+            
+            {/* 👇 AQUÍ ESTÁ LA CORRECCIÓN DEL REDIRECCIONAMIENTO 👇 */}
             <Link
-              to={esPrestador ? '/dashboard-prestador' : '/perfil'}
+              to={esPrestador ? '/dashboard-prestador' : '/dashboard-cliente'}
               className="btn btn-outline-success btn-sm fw-bold"
             >
-              {esPrestador ? 'Mi Panel' : 'Mi Perfil'}
+              Mi Panel
             </Link>
+            
           </>
         )}
 
-        <button className="btn btn-outline-danger btn-sm fw-bold" onClick={logout}>
+        {/* función al botón cerrar sesión */}
+        <button className="btn btn-outline-danger btn-sm fw-bold" onClick={handleCerrarSesion}>
           Cerrar Sesión
         </button>
       </div>

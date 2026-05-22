@@ -1,0 +1,25 @@
+/* anchos especificos para los inputs dinamicos de generar Service*/
+.input-dinamico-fecha {
+  width: 175px;
+}
+
+.input-dinamico-hora {
+  width: 135px;
+}
+
+.input-dinamico-texto {
+  width: 160px;
+}
+
+.btn-agregar-dinamico {
+  height: 42px;
+}
+
+/* capa de aislamiento para que el modal biometrico flote sobre el navbar */
+.modal-biometrico-overlay {
+  z-index: 1060;
+}
+
+.modal-biometrico-dialogo {
+  max-width: 480px;
+}
