@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
 import { authValidations } from '../../../utils/authValidations';
@@ -111,6 +111,10 @@ export const ProviderRegisterView = () => {
   return (
     <CardContainer maxwidth="1320px" className="registro-cliente-card-wrap">
       <form onSubmit={handleSubmit} className="registro-cliente-form registro-prestador-form">
+        <Link to="/unete-especialista" className="d-inline-flex align-items-center gap-1 text-success fw-semibold text-decoration-none mb-3 small">
+          <i className="bi bi-arrow-left" aria-hidden="true" />
+          Volver a información para especialistas
+        </Link>
         <header className="registro-cliente-page-header">
           <h1>
             <i className="bi bi-briefcase-fill" aria-hidden="true" />
@@ -162,7 +166,7 @@ export const ProviderRegisterView = () => {
                 />
               </div>
             </div>
-            <div className="registro-cliente-hint registro-cliente-hint--provider mb-0">
+            <div className="registro-cliente-hint registro-cliente-hint--success mb-0">
               <i className="bi bi-check-circle-fill" aria-hidden="true" />
               <span>
                 Ubica el marcador donde atiendes o desde donde operas tus servicios.
@@ -174,7 +178,6 @@ export const ProviderRegisterView = () => {
             <PhotoUpload
               label={fotoLabel}
               onImageSelect={handleImageChange}
-              variant="dropzone"
               dropzoneTitle={esEmpresa ? 'Sube el logo de tu empresa' : 'Sube tu foto de perfil'}
             />
 
@@ -182,7 +185,6 @@ export const ProviderRegisterView = () => {
               label="Ubicación en el mapa"
               fullAddress={direccionParaMapa}
               onCoordsChange={handleMapCoords}
-              displayMode="map-only"
               mapHint="Puedes mover el marcador para ajustar tu ubicación exacta."
               mapClassName="map-section-map"
               allowMarkerDrag
@@ -197,7 +199,6 @@ export const ProviderRegisterView = () => {
         )}
 
         <FormActions
-          variant="client"
           onCancel={() => window.history.back()}
           submitLabel={isLoading ? 'Creando cuenta...' : 'Finalizar registro'}
           submitDisabled={isLoading}

@@ -6,7 +6,8 @@ const AdminTable = ({
   onEdit,
   onDelete,
   onAction,
-  sortable = true
+  sortable = true,
+  editLabel = 'Ver detalle',
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -15,124 +16,187 @@ const AdminTable = ({
   const itemsPerPage = 10;
 
   const filteredData = useMemo(() => {
-    return data.filter(item =>
-      Object.values(item).some(val =>
+    return data.filter((item) =>
+      Object.values(item).some((val) =>
         val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
   }, [data, searchTerm]);
 
   const sortedData = useMemo(() => {
-    let sorted = [...filteredData];
+    const sorted = [...filteredData];
     if (sortConfig.key) {
       sorted.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
+        const aVal = a[sortConfig.key];
+        const bVal = b[sortConfig.key];
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
       });
     }
     return sorted;
   }, [filteredData, sortConfig]);
 
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
+
   const paginatedData = useMemo(() => {
     const start = currentPage * itemsPerPage;
     return sortedData.slice(start, start + itemsPerPage);
   }, [sortedData, currentPage]);
 
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
-
   const handleSort = (key) => {
-    setSortConfig(prev => ({
+    if (!sortable) return;
+    setSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) {
+      return <i className="bi bi-arrow-down-up ms-1 text-muted opacity-50" aria-hidden="true" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <i className="bi bi-sort-up ms-1 text-success" aria-hidden="true" />
+    ) : (
+      <i className="bi bi-sort-down ms-1 text-success" aria-hidden="true" />
+    );
+  };
+
   return (
-    <div className="admin-table">
-      <div className="table-filter">
-        <input
-          type="text"
-          className="filter-input"
-          placeholder="Buscar..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(0);
-          }}
-        />
-      </div>
+    <div className="card shadow-sm border-0 admin-data-table">
+      <div className="card-body p-4">
+        <div className="mb-3" style={{ maxWidth: '320px' }}>
+          <div className="input-group input-group-sm">
+            <span className="input-group-text bg-white border-end-0">
+              <i className="bi bi-search text-muted" aria-hidden="true" />
+            </span>
+            <input
+              type="search"
+              className="form-control border-start-0"
+              placeholder="Buscar..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(0);
+              }}
+              aria-label="Buscar en la tabla"
+            />
+          </div>
+        </div>
 
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              {columns.map(col => (
-                <th
-                  key={col.key}
-                  onClick={() => sortable && handleSort(col.key)}
-                  style={{ cursor: sortable ? 'pointer' : 'default' }}
-                >
-                  {col.label}
-                  {sortable && sortConfig.key === col.key && (
-                    <span className="sort-indicator">
-                      {sortConfig.direction === 'asc' ? '▲' : '▼'}
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-light">
+              <tr>
+                {columns.map((col) => (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    className="small text-uppercase admin-table-th"
+                    onClick={() => handleSort(col.key)}
+                    style={{ cursor: sortable ? 'pointer' : 'default' }}
+                  >
+                    <span className="d-inline-flex align-items-center">
+                      {col.label}
+                      {sortable && renderSortIcon(col.key)}
                     </span>
-                  )}
-                </th>
-              ))}
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((item, idx) => (
-              <tr key={idx}>
-                {columns.map(col => (
-                  <td key={col.key}>{item[col.key]}</td>
+                  </th>
                 ))}
-                <td className="action-cell">
-                  {onEdit && (
-                    <button className="btn-action btn-edit" onClick={() => onEdit(item)}>
-                      ✏️
-                    </button>
-                  )}
-                  {onAction && (
-                    <button className="btn-action" onClick={() => onAction(item)}>
-                      ⚙️
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button className="btn-action btn-delete" onClick={() => onDelete(item)}>
-                      🗑️
-                    </button>
-                  )}
-                </td>
+                {(onEdit || onAction || onDelete) && (
+                  <th scope="col" className="small text-uppercase admin-table-th text-end">
+                    Acciones
+                  </th>
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {paginatedData.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={columns.length + (onEdit || onAction || onDelete ? 1 : 0)}
+                    className="text-center text-muted py-5"
+                  >
+                    <i className="bi bi-inbox fs-4 d-block mb-2" aria-hidden="true" />
+                    No hay registros para mostrar
+                  </td>
+                </tr>
+              ) : (
+                paginatedData.map((item, idx) => (
+                  <tr key={item.idUsuario ?? item.idPrestador ?? item.id ?? idx}>
+                    {columns.map((col) => (
+                      <td key={col.key}>{item[col.key] ?? '—'}</td>
+                    ))}
+                    {(onEdit || onAction || onDelete) && (
+                      <td className="text-end">
+                        <div className="d-flex justify-content-end gap-2 flex-wrap">
+                          {onEdit && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-success rounded-pill px-3"
+                              onClick={() => onEdit(item)}
+                              title={editLabel}
+                              aria-label={editLabel}
+                            >
+                              <i className="bi bi-pencil-square me-1" aria-hidden="true" />
+                              Editar
+                            </button>
+                          )}
+                          {onAction && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                              onClick={() => onAction(item)}
+                              title="Acciones"
+                              aria-label="Acciones"
+                            >
+                              <i className="bi bi-gear" aria-hidden="true" />
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                              onClick={() => onDelete(item)}
+                              title="Eliminar"
+                              aria-label="Eliminar"
+                            >
+                              <i className="bi bi-trash" aria-hidden="true" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="table-pagination">
-        <button
-          onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-          disabled={currentPage === 0}
-        >
-          ← Anterior
-        </button>
-        <span className="pagination-info">
-          Página {currentPage + 1} de {totalPages}
-        </span>
-        <button
-          onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-          disabled={currentPage >= totalPages - 1}
-        >
-          Siguiente →
-        </button>
+        <div className="d-flex flex-wrap justify-content-center align-items-center gap-3 mt-4 pt-3 border-top">
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-success rounded-pill px-3"
+            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+            disabled={currentPage === 0}
+          >
+            <i className="bi bi-chevron-left me-1" aria-hidden="true" />
+            Anterior
+          </button>
+          <span className="text-muted small fw-medium">
+            Página {currentPage + 1} de {totalPages}
+          </span>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-success rounded-pill px-3"
+            onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+            disabled={currentPage >= totalPages - 1 || sortedData.length === 0}
+          >
+            Siguiente
+            <i className="bi bi-chevron-right ms-1" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </div>
   );

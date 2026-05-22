@@ -21,9 +21,9 @@ const SupportView = () => {
         <div className="card-body">
           
           {/* Título principal más pequeño (h4) */}
-          <div className="d-flex align-items-center mb-3">
-            <span className="fs-4 me-2"></span>
-            <h4 className="fw-bold m-0 text-dark">Centro de Ayuda y Soporte</h4>
+          <div className="d-flex align-items-center gap-2 mb-3 profile-panel-title">
+            <i className="bi bi-headset" aria-hidden="true" />
+            <h4 className="m-0">Centro de Ayuda y Soporte</h4>
           </div>
           
           {/* Texto descriptivo con clase 'small' para que se vea más fino */}

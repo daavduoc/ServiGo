@@ -1,150 +1,17 @@
-/* Estilos exclusivos de la vista principal (HomeView) */
+/* HomeView — iconos "¿Por qué elegir ServiGo?" */
 
-.home-view {
-  --home-green: #4ad990;
-  --home-green-dark: #2f9e44;
-  --home-icon-bg: #e8f8ef;
-  --home-box-bg: #f0f2f5;
-  --home-text-muted: #6c757d;
-}
-
-.home-section-title {
-  text-align: center;
-  font-weight: 700;
-  color: #212529;
-  margin-bottom: 2.5rem;
-  position: relative;
-  padding-bottom: 0.75rem;
-}
-
-.home-section-title::after {
-  content: '';
-  display: block;
-  width: 48px;
-  height: 4px;
-  background-color: var(--home-green);
-  border-radius: 2px;
-  margin: 0.75rem auto 0;
-}
-
-/* Tarjetas "¿Por qué elegir ServiGo?" */
-.home-benefit-card {
-  background: #fff;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  height: 100%;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  transition: box-shadow 0.2s ease;
-}
-
-.home-benefit-card:hover {
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
-}
-
-.home-icon-circle {
-  width: 72px;
-  height: 72px;
+.home-why-icon {
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  background-color: var(--home-icon-bg);
-  color: var(--home-green-dark);
+  background-color: var(--servigo-green);
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
-  margin-bottom: 1.25rem;
 }
 
-.home-benefit-card h5 {
-  font-weight: 700;
-  color: #212529;
-  margin-bottom: 0.75rem;
-}
-
-.home-benefit-card p {
-  color: var(--home-text-muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  margin-bottom: 0;
-}
-
-/* Bloque "¿Cómo funciona ServiGo?" */
-.home-how-box {
-  background-color: var(--home-box-bg);
-  border-radius: 16px;
-  padding: 2.5rem 1.5rem 2rem;
-  margin-top: 3rem;
-  margin-bottom: 1rem;
-}
-
-.home-steps-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  position: relative;
-  gap: 0;
-}
-
-.home-step {
-  flex: 1 1 220px;
-  max-width: 320px;
-  text-align: center;
-  padding: 0 1rem 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.home-step .home-icon-circle {
-  width: 80px;
-  height: 80px;
-  font-size: 2rem;
-  background-color: #fff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.home-step h5 {
-  font-weight: 700;
-  color: #212529;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.home-step p {
-  color: var(--home-text-muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  margin-bottom: 0;
-}
-
-/* Líneas punteadas curvas entre pasos (solo escritorio) */
-.home-step-connectors {
-  position: absolute;
-  top: 40px;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.home-step-connectors path {
-  fill: none;
-  stroke: #b0b8c0;
-  stroke-width: 2;
-  stroke-dasharray: 8 6;
-  stroke-linecap: round;
-}
-
-@media (max-width: 767.98px) {
-  .home-how-box {
-    padding: 2rem 1rem 1.5rem;
-  }
-
-  .home-step {
-    flex: 1 1 100%;
-    max-width: 100%;
-    margin-bottom: 0.5rem;
-  }
+.home-why-icon i {
+  color: #fff;
+  line-height: 1;
 }

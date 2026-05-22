@@ -1,15 +1,15 @@
 /* Modal de inicio de sesión — verde ServiGo */
 
 .login-modal .modal-title {
-  color: #2f9e44 !important;
+  color: var(--servigo-green) !important;
 }
 
 .login-modal .login-modal-link {
-  color: #2f9e44 !important;
+  color: var(--servigo-green) !important;
 }
 
 .login-modal .login-modal-link:hover {
-  color: #4ad990 !important;
+  color: var(--servigo-green-hover) !important;
 }
 
 .login-modal .login-modal-btn-submit {
@@ -19,8 +19,8 @@
 }
 
 .login-modal .login-modal-btn-submit:hover:not(:disabled) {
-  background-color: #4ad990;
-  border-color: #4ad990;
+  background-color: var(--servigo-green-hover);
+  border-color: var(--servigo-green-hover);
   color: #fff;
 }
 

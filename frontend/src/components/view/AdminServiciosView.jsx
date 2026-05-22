@@ -30,7 +30,10 @@ const AdminServiciosView = () => {
 
   return (
     <div>
-      <h1>Gestión de Servicios</h1>
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-gear" aria-hidden="true" />
+        Gestión de Servicios
+      </h2>
       <AdminTable
         columns={columns}
         data={servicios}

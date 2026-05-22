@@ -1,8 +1,8 @@
 /* Vista de selección de tipo de cuenta (/registro) */
 
 .register-selection-view {
-  --reg-green: #4ad990;
-  --reg-green-dark: #2f9e44;
+  --reg-green: var(--servigo-green);
+  --reg-green-dark: var(--servigo-green-dark);
   --reg-green-light: #e8f8ef;
   --reg-blue: #0d6efd;
   --reg-blue-dark: #0a58ca;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoginModal } from './LoginModal';
 import { useAuth } from '../../context/AuthContext';
-import { getDisplayName } from '../../utils/userDisplay';
+import { getDisplayName, isAdminUser, isPrestadorUser } from '../../utils/userDisplay';
 
 export const AuthButtons = () => {
   // Estado para la ventana de Iniciar Sesión
@@ -14,33 +14,43 @@ export const AuthButtons = () => {
   const { isAuthenticated, user, logout } = useAuth();
 
   if (isAuthenticated && user) {
+    const esAdmin = isAdminUser(user);
+    const esPrestador = isPrestadorUser(user);
+
     return (
       <div className="d-flex align-items-center gap-3">
         <span className="text-muted d-none d-md-inline">
           Bienvenido, <strong>{getDisplayName(user)}</strong>
         </span>
 
-        {/* --- LA CAMPANITA CON EL PUNTITO DINÁMICO --- */}
-        <Link 
-          to="/notificaciones" 
-          className="text-dark position-relative hover-success" 
-          title="Notificaciones"
-          onClick={() => setHayNotificacionesNuevas(false)} // Al hacer clic, apagamos el puntito
-        >
-          <i className="bi bi-bell fs-5"></i>
-          
-          {/* Si hayNotificacionesNuevas es true, dibujamos el puntito verde */}
-          {hayNotificacionesNuevas && (
-            <span className="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
-              <span className="visually-hidden">Nuevas notificaciones</span>
-            </span>
-          )}
-        </Link>
-        {/* -------------------------------- */}
+        {esAdmin ? (
+          <Link to="/admin/dashboard" className="btn btn-outline-success btn-sm fw-bold">
+            Panel Admin
+          </Link>
+        ) : (
+          <>
+            <Link
+              to="/notificaciones"
+              className="text-dark position-relative hover-success"
+              title="Notificaciones"
+              onClick={() => setHayNotificacionesNuevas(false)}
+            >
+              <i className="bi bi-bell fs-5" />
+              {hayNotificacionesNuevas && (
+                <span className="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
+                  <span className="visually-hidden">Nuevas notificaciones</span>
+                </span>
+              )}
+            </Link>
+            <Link
+              to={esPrestador ? '/dashboard-prestador' : '/perfil'}
+              className="btn btn-outline-success btn-sm fw-bold"
+            >
+              {esPrestador ? 'Mi Panel' : 'Mi Perfil'}
+            </Link>
+          </>
+        )}
 
-        <Link to="/perfil" className="btn btn-outline-success btn-sm fw-bold">
-          Mi Perfil
-        </Link>
         <button className="btn btn-outline-danger btn-sm fw-bold" onClick={logout}>
           Cerrar Sesión
         </button>

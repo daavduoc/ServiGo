@@ -1,8 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ServiceDetailView } from './components/view/ServiceDetailView';
 import { ClientReservationsView } from './components/view/ClientReservationsView';
-import { NotificationsView } from './components/view/NotificationsView'; 
+import { NotificationsView } from './components/view/NotificationsView';
+import { NotFoundView } from './components/view/NotFoundView'; 
 
 
 // Maneja la sesion del usuario
@@ -13,6 +14,8 @@ import { MainLayout } from './components/layout/MainLayout';
 
 // 2. Importamos las Vistas (Las páginas)
 import { HomeView } from './components/view/HomeView';
+import { UneteComoEspecialistaView } from './components/view/UneteComoEspecialistaView';
+import { PoliticasView } from './components/view/PoliticasView';
 import { SearchView } from './components/view/SearchView';
 import { ProfileView } from './components/view/ProfileView';
 
@@ -96,6 +99,10 @@ function App() {
 
             {/* Buscador público: accesible desde el banner sin estar registrado */}
             <Route path="/buscar" element={<SearchView />} />
+            <Route path="/unete-especialista" element={<UneteComoEspecialistaView />} />
+            {/* Alias por si el enlace antiguo apuntaba al formulario directo desde el menú */}
+            <Route path="/unete-como-especialista" element={<UneteComoEspecialistaView />} />
+            <Route path="/politicas" element={<PoliticasView />} />
 
             {/* =========================================
                   2. RUTAS PRIVADAS DEL CLIENTE
@@ -114,6 +121,7 @@ function App() {
 
             {/* Rutas para administrador */}
             <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/usuarios" element={<AdminUsuariosView />} />
               <Route path="/admin/prestadores" element={<AdminPrestadoresView />} />
@@ -124,6 +132,7 @@ function App() {
              
             </Route>
 
+            <Route path="*" element={<NotFoundView />} />
           </Routes>
         </MainLayout>
       </Router>

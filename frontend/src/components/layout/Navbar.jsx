@@ -1,40 +1,104 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useLayoutEffect, useRef } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { AuthButtons } from '../ui/AuthButtons';
+import '../../assets/css/navbar-active.css';
+
+const setNavbarHeight = (height) => {
+  document.documentElement.style.setProperty('--servigo-navbar-h', `${height}px`);
+};
+
+const navLinkClass = ({ isActive }) =>
+  `nav-link servigo-nav-link fw-medium ${isActive ? 'active' : ''}`;
+
+const navLinkEspecialistaClass = ({ isActive }) =>
+  `servigo-nav-link servigo-nav-link--especialista fw-bold text-decoration-none small ${
+    isActive ? 'active' : ''
+  }`;
+
+const isEspecialistaActive = (_match, location) =>
+  location.pathname === '/unete-especialista' ||
+  location.pathname === '/unete-como-especialista';
 
 const Navbar = () => {
+  const navRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (navRef.current) {
+        setNavbarHeight(navRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    const navEl = navRef.current;
+    const collapse = navEl?.querySelector('#navbarNav');
+    collapse?.addEventListener('shown.bs.collapse', updateHeight);
+    collapse?.addEventListener('hidden.bs.collapse', updateHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+      collapse?.removeEventListener('shown.bs.collapse', updateHeight);
+      collapse?.removeEventListener('hidden.bs.collapse', updateHeight);
+    };
+  }, []);
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-3">
+    <nav
+      ref={navRef}
+      className="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-2 fixed-top servigo-main-navbar"
+    >
       <div className="container">
-        {/* LOGO */}
-        <Link className="navbar-brand fw-bold fs-3 text-success" to="/">
+        <Link className="navbar-brand fw-bold fs-4 text-success mb-0" to="/">
           Servi<span className="text-dark">Go</span>
         </Link>
 
-        {/* BOTÓN PARA MÓVILES */}
-        <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span className="navbar-toggler-icon"></span>
+        <button
+          className="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-label="Abrir menú"
+        >
+          <span className="navbar-toggler-icon" />
         </button>
 
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
             <li className="nav-item">
-              <Link className="nav-link fw-medium text-dark hover-success" to="/">Inicio</Link>
+              <NavLink to="/" end className={navLinkClass}>
+                Inicio
+              </NavLink>
             </li>
             <li className="nav-item">
-              <Link className="nav-link fw-medium text-dark hover-success" to="/buscar">Explorar Servicios</Link>
+              <NavLink to="/buscar" className={navLinkClass}>
+                Explorar Servicios
+              </NavLink>
+            </li>
+            <li className="nav-item d-lg-none">
+              <NavLink to="/unete-especialista" isActive={isEspecialistaActive} className={navLinkEspecialistaClass}>
+                Únete como Especialista
+              </NavLink>
             </li>
           </ul>
 
           <div className="d-flex align-items-center gap-3">
-            <Link to="/registro/prestador" className="text-success fw-bold text-decoration-none small d-none d-lg-block">
+            <NavLink
+              to="/unete-especialista"
+              isActive={isEspecialistaActive}
+              className={({ isActive }) =>
+                `d-none d-lg-inline-block servigo-nav-link servigo-nav-link--especialista fw-bold text-decoration-none small ${
+                  isActive ? 'active' : ''
+                }`
+              }
+            >
               Únete como Especialista
-            </Link>
-            
-            <div className="vr d-none d-lg-block mx-2 text-muted"></div>
+            </NavLink>
+
+            <div className="vr d-none d-lg-block mx-2 text-muted" />
 
             <AuthButtons />
-
           </div>
         </div>
       </div>

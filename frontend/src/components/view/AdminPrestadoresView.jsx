@@ -57,9 +57,12 @@ const AdminPrestadoresView = () => {
 
   return (
     <div className="admin-prestadores">
-      <h1>Validación de Prestadores</h1>
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-person-badge" aria-hidden="true" />
+        Validación de Prestadores
+      </h2>
 
-      <FilterPanel 
+      <FilterPanel
         columns={columns}
         onApplyFilter={handleFilterApply}
         onClearFilter={handleFilterClear}

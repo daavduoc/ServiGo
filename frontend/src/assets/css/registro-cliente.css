@@ -11,6 +11,7 @@
 }
 
 .registro-cliente-page-header {
+  scroll-margin-top: calc(var(--servigo-navbar-h, 72px) + 1rem);
   text-align: center;
   margin-bottom: 2rem;
   padding-bottom: 1.25rem;
@@ -30,7 +31,7 @@
 }
 
 .registro-cliente-page-header h1 i {
-  color: #2f9e44;
+  color: var(--servigo-green);
   font-size: 1.35em;
 }
 
@@ -43,10 +44,10 @@
 .registro-cliente-form .registro-section-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #2f9e44;
+  color: var(--servigo-green);
   margin: 0 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e8f8ef;
+  border-bottom: 2px solid var(--servigo-green-badge);
 }
 
 .registro-cliente-form .registro-section-title:not(:first-of-type) {
@@ -75,8 +76,8 @@
 
 .registro-cliente-form .form-control:focus,
 .registro-cliente-form .form-select:focus {
-  border-color: #4ad990;
-  box-shadow: 0 0 0 0.2rem rgba(74, 217, 144, 0.2);
+  border-color: var(--servigo-green);
+  box-shadow: 0 0 0 0.2rem rgba(var(--servigo-green-rgb), 0.25);
 }
 
 .registro-cliente-col-right {
@@ -224,7 +225,7 @@
 }
 
 .registro-cliente-footer-note i {
-  color: #2f9e44;
+  color: var(--servigo-green);
   margin-right: 0.25rem;
 }
 
@@ -253,7 +254,7 @@
   gap: 0.4rem;
   font-weight: 600;
   font-size: 0.95rem;
-  color: #2f9e44;
+  color: var(--servigo-green);
   text-decoration: none;
   padding: 0.5rem 0.25rem;
   border-radius: 8px;
@@ -261,17 +262,8 @@
 }
 
 .btn-volver-registro:hover {
-  color: #1f5c32;
-  background-color: #e8f8ef;
-}
-
-.registro-prestador-form .btn-volver-registro {
-  color: #0d6efd;
-}
-
-.registro-prestador-form .btn-volver-registro:hover {
-  color: #0a58ca;
-  background-color: #e7f1ff;
+  color: var(--servigo-green-dark);
+  background-color: var(--servigo-green-tint);
 }
 
 .registro-cliente-actions .btn-cancelar {
@@ -290,8 +282,8 @@
 
 .registro-cliente-actions .btn-crear {
   min-width: 180px;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: var(--servigo-green);
+  border-color: var(--servigo-green);
   color: #fff;
   font-weight: 600;
   border-radius: 8px;
@@ -303,8 +295,8 @@
 }
 
 .registro-cliente-actions .btn-crear:hover:not(:disabled) {
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
+  background-color: var(--servigo-green-hover);
+  border-color: var(--servigo-green-hover);
   color: #fff;
 }
 
@@ -337,68 +329,52 @@
   }
 }
 
-/* Registro de prestador: acentos azules (misma línea que /registro tarjeta prestador) */
+/* Registro de prestador: paleta verde ServiGo */
 .registro-prestador-form {
-  --reg-accent: #0d6efd;
-  --reg-accent-dark: #0a58ca;
-  --reg-accent-light: #e7f1ff;
-  --reg-accent-border: #cfe2ff;
-}
-
-.registro-prestador-form .registro-cliente-page-header h1 i {
-  color: var(--reg-accent);
-}
-
-.registro-prestador-form .registro-section-title {
-  color: var(--reg-accent);
-  border-bottom-color: var(--reg-accent-light);
-}
-
-.registro-prestador-form .form-control:focus,
-.registro-prestador-form .form-select:focus {
-  border-color: var(--reg-accent);
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+  --reg-green: var(--servigo-green);
+  --reg-green-dark: var(--servigo-green-dark);
+  --reg-green-light: var(--servigo-green-hover);
+  --reg-green-pale: var(--servigo-green-pale);
+  --reg-green-border: var(--servigo-green-badge);
 }
 
 .registro-prestador-form .registro-prestador-type-box {
-  background-color: var(--reg-accent-light) !important;
-  border-color: var(--reg-accent-border) !important;
+  background-color: var(--reg-green-pale) !important;
+  border-color: var(--reg-green-border) !important;
 }
 
 .registro-prestador-form .registro-prestador-type-box > .form-label {
-  color: var(--reg-accent-dark);
+  color: var(--reg-green);
 }
 
-.registro-prestador-form .registro-cliente-hint--provider {
-  background-color: var(--reg-accent-light);
-  color: #0a3d7a;
-  border: 1px solid var(--reg-accent-border);
+.registro-prestador-form .registro-cliente-hint--provider,
+.registro-prestador-form .registro-cliente-hint--info {
+  background-color: var(--reg-green-pale);
+  color: var(--reg-green-dark);
+  border: 1px solid var(--reg-green-border);
 }
 
-.registro-prestador-form .registro-cliente-hint--provider i {
-  color: var(--reg-accent);
-}
-
-.registro-prestador-form .registro-cliente-footer-note i {
-  color: var(--reg-accent);
+.registro-prestador-form .registro-cliente-hint--provider i,
+.registro-prestador-form .registro-cliente-hint--info i {
+  color: var(--reg-green);
 }
 
 .registro-prestador-form .registro-photo-dropzone:hover {
-  border-color: var(--reg-accent);
-  background: #f0f7ff;
+  border-color: var(--reg-green-light);
+  background: var(--reg-green-pale);
 }
 
 .registro-prestador-form .registro-photo-btn-select:hover {
-  border-color: var(--reg-accent);
-  color: var(--reg-accent-dark);
+  border-color: var(--reg-green);
+  color: var(--reg-green-dark);
 }
 
 .registro-prestador-form .registro-cliente-actions .btn-crear {
-  background-color: var(--reg-accent);
-  border-color: var(--reg-accent);
+  background-color: var(--reg-green);
+  border-color: var(--reg-green);
 }
 
 .registro-prestador-form .registro-cliente-actions .btn-crear:hover:not(:disabled) {
-  background-color: var(--reg-accent-dark);
-  border-color: var(--reg-accent-dark);
+  background-color: var(--reg-green-dark);
+  border-color: var(--reg-green-dark);
 }

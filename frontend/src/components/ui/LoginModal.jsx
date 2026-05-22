@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert, InputGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getDashboardPathForRol } from '../../utils/userDisplay';
 import { loginUser } from '../../serviceFront/authService';
 import { useAuth } from '../../context/AuthContext';
 import '../../assets/css/login-modal.css';
 
 export const LoginModal = ({ show, handleClose }) => {
     const { login } = useAuth();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({ correo: '', contrasena: '' });
     const [status, setStatus] = useState({ error: '', loading: false });
@@ -28,6 +30,7 @@ export const LoginModal = ({ show, handleClose }) => {
             });
             login(response);
             resetAndClose();
+            navigate(getDashboardPathForRol(response.rol), { replace: true });
         } catch (error) {
             setStatus({ error: error.message, loading: false });
         }

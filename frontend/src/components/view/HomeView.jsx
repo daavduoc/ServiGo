@@ -1,6 +1,7 @@
 import React from 'react';
 // Importamos tu banner desde la carpeta ui
 import BannerInicio from '../ui/Banner';
+import '../../assets/css/home.css';
 // 1. Importamos tu nueva sección de Quiénes Somos
 import { AboutUs } from './AboutUs';
 import { ContactCTA } from './ContactCTA';
@@ -20,8 +21,8 @@ export const HomeView = () => {
           <div className="col-md-4">
             <div className="card h-100 border-0 shadow-sm text-center p-4 rounded-4">
               <div className="mb-4">
-                <div className="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style={{ width: '70px', height: '70px' }}>
-                  <i className="bi bi-shield-check fs-1"></i>
+                <div className="home-why-icon" aria-hidden="true">
+                  <i className="bi bi-shield-check fs-1" />
                 </div>
               </div>
               <h5 className="fw-bold mb-3">Especialistas Verificados</h5>
@@ -33,8 +34,8 @@ export const HomeView = () => {
           <div className="col-md-4">
             <div className="card h-100 border-0 shadow-sm text-center p-4 rounded-4">
               <div className="mb-4">
-                <div className="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style={{ width: '70px', height: '70px' }}>
-                  <i className="bi bi-lightning-charge fs-1"></i>
+                <div className="home-why-icon" aria-hidden="true">
+                  <i className="bi bi-lightning-charge fs-1" />
                 </div>
               </div>
               <h5 className="fw-bold mb-3">Respuestas Rápidas</h5>
@@ -46,8 +47,8 @@ export const HomeView = () => {
           <div className="col-md-4">
             <div className="card h-100 border-0 shadow-sm text-center p-4 rounded-4">
               <div className="mb-4">
-                <div className="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style={{ width: '70px', height: '70px' }}>
-                  <i className="bi bi-award fs-1"></i>
+                <div className="home-why-icon" aria-hidden="true">
+                  <i className="bi bi-award fs-1" />
                 </div>
               </div>
               <h5 className="fw-bold mb-3">Calidad Garantizada</h5>

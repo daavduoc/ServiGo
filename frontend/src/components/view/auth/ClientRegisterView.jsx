@@ -148,17 +148,12 @@ export const ClientRegisterView = () => {
           </div>
 
           <div className="col-lg-5 registro-cliente-col-right">
-            <PhotoUpload
-              label="Foto de Perfil"
-              onImageSelect={handleImageChange}
-              variant="dropzone"
-            />
+            <PhotoUpload label="Foto de Perfil" onImageSelect={handleImageChange} />
 
             <MapSection
               label="Ubicación en el mapa"
               fullAddress={direccionParaMapa}
               onCoordsChange={handleMapCoords}
-              displayMode="map-only"
               mapHint="Puedes mover el marcador para ajustar tu ubicación exacta."
               mapClassName="map-section-map"
               allowMarkerDrag
@@ -173,7 +168,6 @@ export const ClientRegisterView = () => {
         )}
 
         <FormActions
-          variant="client"
           onCancel={() => window.history.back()}
           submitLabel={isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
           submitDisabled={isLoading}

@@ -1,20 +1,17 @@
 import React from 'react';
 import NavbarInicio from './Navbar';
 import Footer from './Footer';
+import { ScrollToTop } from './ScrollToTop';
 
 export const MainLayout = ({ children }) => {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      {/* El pan de arriba */}
+    <>
+      <ScrollToTop />
       <NavbarInicio />
-      
-      {/* El relleno del sándwich (Aquí entrarán las vistas como HomeView o RegisterView) */}
-      <div className="container mt-4 flex-grow-1">
-        {children}
+      <div className="servigo-page d-flex flex-column min-vh-100">
+        <div className="container mt-4 flex-grow-1">{children}</div>
+        <Footer />
       </div>
-      
-      {/* El pan de abajo */}
-      <Footer />
-    </div>
+    </>
   );
 };

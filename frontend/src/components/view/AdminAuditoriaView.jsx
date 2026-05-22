@@ -54,37 +54,47 @@ const AdminAuditoriaView = () => {
 
   return (
     <div className="admin-auditoria">
-      <h1>Historial de Auditoría</h1>
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-journal-text" aria-hidden="true" />
+        Historial de Auditoría
+      </h2>
 
-      <div className="filtros-auditoria">
-        <div className="filtro-group">
-          <label>Acción:</label>
-          <select 
-            value={filtroAccion}
-            onChange={(e) => {
-              setFiltroAccion(e.target.value);
-              setPage(0);
-            }}
-          >
-            {acciones.map(a => (
-              <option key={a.value} value={a.value}>{a.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filtro-group">
-          <label>Tabla:</label>
-          <select 
-            value={filtroTabla}
-            onChange={(e) => {
-              setFiltroTabla(e.target.value);
-              setPage(0);
-            }}
-          >
-            {tablas.map(t => (
-              <option key={t.value} value={t.value}>{t.label}</option>
-            ))}
-          </select>
+      <div className="card shadow-sm border-0 p-3 mb-3">
+        <div className="row g-3 align-items-end">
+          <div className="col-md-4">
+            <label className="form-label small fw-semibold text-muted mb-1">Acción</label>
+            <select
+              className="form-select form-select-sm"
+              value={filtroAccion}
+              onChange={(e) => {
+                setFiltroAccion(e.target.value);
+                setPage(0);
+              }}
+            >
+              {acciones.map((a) => (
+                <option key={a.value} value={a.value}>
+                  {a.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-4">
+            <label className="form-label small fw-semibold text-muted mb-1">Tabla</label>
+            <select
+              className="form-select form-select-sm"
+              value={filtroTabla}
+              onChange={(e) => {
+                setFiltroTabla(e.target.value);
+                setPage(0);
+              }}
+            >
+              {tablas.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

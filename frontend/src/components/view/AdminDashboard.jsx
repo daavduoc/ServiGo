@@ -29,7 +29,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <h1>Dashboard de Administración</h1>
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-grid-1x2" aria-hidden="true" />
+        Dashboard de Administración
+      </h2>
 
       <div className="stats-grid">
         <div className="stat-card">
@@ -87,8 +90,9 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <button className="btn-refresh" onClick={cargarEstadisticas}>
-        🔄 Refrescar
+      <button type="button" className="btn btn-success rounded-pill px-4 fw-semibold" onClick={cargarEstadisticas}>
+        <i className="bi bi-arrow-clockwise me-2" aria-hidden="true" />
+        Refrescar
       </button>
     </div>
   );

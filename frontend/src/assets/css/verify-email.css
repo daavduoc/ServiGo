@@ -1,6 +1,6 @@
 .verify-email-page {
-  --verify-green: #2f9e44;
-  --verify-green-light: #4ad990;
+  --verify-green: var(--servigo-green);
+  --verify-green-light: var(--servigo-green-hover);
   --verify-green-pale: #e8f8ef;
   --verify-blue-pale: #e8f4fd;
   --verify-blue: #0d6efd;

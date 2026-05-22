@@ -1,0 +1,212 @@
+/* Vista "Nuestras políticas" */
+
+.politicas-view {
+  --pol-green: var(--servigo-green);
+  --pol-green-light: var(--servigo-green-hover);
+  --pol-green-pale: #f0f9f4;
+  --pol-green-banner: #e8f8ef;
+  --pol-text: #212529;
+  --pol-muted: #6c757d;
+  --pol-border: #dee2e6;
+  padding-bottom: 2.5rem;
+}
+
+.politicas-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--pol-muted);
+  margin-bottom: 1.5rem;
+}
+
+.politicas-breadcrumb a {
+  color: var(--pol-muted);
+  text-decoration: none;
+}
+
+.politicas-breadcrumb a:hover {
+  color: var(--pol-green);
+}
+
+.politicas-breadcrumb__current {
+  color: var(--pol-green);
+  font-weight: 600;
+}
+
+.politicas-breadcrumb i {
+  font-size: 0.85rem;
+}
+
+.politicas-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .politicas-hero {
+    grid-template-columns: 1fr minmax(200px, 340px);
+    gap: 2rem;
+    align-items: center;
+  }
+}
+
+@media (min-width: 992px) {
+  .politicas-hero {
+    grid-template-columns: 1fr minmax(260px, 420px);
+    gap: 2.5rem;
+  }
+}
+
+.politicas-hero__title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  color: var(--pol-text);
+  margin-bottom: 0.75rem;
+}
+
+.politicas-hero__lead {
+  color: var(--pol-muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+  max-width: 540px;
+}
+
+.politicas-hero__img-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .politicas-hero__img-wrap {
+    justify-content: flex-end;
+  }
+}
+
+.politicas-hero__img {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.politicas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .politicas-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.politicas-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--pol-border);
+  border-radius: 14px;
+  background: #fff;
+  transition: box-shadow 0.2s ease;
+}
+
+.politicas-card:hover {
+  box-shadow: 0 4px 16px rgba(47, 158, 68, 0.08);
+}
+
+.politicas-card__icon {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pol-green-pale);
+  color: var(--pol-green);
+  border-radius: 50%;
+  font-size: 1.85rem;
+}
+
+.politicas-card__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--pol-text);
+  margin-bottom: 0.35rem;
+}
+
+.politicas-card__text {
+  color: var(--pol-muted);
+  font-size: 0.925rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.politicas-changes {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--pol-green-banner);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.politicas-changes__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: var(--pol-green);
+  border-radius: 50%;
+  font-size: 1.25rem;
+}
+
+.politicas-changes__title {
+  font-weight: 700;
+  color: var(--pol-text);
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.politicas-changes__text {
+  color: var(--pol-muted);
+  font-size: 0.925rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.politicas-footer-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  color: var(--pol-muted);
+  font-size: 0.95rem;
+  padding-top: 0.5rem;
+}
+
+.politicas-footer-msg i {
+  color: var(--pol-green);
+  font-size: 1.1rem;
+}
+
+.politicas-footer-msg strong {
+  color: var(--pol-text);
+}

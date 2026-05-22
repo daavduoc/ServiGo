@@ -34,7 +34,10 @@ const AdminReportesView = () => {
 
   return (
     <div className="admin-reportes">
-      <h1>Generador de Reportes</h1>
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-bar-chart-line" aria-hidden="true" />
+        Generador de Reportes
+      </h2>
 
       <div className="reportes-section">
         <h2>Seleccionar Período</h2>
@@ -87,8 +90,9 @@ const AdminReportesView = () => {
           </div>
 
           <div className="reportes-actions">
-            <button className="btn-primary" onClick={handleExportarCSV}>
-              📥 Descargar CSV
+            <button type="button" className="btn btn-success rounded-pill px-4 fw-semibold" onClick={handleExportarCSV}>
+              <i className="bi bi-download me-2" aria-hidden="true" />
+              Descargar CSV
             </button>
           </div>
         </div>

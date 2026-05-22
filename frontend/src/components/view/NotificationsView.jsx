@@ -3,8 +3,8 @@ import React from 'react';
 export const NotificationsView = () => {
   return (
     <div className="container py-5 mt-4" style={{ minHeight: '60vh' }}>
-      <h2 className="fw-bold text-dark mb-4">
-        <i className="bi bi-bell text-success me-2"></i>
+      <h2 className="mb-4 profile-panel-title">
+        <i className="bi bi-bell" aria-hidden="true" />
         Historial de Notificaciones
       </h2>
       

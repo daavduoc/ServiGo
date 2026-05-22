@@ -1,7 +1,7 @@
 // Definición de rutas (Apuntando a tu Spring Boot en 8080)
 const API_URL_AUTH = 'http://localhost:8080/auth';
 const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
-const API_URL_CLOUDINARY = 'http://localhost:8080/cloudinary'; // Nueva ruta para fotos
+const API_URL_CLOUDINARY = 'http://localhost:8080/cloudinary';
 
 // Cabeceras para usar en Spring Boot 
 const getAuthHeaders = (isFormData = false) => {
@@ -42,6 +42,7 @@ const extraerUrlCloudinary = (data) => {
     return data.secure_url || data.secureUrl || data.url || null;
 };
 
+/** Sube imagen vía Spring → Cloudinary; devuelve la URL segura. */
 export const subirFotoCloudinary = async (file) => {
     try {
         const formData = new FormData();
@@ -50,11 +51,11 @@ export const subirFotoCloudinary = async (file) => {
         const response = await fetch(`${API_URL_CLOUDINARY}/upload`, {
             method: 'POST',
             headers: getAuthHeaders(true),
-            body: formData
+            body: formData,
         });
 
         if (!response.ok) {
-            throw new Error("Error al subir la imagen a la nube");
+            throw new Error('Error al subir la imagen a la nube');
         }
 
         const data = await response.json();
@@ -64,7 +65,7 @@ export const subirFotoCloudinary = async (file) => {
         }
         return url;
     } catch (error) {
-        console.error("Error en subirFotoCloudinary:", error);
+        console.error('Error en subirFotoCloudinary:', error);
         throw error;
     }
 };

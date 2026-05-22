@@ -19,22 +19,35 @@ function ChangeView({ center }) {
   return null;
 }
 
+function MapFocusGuard() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    container.setAttribute('tabindex', '-1');
+    if (document.activeElement === container) {
+      container.blur();
+    }
+
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [map]);
+
+  return null;
+}
+
 export const MapSection = ({
   label,
   fullAddress,
   onCoordsChange,
-  displayMode = 'default',
   mapHint,
-  addressPlaceholder = 'La dirección se actualiza según los campos de la izquierda',
   mapClassName = '',
   allowMarkerDrag = false,
 }) => {
   const [position, setPosition] = useState([-33.4489, -70.6693]);
   const [isSearching, setIsSearching] = useState(false);
-
-  const direccionMostrada = fullAddress
-    .replace(/,\s*,/g, ',')
-    .replace(/^,\s*/, '');
 
   useEffect(() => {
     const direccionLimpia = fullAddress.replace(/,\s*,/g, ',').trim();
@@ -63,7 +76,7 @@ export const MapSection = ({
     }, 1500);
 
     return () => clearTimeout(temporizador);
-  }, [fullAddress]);
+  }, [fullAddress, onCoordsChange]);
 
   const handleMarkerDragEnd = (e) => {
     const { lat, lng } = e.target.getLatLng();
@@ -72,78 +85,39 @@ export const MapSection = ({
     onCoordsChange({ lat, lng });
   };
 
-  const mapBlock = (
-    <div
-      className={`map-section-map ${mapClassName}`.trim()}
-      style={{
-        height: '300px',
-        width: '100%',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        border: '1px solid #dee2e6',
-      }}
-    >
-      <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        />
-        <Marker
-          position={position}
-          icon={DefaultIcon}
-          draggable={allowMarkerDrag}
-          eventHandlers={allowMarkerDrag ? { dragend: handleMarkerDragEnd } : undefined}
-        />
-        <ChangeView center={position} />
-      </MapContainer>
-    </div>
-  );
-
-  if (displayMode === 'map-only') {
-    return (
-      <div className="mb-4 registro-cliente-map-wrap">
-        <label className="form-label fw-bold d-flex justify-content-between align-items-center">
-          {label}
-          {isSearching && (
-            <span className="badge bg-success rounded-pill fw-normal">Ubicando...</span>
-          )}
-        </label>
-        {mapBlock}
-        {mapHint && (
-          <div className="registro-cliente-hint registro-cliente-hint--info mt-2">
-            <i className="bi bi-info-circle" aria-hidden="true" />
-            <span>{mapHint}</span>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="mb-4">
+    <div className="mb-4 registro-cliente-map-wrap">
       <label className="form-label fw-bold d-flex justify-content-between align-items-center">
         {label}
         {isSearching && (
-          <span className="badge bg-primary rounded-pill fw-normal">Ubicando...</span>
+          <span className="badge bg-success rounded-pill fw-normal">Ubicando...</span>
         )}
       </label>
-
-      <div className="input-group mb-2">
-        <span className="input-group-text bg-white">
-          <i className="bi bi-geo-alt text-primary" />
-        </span>
-        <input
-          type="text"
-          className="form-control bg-light text-muted"
-          value={direccionMostrada}
-          readOnly
-          placeholder={addressPlaceholder}
-          aria-label="Dirección detectada para el mapa"
-        />
+      <div
+        className={`map-section-map ${mapClassName}`.trim()}
+        style={{
+          height: '300px',
+          width: '100%',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          border: '1px solid #dee2e6',
+        }}
+      >
+        <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          />
+          <Marker
+            position={position}
+            icon={DefaultIcon}
+            draggable={allowMarkerDrag}
+            eventHandlers={allowMarkerDrag ? { dragend: handleMarkerDragEnd } : undefined}
+          />
+          <ChangeView center={position} />
+          <MapFocusGuard />
+        </MapContainer>
       </div>
-
-      {mapBlock}
-
       {mapHint && (
         <div className="registro-cliente-hint registro-cliente-hint--info mt-2">
           <i className="bi bi-info-circle" aria-hidden="true" />

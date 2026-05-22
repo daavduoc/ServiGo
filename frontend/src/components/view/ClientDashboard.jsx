@@ -43,7 +43,10 @@ export const ClientDashboard = () => {
 
   return (
     <div className="p-4">
-      <h2 className="fw-bold mb-4">Panel Personal del Cliente</h2>
+      <h2 className="mb-4 profile-panel-title">
+        <i className="bi bi-grid-1x2" aria-hidden="true" />
+        Panel Personal del Cliente
+      </h2>
 
       <div className="row">
         <div className="col-lg-4 col-md-5 mb-4">
@@ -57,9 +60,11 @@ export const ClientDashboard = () => {
                   style={{ width: 80, height: 80 }}
                 />
               ) : (
-                <div className="mb-3"><span className="fs-1" aria-hidden="true">👤</span></div>
+                <div className="mb-3">
+                  <i className="bi bi-person-circle fs-1 text-secondary" aria-hidden="true" />
+                </div>
               )}
-              <h4 className="fw-bold">{nombreVisible}</h4>
+              <h4 className="fw-semibold">{nombreVisible}</h4>
               <p className="text-muted">{comuna}{comuna !== '—' ? ', Chile' : ''}</p>
               <p className="small text-muted">{correo} • {telefono}</p>
             </div>
@@ -67,7 +72,10 @@ export const ClientDashboard = () => {
 
           <div className="card shadow-sm border-0">
             <div className="card-body">
-              <h5 className="fw-bold">Servicios contratados</h5>
+              <h5 className="profile-panel-title">
+                <i className="bi bi-briefcase" aria-hidden="true" />
+                Servicios contratados
+              </h5>
               {servicios.length === 0 ? (
                 <p className="text-muted small mt-2 mb-0">Aún no tienes servicios contratados.</p>
               ) : (
@@ -89,7 +97,10 @@ export const ClientDashboard = () => {
 
         <div className="col-lg-8 col-md-7">
           <div className="card shadow-sm border-0 mb-4 p-3">
-            <h5 className="fw-bold">Citas</h5>
+            <h5 className="fw-bold profile-panel-title">
+              <i className="bi bi-calendar-check" aria-hidden="true" />
+              Citas
+            </h5>
 
             <div className="row">
               <div className="col-md-6">
@@ -133,7 +144,10 @@ export const ClientDashboard = () => {
           </div>
 
           <div className="card shadow-sm border-0 p-4">
-            <h5 className="fw-bold mb-3">Historial de Servicios</h5>
+            <h5 className="fw-bold mb-3 profile-panel-title">
+              <i className="bi bi-journal-text" aria-hidden="true" />
+              Historial de Servicios
+            </h5>
             {historial.length === 0 ? (
               <p className="text-muted mb-0">No hay historial de servicios completados.</p>
             ) : (

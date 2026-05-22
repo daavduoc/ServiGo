@@ -1,0 +1,55 @@
+/* Enlaces del menú principal — activo con subrayado verde ServiGo */
+
+:root {
+  --servigo-navbar-h: 64px;
+}
+
+.servigo-page {
+  padding-top: var(--servigo-navbar-h);
+}
+
+.servigo-main-navbar {
+  --nav-green: var(--servigo-green);
+  --nav-green-dark: var(--servigo-green-dark);
+  background-color: #fff !important;
+}
+
+.servigo-main-navbar .servigo-nav-link {
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.85rem !important;
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+}
+
+.servigo-main-navbar .servigo-nav-link:hover {
+  color: var(--nav-green-dark);
+}
+
+.servigo-main-navbar .servigo-nav-link.active {
+  color: var(--nav-green-dark) !important;
+  font-weight: 600;
+}
+
+.servigo-main-navbar .servigo-nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.2rem;
+  height: 2px;
+  background: var(--nav-green);
+  border-radius: 2px;
+}
+
+.servigo-main-navbar .servigo-nav-link--especialista {
+  color: var(--nav-green-dark);
+}
+
+.servigo-main-navbar .servigo-nav-link--especialista.active::after {
+  left: 0;
+  right: 0;
+  bottom: -2px;
+}

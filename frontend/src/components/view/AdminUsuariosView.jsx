@@ -85,9 +85,12 @@ const AdminUsuariosView = () => {
 
   return (
     <div className="admin-usuarios">
-      <h1>Gestión de Usuarios</h1>
-      
-      <FilterPanel 
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-people" aria-hidden="true" />
+        Gestión de Usuarios
+      </h2>
+
+      <FilterPanel
         columns={columns}
         onApplyFilter={handleFilterApply}
         onClearFilter={handleFilterClear}

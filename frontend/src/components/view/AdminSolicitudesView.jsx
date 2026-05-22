@@ -31,7 +31,10 @@ const AdminSolicitudesView = () => {
 
   return (
     <div>
-      <h1>Gestión de Solicitudes</h1>
+      <h2 className="mb-4 admin-page-title">
+        <i className="bi bi-clipboard-check" aria-hidden="true" />
+        Gestión de Solicitudes
+      </h2>
       <AdminTable
         columns={columns}
         data={solicitudes}

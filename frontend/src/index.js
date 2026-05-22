@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 // estilos de bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './assets/css/servigo-theme.css';
 // scripts de bootstrap
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 // estilos de leaflet (mapa)

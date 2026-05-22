@@ -183,7 +183,10 @@ export const ProfileView = () => {
                   onError={() => setFotoError(true)}
                 />
               ) : (
-                <span style={{ fontSize: '5rem' }} role="img" aria-label="Sin foto">👤</span>
+                <i
+                  className="bi bi-person-circle profile-avatar-placeholder"
+                  aria-label="Sin foto"
+                />
               )}
             </div>
             <input
@@ -199,9 +202,16 @@ export const ProfileView = () => {
               disabled={uploadingPhoto}
               onClick={() => fileInputRef.current?.click()}
             >
-              {uploadingPhoto ? 'Subiendo foto...' : '📸 Cambiar foto'}
+              {uploadingPhoto ? (
+                'Subiendo foto...'
+              ) : (
+                <>
+                  <i className="bi bi-camera me-1" aria-hidden="true" />
+                  Cambiar foto
+                </>
+              )}
             </button>
-            <h3 className="fw-bold">{profileData.nombre} {profileData.apellido}</h3>
+            <h3 className="fw-semibold mb-0">{profileData.nombre} {profileData.apellido}</h3>
             <p className="text-muted mb-2">{profileData.correo}</p>
             <p className="text-muted small">RUT: {profileData.rut}</p>
             
@@ -221,7 +231,8 @@ export const ProfileView = () => {
                 className="btn btn-success w-100 shadow-sm text-white fw-medium"
                 onClick={() => setIsEditing(true)}
               >
-                ✏️ Editar Perfil
+                <i className="bi bi-pencil-square me-1" aria-hidden="true" />
+                Editar Perfil
               </button>
             )}
           </div>
@@ -230,8 +241,18 @@ export const ProfileView = () => {
         {/* Lado Derecho: Formulario de Edición */}
         <div className="col-md-8">
           <div className="card shadow-sm border-0 p-4">
-            <h4 className="fw-bold mb-4">
-              {isEditing ? '✏️ Actualizar mis Datos' : '📋 Mis Datos Personales'}
+            <h4 className="mb-4 profile-panel-title">
+              {isEditing ? (
+                <>
+                  <i className="bi bi-pencil-square" aria-hidden="true" />
+                  Actualizar mis Datos
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-person-vcard" aria-hidden="true" />
+                  Mis Datos Personales
+                </>
+              )}
             </h4>
 
             {error && (
@@ -341,14 +362,16 @@ export const ProfileView = () => {
                     className="btn btn-success flex-grow-1 fw-bold"
                     onClick={handleSave}
                   >
-                    💾 Guardar Cambios
+                    <i className="bi bi-check-lg me-1" aria-hidden="true" />
+                    Guardar Cambios
                   </button>
                   <button 
                     type="button"
                     className="btn btn-secondary flex-grow-1 fw-bold"
                     onClick={handleCancel}
                   >
-                    ❌ Cancelar
+                    <i className="bi bi-x-lg me-1" aria-hidden="true" />
+                    Cancelar
                   </button>
                 </div>
               </form>
@@ -394,7 +417,9 @@ export const ProfileView = () => {
 
                 <div className="bg-light p-4 rounded-3 border-start border-success border-4">
                   <p className="text-muted mb-0">
-                    💡 Haz clic en <strong>"Editar Perfil"</strong> para actualizar tu información de contacto y dirección.
+                    <i className="bi bi-lightbulb text-success me-2" aria-hidden="true" />
+                    Haz clic en <strong>&quot;Editar Perfil&quot;</strong> para actualizar tu información de
+                    contacto y dirección.
                   </p>
                 </div>
               </div>
@@ -402,37 +427,50 @@ export const ProfileView = () => {
           </div>
 
           <div className="card shadow-sm border-0 p-4 mt-4">
-            <h5 className="fw-bold mb-3">⚙️ Configuración de Cuenta</h5>
+            <h5 className="mb-3 profile-settings-title">
+              <i className="bi bi-gear" aria-hidden="true" />
+              Configuración de Cuenta
+            </h5>
             <div className="list-group list-group-flush">
-              {/* CAMBIO: Conectamos los botones a los modales */}
-              <button 
-                onClick={() => setShowPasswordModal(true)} 
-                className="list-group-item list-group-item-action text-start"
-              >
-                🔑 Cambiar Contraseña
-              </button>
-              
-              <button 
-                onClick={() => setShowNotifModal(true)} 
-                className="list-group-item list-group-item-action text-start"
-              >
-                🔔 Preferencias de Notificaciones
-              </button>
-              
               <button
                 type="button"
-                className="list-group-item list-group-item-action text-start"
+                onClick={() => setShowPasswordModal(true)}
+                className="list-group-item list-group-item-action profile-settings-item"
+              >
+                <i className="bi bi-lock profile-settings-item__icon" aria-hidden="true" />
+                <span className="profile-settings-item__label">Cambiar Contraseña</span>
+                <i className="bi bi-chevron-right profile-settings-item__chevron" aria-hidden="true" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowNotifModal(true)}
+                className="list-group-item list-group-item-action profile-settings-item"
+              >
+                <i className="bi bi-bell profile-settings-item__icon" aria-hidden="true" />
+                <span className="profile-settings-item__label">Preferencias de Notificaciones</span>
+                <i className="bi bi-chevron-right profile-settings-item__chevron" aria-hidden="true" />
+              </button>
+
+              <button
+                type="button"
+                className="list-group-item list-group-item-action profile-settings-item"
                 disabled={uploadingPhoto}
                 onClick={() => fileInputRef.current?.click()}
               >
-                📸 Cambiar Foto de Perfil
+                <i className="bi bi-camera profile-settings-item__icon" aria-hidden="true" />
+                <span className="profile-settings-item__label">Cambiar Foto de Perfil</span>
+                <i className="bi bi-chevron-right profile-settings-item__chevron" aria-hidden="true" />
               </button>
-              
-              <button 
-                onClick={() => setShowDeleteModal(true)} 
-                className="list-group-item list-group-item-action text-danger text-start fw-medium"
+
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                className="list-group-item list-group-item-action profile-settings-item profile-settings-item--danger text-danger fw-medium"
               >
-                🗑️ Eliminar Cuenta
+                <i className="bi bi-trash profile-settings-item__icon" aria-hidden="true" />
+                <span className="profile-settings-item__label">Eliminar Cuenta</span>
+                <i className="bi bi-chevron-right profile-settings-item__chevron" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -449,7 +487,10 @@ export const ProfileView = () => {
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content border-0 rounded-4 shadow">
               <div className="modal-header border-0 pb-0">
-                <h5 className="fw-bold mb-0">🔑 Cambiar Contraseña</h5>
+                <h5 className="fw-bold mb-0 d-flex align-items-center gap-2">
+                  <i className="bi bi-lock text-success" aria-hidden="true" />
+                  Cambiar Contraseña
+                </h5>
                 <button onClick={() => setShowPasswordModal(false)} className="btn-close"></button>
               </div>
               <div className="modal-body py-4">
@@ -477,7 +518,10 @@ export const ProfileView = () => {
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content border-0 rounded-4 shadow">
               <div className="modal-header border-0 pb-0">
-                <h5 className="fw-bold mb-0">🔔 Mis Notificaciones</h5>
+                <h5 className="fw-bold mb-0 d-flex align-items-center gap-2">
+                  <i className="bi bi-bell text-success" aria-hidden="true" />
+                  Mis Notificaciones
+                </h5>
                 <button onClick={() => setShowNotifModal(false)} className="btn-close"></button>
               </div>
               <div className="modal-body py-4">
@@ -508,7 +552,10 @@ export const ProfileView = () => {
                 <button onClick={() => setShowDeleteModal(false)} className="btn-close"></button>
               </div>
               <div className="modal-body text-center p-4 pt-0">
-                <div className="fs-1 mb-3">⚠️</div>
+                <i
+                  className="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"
+                  aria-hidden="true"
+                />
                 <h4 className="fw-bold text-danger mb-3">Zona de Peligro</h4>
                 <h6 className="fw-bold text-dark">¿Estás segura de eliminar tu cuenta?</h6>
                 <p className="text-muted small mt-2">
@@ -527,5 +574,3 @@ export const ProfileView = () => {
     </div>
   );
 };
-
-export default ProfileView;
