@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ButtonCustom } from './ButtonCustom';
+import '../../assets/css/form-actions-generic.css';
 
 export const FormActions = ({
   onCancel,
@@ -29,20 +29,23 @@ export const FormActions = ({
   </div>
 );
 
-export const FormActionsGeneric = ({ onCancel, onSave, textoSubmit = 'Aceptar' }) => (
-  <div className="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
-    <ButtonCustom
-      texto="Cancelar"
-      color="light"
-      className="border-dark px-4 w-auto"
-      onClick={onCancel}
-    />
-    <ButtonCustom
-      texto={textoSubmit}
-      color="primary"
-      className="px-5 shadow w-auto"
-      tipo="submit"
+export const FormActionsGeneric = ({
+  onCancel,
+  onSave,
+  textoSubmit = 'Aceptar',
+  submitDisabled = false,
+}) => (
+  <div className="form-actions-generic d-flex justify-content-end flex-wrap gap-2 mt-4 border-top pt-3">
+    <button type="button" className="btn form-actions-generic__cancel" onClick={onCancel}>
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      className="btn form-actions-generic__submit"
+      disabled={submitDisabled}
       onClick={onSave}
-    />
+    >
+      {textoSubmit}
+    </button>
   </div>
 );

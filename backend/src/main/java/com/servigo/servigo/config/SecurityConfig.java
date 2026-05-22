@@ -29,6 +29,7 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public endpoints (no auth required)
                 .requestMatchers(
                     "/auth/**",
@@ -38,6 +39,11 @@ public class SecurityConfig {
                     "/cloudinary/upload",
                     "/swagger-ui/**",
                     "/v3/api-docs/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.POST,
+                    "/usuarios/registro",
+                    "/usuarios/registro-con-foto",
+                    "/usuarios/registro/**"
                 ).permitAll()
                 // Public GET browsing
                 .requestMatchers(HttpMethod.GET, "/prestadores/**").permitAll()

@@ -35,7 +35,7 @@ public class AdminDataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        if (usuarioRepository.findByCorreo(adminEmail).isPresent()) {
+        if (usuarioRepository.findFirstByCorreoIgnoreCaseOrderByIdUsuarioDesc(adminEmail).isPresent()) {
             return;
         }
 

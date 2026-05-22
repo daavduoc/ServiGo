@@ -1,50 +1,102 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  obtenerCertificacionesPrestador, 
-  aprobarPrestador, 
-  rechazarPrestador 
+import { createPortal } from 'react-dom';
+import {
+  obtenerCertificacionesPrestador,
+  obtenerPrestadorValidacion,
+  aprobarPrestador,
+  rechazarPrestador,
 } from '../../serviceFront/adminService';
 
-const PrestadorValidacionModal = ({ prestador, onClose, onActionComplete }) => {
-  const [tab, setTab] = useState('info'); // info, certificaciones, resenas
+const DetailItem = ({ label, value, fullWidth }) => (
+  <div className={`detail-item${fullWidth ? ' full-width' : ''}`}>
+    <p className="detail-label">{label}</p>
+    <p className="detail-value">{value ?? '—'}</p>
+  </div>
+);
+
+const formatFecha = (value) => {
+  if (!value) return '—';
+  try {
+    return new Date(value).toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return value;
+  }
+};
+
+const PrestadorValidacionModal = ({ prestador: prestadorInicial, onClose, onActionComplete }) => {
+  const [tab, setTab] = useState('info');
+  const [prestador, setPrestador] = useState(prestadorInicial);
   const [certificaciones, setCertificaciones] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingDetalle, setLoadingDetalle] = useState(true);
+  const [loadingAccion, setLoadingAccion] = useState(false);
   const [motivo, setMotivo] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  const esEmpresa =
+    prestador?.tipoPrestador &&
+    String(prestador.tipoPrestador).toLowerCase() === 'empresa';
+
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    const cargarDetalle = async () => {
+      try {
+        setLoadingDetalle(true);
+        const detalle = await obtenerPrestadorValidacion(prestadorInicial.idPrestador);
+        setPrestador(detalle);
+      } catch (err) {
+        console.error(err);
+        setPrestador(prestadorInicial);
+      } finally {
+        setLoadingDetalle(false);
+      }
+    };
+    cargarDetalle();
+  }, [prestadorInicial.idPrestador]);
 
   useEffect(() => {
     if (tab === 'certificaciones') {
       cargarCertificaciones();
     }
-  }, [tab]);
+  }, [tab, prestador.idPrestador]);
 
   const cargarCertificaciones = async () => {
     try {
-      setLoading(true);
+      setLoadingAccion(true);
       const data = await obtenerCertificacionesPrestador(prestador.idPrestador);
       setCertificaciones(Array.isArray(data) ? data : []);
-    } catch (error) {
-      setError('Error al cargar certificaciones');
+    } catch {
+      setError('Error al cargar documentación');
     } finally {
-      setLoading(false);
+      setLoadingAccion(false);
     }
   };
 
   const handleAprobar = async () => {
     try {
-      setLoading(true);
+      setLoadingAccion(true);
       setError(null);
       await aprobarPrestador(prestador.idPrestador);
-      setSuccess('Prestador aprobado exitosamente');
+      setSuccess('Prestador aprobado. Ya puede operar en ServiGo.');
       setTimeout(() => {
         onActionComplete();
         onClose();
       }, 1500);
     } catch (err) {
-      setError('Error al aprobar: ' + err.message);
+      setError(`Error al aprobar: ${err.message}`);
     } finally {
-      setLoading(false);
+      setLoadingAccion(false);
     }
   };
 
@@ -54,164 +106,211 @@ const PrestadorValidacionModal = ({ prestador, onClose, onActionComplete }) => {
       return;
     }
     try {
-      setLoading(true);
+      setLoadingAccion(true);
       setError(null);
       await rechazarPrestador(prestador.idPrestador, motivo);
-      setSuccess('Prestador rechazado exitosamente');
+      setSuccess('Solicitud rechazada.');
       setTimeout(() => {
         onActionComplete();
         onClose();
       }, 1500);
     } catch (err) {
-      setError('Error al rechazar: ' + err.message);
+      setError(`Error al rechazar: ${err.message}`);
     } finally {
-      setLoading(false);
+      setLoadingAccion(false);
     }
   };
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content modal-lg" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Validación de Prestador: {prestador.nombrePrestador}</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
+  const modal = (
+    <div className="admin-modal-overlay" onClick={onClose} role="presentation">
+      <div
+        className="admin-modal-dialog admin-modal-dialog--lg"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="admin-prestador-modal-title"
+      >
+        <div className="admin-modal-dialog__header">
+          <h2 id="admin-prestador-modal-title">Validar registro: {prestador.nombrePrestador}</h2>
+          <button type="button" className="admin-modal-dialog__close" onClick={onClose} aria-label="Cerrar">
+            <i className="bi bi-x-lg" aria-hidden="true" />
+          </button>
         </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        <div className="admin-modal-dialog__alerts">
+          {error && <div className="alert alert-danger mb-2">{error}</div>}
+          {success && <div className="alert alert-success mb-2">{success}</div>}
+          <div className="alert alert-warning py-2 small mb-0">
+            <i className="bi bi-hourglass-split me-1" aria-hidden="true" />
+            Solicitud pendiente — el usuario fue informado de una revisión en hasta 24 horas hábiles.
+          </div>
+        </div>
 
-        <div className="modal-tabs">
-          <button 
-            className={`tab ${tab === 'info' ? 'active' : ''}`}
+        <div className="admin-modal-dialog__tabs">
+          <button
+            type="button"
+            className={`admin-modal-tab${tab === 'info' ? ' is-active' : ''}`}
             onClick={() => setTab('info')}
           >
-            📋 Información
+            Información
           </button>
-          <button 
-            className={`tab ${tab === 'certificaciones' ? 'active' : ''}`}
+          <button
+            type="button"
+            className={`admin-modal-tab${tab === 'certificaciones' ? ' is-active' : ''}`}
             onClick={() => setTab('certificaciones')}
           >
-            🏆 Certificaciones ({prestador.certificacionesCount || 0})
-          </button>
-          <button 
-            className={`tab ${tab === 'resenas' ? 'active' : ''}`}
-            onClick={() => setTab('resenas')}
-          >
-            ⭐ Reseñas
+            Documentación ({prestador.certificacionesCount || 0})
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="admin-modal-dialog__body">
+          {loadingDetalle && (
+            <p className="text-muted small text-center py-3 mb-0">
+              <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+              Cargando detalle completo...
+            </p>
+          )}
+
           {tab === 'info' && (
-            <div className="detail-grid">
-              <div className="detail-item">
-                <p className="detail-label">Nombre</p>
-                <p className="detail-value">{prestador.nombrePrestador}</p>
+            <>
+              {prestador.urlFotoPerfil && (
+                <div className="text-center mb-3">
+                  <img
+                    src={prestador.urlFotoPerfil}
+                    alt="Foto de perfil"
+                    className="rounded"
+                    style={{ maxWidth: 120, maxHeight: 120, objectFit: 'cover' }}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )}
+
+              <div className="detail-grid">
+                <DetailItem label="Estado" value={prestador.estadoValidacion} />
+                <DetailItem
+                  label="Tipo"
+                  value={
+                    esEmpresa ? 'Prestador establecido (empresa)' : 'Prestador a domicilio'
+                  }
+                />
+                <DetailItem label="Correo" value={prestador.email} />
+                <DetailItem label="Teléfono" value={prestador.telefono} />
+                <DetailItem label="RUT (usuario)" value={prestador.rut} />
+                <DetailItem
+                  label="Correo verificado"
+                  value={prestador.correoValidado ? 'Sí' : 'Pendiente'}
+                />
+                <DetailItem label="Categoría" value={prestador.categoriaPrestador} />
+                <DetailItem
+                  label="Especialidad"
+                  value={
+                    prestador.especialidad ||
+                    (prestador.especialidadesServicios?.length
+                      ? prestador.especialidadesServicios.join(', ')
+                      : '—')
+                  }
+                />
+                {!esEmpresa && (
+                  <DetailItem
+                    label="Fecha de nacimiento"
+                    value={formatFecha(prestador.fechaNacimiento)}
+                  />
+                )}
+                <DetailItem label="Región" value={prestador.region} />
+                <DetailItem label="Comuna" value={prestador.comuna} />
+                <DetailItem label="Dirección" value={prestador.direccion} fullWidth />
+                <DetailItem
+                  label="Fecha de registro"
+                  value={formatFecha(prestador.fechaRegistro)}
+                />
               </div>
 
-              <div className="detail-item">
-                <p className="detail-label">Email</p>
-                <p className="detail-value">{prestador.email}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Teléfono</p>
-                <p className="detail-value">{prestador.telefono}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Especialidad</p>
-                <p className="detail-value">{prestador.especialidad}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Categoría</p>
-                <p className="detail-value">{prestador.categoria || '-'}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Tipo de Prestador</p>
-                <p className="detail-value">{prestador.tipoPrestador || '-'}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Años de Experiencia</p>
-                <p className="detail-value">{prestador.experiencia || '-'}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Empresa</p>
-                <p className="detail-value">{prestador.empresa || '-'}</p>
-              </div>
-
-              <div className="detail-item full-width">
-                <p className="detail-label">Descripción</p>
-                <p className="detail-value">{prestador.descripcion || '-'}</p>
-              </div>
-
-              <div className="detail-item">
-                <p className="detail-label">Estado Validación</p>
-                <p className={`detail-value estado-${prestador.estadoValidacion?.toLowerCase()}`}>
-                  {prestador.estadoValidacion}
-                </p>
-              </div>
-            </div>
+              {esEmpresa && (
+                <>
+                  <h4 className="h6 text-success mt-4 mb-3">Datos de empresa</h4>
+                  <div className="detail-grid">
+                    <DetailItem label="Razón social" value={prestador.empresa} />
+                    <DetailItem label="Nombre comercial" value={prestador.nombreComercial} />
+                    <DetailItem label="RUT empresa" value={prestador.rutEmpresa} />
+                    <DetailItem label="Giro comercial" value={prestador.giroComercial} />
+                    <DetailItem label="Estado empresa" value={prestador.estadoEmpresa} />
+                  </div>
+                </>
+              )}
+            </>
           )}
 
           {tab === 'certificaciones' && (
             <div className="certificaciones-list">
-              {loading ? (
-                <p>Cargando certificaciones...</p>
+              {loadingAccion ? (
+                <p>Cargando documentos...</p>
               ) : certificaciones.length > 0 ? (
-                certificaciones.map((cert, idx) => (
-                  <div key={idx} className="cert-item">
-                    <h4>{cert.nombre}</h4>
-                    <p><strong>Institución:</strong> {cert.institucion}</p>
-                    <p><strong>Fecha:</strong> {new Date(cert.fechaObtencion).toLocaleDateString('es-CL')}</p>
+                certificaciones.map((cert) => (
+                  <div key={cert.idCertificacion} className="cert-item border rounded p-3 mb-2">
+                    <h4 className="h6 mb-2">{cert.nombreDocumento || 'Documento'}</h4>
+                    <p className="mb-1 small text-muted">
+                      Estado: <strong>{cert.estado || 'pendiente'}</strong>
+                      {cert.fechaSubida && (
+                        <> · Subido: {formatFecha(cert.fechaSubida)}</>
+                      )}
+                    </p>
+                    {cert.urlDocumento && (
+                      <a
+                        href={cert.urlDocumento}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-outline-success"
+                      >
+                        <i className="bi bi-box-arrow-up-right me-1" aria-hidden="true" />
+                        Ver / descargar archivo
+                      </a>
+                    )}
                   </div>
                 ))
               ) : (
-                <p className="text-muted">No hay certificaciones registradas</p>
+                <p className="text-muted">
+                  {esEmpresa
+                    ? 'No adjuntó documentación empresarial (opcional en el registro).'
+                    : 'No adjuntó certificados obligatorios.'}
+                </p>
               )}
             </div>
           )}
 
-          {tab === 'resenas' && (
-            <div className="resenas-list">
-              <p className="text-muted">Reseñas no disponibles en esta versión</p>
-            </div>
-          )}
-
-          <div className="acciones-prestador">
+          <div className="acciones-prestador mt-4">
             <textarea
-              placeholder="Motivo de rechazo (requerido si rechaza)"
+              placeholder="Motivo de rechazo (obligatorio si rechazas)"
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
-              className="motivo-textarea"
-              rows="3"
+              className="motivo-textarea form-control"
+              rows={3}
             />
 
-            <div className="button-group">
+            <div className="button-group d-flex flex-wrap gap-2 mt-3">
               <button
+                type="button"
                 className="btn btn-success"
                 onClick={handleAprobar}
-                disabled={loading}
+                disabled={loadingAccion}
               >
-                {loading ? 'Aprobando...' : '✅ Aprobar'}
+                {loadingAccion ? 'Procesando...' : 'Aprobar registro'}
               </button>
 
               <button
+                type="button"
                 className="btn btn-danger"
                 onClick={handleRechazar}
-                disabled={loading}
+                disabled={loadingAccion}
               >
-                {loading ? 'Rechazando...' : '❌ Rechazar'}
+                Rechazar
               </button>
 
               <button
+                type="button"
                 className="btn btn-secondary"
                 onClick={onClose}
-                disabled={loading}
+                disabled={loadingAccion}
               >
                 Cerrar
               </button>
@@ -221,6 +320,8 @@ const PrestadorValidacionModal = ({ prestador, onClose, onActionComplete }) => {
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 };
 
 export default PrestadorValidacionModal;

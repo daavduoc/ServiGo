@@ -31,8 +31,15 @@ public class EmpresaService {
         Empresa empresa = empresaRepository.findById(id).orElse(null);
 
         if (empresa != null) {
+            empresa.setRutEmpresa(empresaActualizada.getRutEmpresa());
+            empresa.setRazonSocial(empresaActualizada.getRazonSocial());
             empresa.setNombreComercial(empresaActualizada.getNombreComercial());
+            empresa.setGiroComercial(empresaActualizada.getGiroComercial());
             empresa.setDireccion(empresaActualizada.getDireccion());
+            empresa.setComuna(empresaActualizada.getComuna());
+            empresa.setRegion(empresaActualizada.getRegion());
+            empresa.setLatitud(empresaActualizada.getLatitud());
+            empresa.setLongitud(empresaActualizada.getLongitud());
             empresa.setTelefono(empresaActualizada.getTelefono());
             empresa.setCorreo(empresaActualizada.getCorreo());
             empresa.setEstado(empresaActualizada.getEstado());

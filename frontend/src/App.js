@@ -29,7 +29,9 @@ import { ProviderRegisterView } from './components/view/auth/ProviderRegisterVie
 
 // 4. Importamos la vista para recuperar contraseña
 import { RecoverPasswordView } from './components/view/auth/RecoverPasswordView';
+import { RecoverPasswordResetView } from './components/view/auth/RecoverPasswordResetView';
 import { VerifyEmailView } from './components/view/auth/VerifyEmailView';
+import { RegistroPrestadorConfirmacionView } from './components/view/auth/RegistroPrestadorConfirmacionView';
 
 // --- VISTAS DE USUARIOS ---
 import { ClientDashboard } from './components/view/ClientDashboard';
@@ -83,12 +85,20 @@ function App() {
             {/* --- LOGIN Y RECUPERACIÓN --- */}
             {/* <Route path="/login" element={<LoginView />} /> - IMPORTANTE: LoginView no está definido. Comentado para evitar crasheo */}
             <Route path="/recuperar-password" element={<RecoverPasswordView />} />
+            <Route
+              path="/recuperar-password/restablecer"
+              element={<RecoverPasswordResetView />}
+            />
             <Route path="/verificar-correo" element={<VerifyEmailView />} />
 
             {/* --- REGISTRO MODULAR --- */}
             <Route path="/registro" element={<RegisterSelectionView />} />
             <Route path="/registro/cliente" element={<ClientRegisterView />} />
             <Route path="/registro/prestador" element={<ProviderRegisterView />} />
+            <Route
+              path="/registro/prestador/confirmacion"
+              element={<RegistroPrestadorConfirmacionView />}
+            />
 
             {/* --- RUTA DE PRUEBA PARA LA CÁMARA --- 
                   Ingresa a http://localhost:3000/test-camara para probarla */}

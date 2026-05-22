@@ -8,4 +8,6 @@ import java.util.List;
 public interface CertificacionRepository extends JpaRepository<Certificacion, Long> {
 
     List<Certificacion> findByPrestadorIdPrestador(Long idPrestador);
+
+    long countByPrestadorIdPrestador(Long idPrestador);
 }

@@ -3,6 +3,7 @@ package com.servigo.servigo.controller;
 import com.servigo.servigo.dto.LoginRequestDTO;
 import com.servigo.servigo.dto.LoginResponseDTO;
 import com.servigo.servigo.service.AuthService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import com.servigo.servigo.dto.RecuperarPasswordDTO;
 import com.servigo.servigo.dto.ValidarCodigoDTO;
@@ -29,7 +30,7 @@ public class AuthController {
     }
 
     // POST: recuperar contraseña
-    @PostMapping("/recuperar-password")
+    @PostMapping(value = "/recuperar-password", produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8")
     public String recuperarPassword(
             @Valid @RequestBody RecuperarPasswordDTO dto
     ) {

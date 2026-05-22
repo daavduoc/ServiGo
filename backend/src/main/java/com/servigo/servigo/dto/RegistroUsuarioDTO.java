@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class RegistroUsuarioDTO {
 
@@ -34,6 +36,8 @@ public class RegistroUsuarioDTO {
     @NotBlank(message = "El teléfono es obligatorio")
     private String telefono;
 
+    private LocalDate fechaNacimiento;
+
     private String direccion;
     private String comuna;
     private String region;
@@ -51,8 +55,18 @@ public class RegistroUsuarioDTO {
     // tecnico o profesional
     private Long idCategoria;
 
+    /** @deprecated Crear empresa en el mismo registro; usar datos de empresa abajo. */
     private Long idEmpresa;
     private String direccionLocal;
+
+    // Datos empresa (registro tipo empresa)
+    private String rutEmpresa;
+    private String razonSocial;
+    private String nombreFantasia;
+    private String giroComercial;
+
+    /** Especialidad elegida en el formulario (ej. Gasfitería, Psicología). */
+    private String especialidad;
 
     /** URL de Cloudinary tras subir la foto en el frontend (opcional). */
     @JsonProperty("fotoUrl")

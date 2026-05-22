@@ -1,6 +1,7 @@
 package com.servigo.servigo;
 
 import com.servigo.servigo.dto.RegistroUsuarioDTO;
+import com.servigo.servigo.dto.RegistroUsuarioResponseDTO;
 import com.servigo.servigo.entity.CategoriaPrestador;
 import com.servigo.servigo.entity.Rol;
 import com.servigo.servigo.entity.Usuario;
@@ -91,6 +92,8 @@ public class UsuarioServiceTest {
         dto.setContrasena("Clave123");
 
         dto.setTelefono("912345678");
+        dto.setLatitud(-33.45);
+        dto.setLongitud(-70.66);
 
         dto.setTipoUsuario("CLIENTE");
 
@@ -108,7 +111,7 @@ public class UsuarioServiceTest {
         when(usuarioRepository.save(Mockito.any(Usuario.class)))
                 .thenReturn(usuarioGuardado);
 
-        Usuario resultado =
+        RegistroUsuarioResponseDTO resultado =
                 usuarioService.registrarNuevoUsuario(dto);
 
         assertNotNull(resultado);
@@ -149,6 +152,9 @@ public class UsuarioServiceTest {
         dto.setCorreo("prestador@test.com");
         dto.setContrasena("Clave123");
         dto.setTelefono("912345678");
+        dto.setLatitud(-33.45);
+        dto.setLongitud(-70.66);
+        dto.setFechaNacimiento(java.time.LocalDate.of(1990, 5, 15));
         dto.setTipoUsuario("PRESTADOR");
         dto.setTipoPrestador("particular");
         dto.setIdCategoria(1L);
@@ -172,10 +178,18 @@ public class UsuarioServiceTest {
         when(usuarioRepository.save(Mockito.any(Usuario.class)))
                 .thenReturn(usuarioGuardado);
 
-        Usuario resultado = usuarioService.registrarNuevoUsuario(dto);
+        when(prestadorRepository.save(Mockito.any(com.servigo.servigo.entity.Prestador.class)))
+                .thenAnswer(invocation -> {
+                    com.servigo.servigo.entity.Prestador p = invocation.getArgument(0);
+                    p.setIdPrestador(1L);
+                    return p;
+                });
+
+        RegistroUsuarioResponseDTO resultado = usuarioService.registrarNuevoUsuario(dto);
 
         assertNotNull(resultado);
         assertEquals("prestador@test.com", resultado.getCorreo());
+        assertEquals(1L, resultado.getIdPrestador());
     }
 
     @Test

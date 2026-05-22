@@ -22,6 +22,9 @@ public class Prestador {
 
     private String estadoValidacion;
 
+    /** Especialidad declarada en el registro (ej. Gasfitería, Psicología). */
+    private String especialidad;
+
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;

@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AuthButtons } from '../ui/AuthButtons';
 import '../../assets/css/navbar-active.css';
 
@@ -10,17 +10,18 @@ const setNavbarHeight = (height) => {
 const navLinkClass = ({ isActive }) =>
   `nav-link servigo-nav-link fw-medium ${isActive ? 'active' : ''}`;
 
-const navLinkEspecialistaClass = ({ isActive }) =>
-  `servigo-nav-link servigo-nav-link--especialista fw-bold text-decoration-none small ${
-    isActive ? 'active' : ''
-  }`;
-
-const isEspecialistaActive = (_match, location) =>
-  location.pathname === '/unete-especialista' ||
-  location.pathname === '/unete-como-especialista';
-
 const Navbar = () => {
   const navRef = useRef(null);
+  const location = useLocation();
+
+  const isEspecialistaPath =
+    location.pathname === '/unete-especialista' ||
+    location.pathname === '/unete-como-especialista';
+
+  const especialistaLinkClass = ({ isActive }) =>
+    `servigo-nav-link servigo-nav-link--especialista fw-bold text-decoration-none small ${
+      isActive || isEspecialistaPath ? 'active' : ''
+    }`;
 
   useLayoutEffect(() => {
     const updateHeight = () => {
@@ -77,7 +78,7 @@ const Navbar = () => {
               </NavLink>
             </li>
             <li className="nav-item d-lg-none">
-              <NavLink to="/unete-especialista" isActive={isEspecialistaActive} className={navLinkEspecialistaClass}>
+              <NavLink to="/unete-especialista" className={especialistaLinkClass}>
                 Únete como Especialista
               </NavLink>
             </li>
@@ -86,10 +87,9 @@ const Navbar = () => {
           <div className="d-flex align-items-center gap-3">
             <NavLink
               to="/unete-especialista"
-              isActive={isEspecialistaActive}
               className={({ isActive }) =>
                 `d-none d-lg-inline-block servigo-nav-link servigo-nav-link--especialista fw-bold text-decoration-none small ${
-                  isActive ? 'active' : ''
+                  isActive || isEspecialistaPath ? 'active' : ''
                 }`
               }
             >

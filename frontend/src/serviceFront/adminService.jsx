@@ -69,6 +69,12 @@ export const listarPrestadoresValidacion = async () => {
   });
 };
 
+export const obtenerPrestadorValidacion = async (id) => {
+  return fetchRequest(`${API_BASE_URL}/admin/validacion/prestadores/${id}`, {
+    method: 'GET'
+  });
+};
+
 export const obtenerCertificacionesPrestador = async (id) => {
   return fetchRequest(`${API_BASE_URL}/admin/validacion/prestadores/${id}/certificaciones`, {
     method: 'GET'

@@ -10,8 +10,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class CertificacionService {
@@ -60,7 +63,7 @@ public class CertificacionService {
         Prestador prestador = prestadorRepository.findById(idPrestador)
                 .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
 
-        Map resultado = cloudinaryService.subirImagen(file, "servigo/certificaciones");
+        Map resultado = cloudinaryService.subirDocumento(file, "servigo/certificaciones");
 
         String url = resultado.get("secure_url").toString();
         String publicId = resultado.get("public_id").toString();
@@ -76,6 +79,32 @@ public class CertificacionService {
         Certificacion guardada = certificacionRepository.save(certificacion);
 
         return convertirDTO(guardada);
+    }
+
+    public List<CertificacionResponseDTO> subirCertificacionesRegistro(
+            Long idPrestador,
+            MultipartFile[] files
+    ) throws IOException {
+
+        if (files == null || files.length == 0) {
+            return List.of();
+        }
+
+        return Arrays.stream(files)
+                .filter(file -> file != null && !file.isEmpty())
+                .map(file -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        String nombre = file.getOriginalFilename() != null
+                                ? file.getOriginalFilename()
+                                : "documento";
+                        return subirCertificacion(idPrestador, nombre, file);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error al subir certificación: " + e.getMessage(), e);
+                    }
+                }))
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     public CertificacionResponseDTO actualizarEstado(Long id, String estado) {

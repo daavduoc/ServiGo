@@ -27,28 +27,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+        return isPublicPath(request.getServletPath());
+    }
+
+    private boolean isPublicPath(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+        return path.startsWith("/auth/")
+                || path.equals("/usuarios/registro")
+                || path.equals("/usuarios/registro-con-foto")
+                || path.startsWith("/usuarios/registro/")
+                || path.matches("/usuarios/registro/\\d+/foto")
+                || path.equals("/cloudinary/upload")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
-        String path = request.getServletPath();
-
-        if (
-                path.equals("/auth/login")
-                        || path.equals("/usuarios/registro")
-                        || path.equals("/auth/recuperar-password")
-                        || path.equals("/auth/validar-codigo")
-                        || path.equals("/auth/verificar-correo")
-                        || path.equals("/auth/reenviar-codigo-verificacion")
-                        || path.equals("/auth/cambiar-password")
-                        || path.startsWith("/swagger-ui")
-                        || path.startsWith("/v3/api-docs")
-        ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String authHeader = request.getHeader("Authorization");
 

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.security.SecureRandom;
 
+import static com.servigo.servigo.repository.UsuarioRepository.normalizarCorreo;
+
 @Service
 public class AuthService {
 
@@ -41,14 +43,13 @@ public class AuthService {
 
     public LoginResponseDTO login(LoginRequestDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = buscarUsuarioPorCorreo(normalizarCorreo(dto.getCorreo()));
 
         if (!passwordEncoder.matches(
                 dto.getContrasena(),
                 usuario.getContrasena()
         )) {
-            throw new RuntimeException("Contrase?a incorrecta");
+            throw new RuntimeException("Contraseña incorrecta");
         }
 
         String token = jwtUtil.generarToken(
@@ -74,60 +75,57 @@ public class AuthService {
 
     public String recuperarPassword(RecuperarPasswordDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = buscarUsuarioPorCorreo(normalizarCorreo(dto.getCorreo()));
 
         String codigo = String.valueOf(100000 + secureRandom.nextInt(900000));
 
         usuario.setCodigoRecuperacion(codigo);
-        usuario.setCodigoExpiracion(LocalDateTime.now().plusMinutes(10));
+        usuario.setCodigoExpiracion(LocalDateTime.now().plusHours(1));
 
         usuarioRepository.save(usuario);
 
-        System.out.println("C?digo de recuperaci?n para " + usuario.getCorreo() + ": " + codigo);
+        emailService.enviarCodigoRecuperacion(usuario.getCorreo(), codigo);
 
-        return "C?digo de recuperaci?n generado. Revisa tu correo.";
+        return "Código de recuperación enviado. Revisa tu correo.";
     }
 
     public String validarCodigo(ValidarCodigoDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = buscarUsuarioPorCorreo(dto.getCorreo());
 
         if (usuario.getCodigoRecuperacion() == null) {
-            throw new RuntimeException("No hay c?digo activo");
+            throw new RuntimeException("No hay código activo");
         }
 
         if (usuario.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El c?digo expir?");
+            throw new RuntimeException("El código expiró");
         }
 
         if (!usuario.getCodigoRecuperacion().equals(dto.getCodigo())) {
-            throw new RuntimeException("C?digo inv?lido");
+            throw new RuntimeException("Código inválido");
         }
 
-        return "C?digo v?lido";
+        return "Código válido";
     }
 
     public String verificarCorreo(ValidarCodigoDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = buscarUsuarioPorCorreo(dto.getCorreo());
 
         if (usuario.getCorreoValidado()) {
-            return "El correo ya est? verificado";
+            return "El correo ya está verificado";
         }
 
         if (usuario.getCodigoRecuperacion() == null) {
-            throw new RuntimeException("No hay c?digo de verificaci?n activo");
+            throw new RuntimeException("No hay código de verificación activo");
         }
 
         if (usuario.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El c?digo de verificaci?n expir?");
+            throw new RuntimeException("El código de verificación expiró");
         }
 
         if (!usuario.getCodigoRecuperacion().equals(dto.getCodigo())) {
-            throw new RuntimeException("C?digo de verificaci?n inv?lido");
+            throw new RuntimeException("Código de verificación inválido");
         }
 
         usuario.setCorreoValidado(true);
@@ -140,11 +138,10 @@ public class AuthService {
 
     public String reenviarCodigoVerificacion(RecuperarPasswordDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = buscarUsuarioPorCorreo(dto.getCorreo());
 
         if (Boolean.TRUE.equals(usuario.getCorreoValidado())) {
-            return "El correo ya est? verificado";
+            return "El correo ya está verificado";
         }
 
         String codigo = String.valueOf(100000 + secureRandom.nextInt(900000));
@@ -155,24 +152,23 @@ public class AuthService {
 
         emailService.enviarCodigoVerificacion(usuario.getCorreo(), codigo);
 
-        return "C?digo reenviado. Revisa tu correo.";
+        return "Código reenviado. Revisa tu correo.";
     }
 
     public String cambiarPassword(CambiarPasswordDTO dto) {
 
-        Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = buscarUsuarioPorCorreo(dto.getCorreo());
 
         if (usuario.getCodigoRecuperacion() == null) {
-            throw new RuntimeException("No hay c?digo activo");
+            throw new RuntimeException("No hay código activo");
         }
 
         if (usuario.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("El c?digo expir?");
+            throw new RuntimeException("El código expiró");
         }
 
         if (!usuario.getCodigoRecuperacion().equals(dto.getCodigo())) {
-            throw new RuntimeException("C?digo inv?lido");
+            throw new RuntimeException("Código inválido");
         }
 
         usuario.setContrasena(
@@ -184,6 +180,12 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
 
-        return "Contrase?a actualizada correctamente";
+        return "Contraseña actualizada correctamente";
+    }
+
+    private Usuario buscarUsuarioPorCorreo(String correo) {
+        return usuarioRepository
+                .findFirstByCorreoIgnoreCaseOrderByIdUsuarioDesc(normalizarCorreo(correo))
+                .orElseThrow(() -> new RuntimeException("No existe una cuenta con ese correo electrónico"));
     }
 }

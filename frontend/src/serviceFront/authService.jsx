@@ -21,6 +21,19 @@ const getAuthHeaders = (isFormData = false) => {
 };
 
 
+export const normalizarCorreo = (correo) => {
+    if (correo == null) return '';
+    return String(correo).trim().toLowerCase();
+};
+
+const prepararDatosRegistro = (userData) => {
+    if (!userData) return userData;
+    return {
+        ...userData,
+        correo: normalizarCorreo(userData.correo),
+    };
+};
+
 const parseApiError = async (response, fallback) => {
     const text = await response.text().catch(() => '');
     try {
@@ -72,9 +85,46 @@ export const subirFotoCloudinary = async (file) => {
 
 const CAMPOS_REGISTRO_FORM = [
     'rut', 'nombre', 'apellido', 'correo', 'contrasena', 'telefono',
-    'direccion', 'comuna', 'region', 'latitud', 'longitud', 'tipoUsuario',
+    'fechaNacimiento', 'direccion', 'comuna', 'region', 'latitud', 'longitud', 'tipoUsuario',
     'tipoPrestador', 'idCategoria', 'idEmpresa', 'direccionLocal',
+    'razonSocial', 'nombreFantasia', 'giroComercial', 'rutEmpresa', 'especialidad',
 ];
+
+export const subirFotoRegistro = async (idUsuario, file) => {
+    if (!idUsuario || !file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetchRegistroPublico(
+        `${API_URL_USUARIOS}/registro/${idUsuario}/foto`,
+        { method: 'POST', body: formData }
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'No se pudo subir la foto de perfil');
+    }
+};
+
+export const subirCertificacionesRegistro = async (idPrestador, files) => {
+    if (!idPrestador || !files?.length) return [];
+
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+
+    const response = await fetchRegistroPublico(
+        `${API_URL_USUARIOS}/registro/prestador/${idPrestador}/certificaciones`,
+        { method: 'POST', body: formData }
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'No se pudieron subir los certificados');
+    }
+
+    return response.json();
+};
 
 const appendRegistroFields = (formData, userData) => {
     CAMPOS_REGISTRO_FORM.forEach((key) => {
@@ -85,34 +135,48 @@ const appendRegistroFields = (formData, userData) => {
     });
 };
 
+/** Peticiones de registro sin JWT (evita 403 si hay sesión admin/cliente abierta). */
+const fetchRegistroPublico = async (url, options = {}) => {
+    const headers = { ...(options.headers || {}) };
+    delete headers.Authorization;
+    delete headers.authorization;
+
+    return fetch(url, {
+        ...options,
+        headers,
+        credentials: 'omit',
+    });
+};
+
 export const vincularFotoRegistro = async (correo, fotoUrl) => {
-    const response = await fetch(`${API_URL_USUARIOS}/registro/vincular-foto`, {
+    const response = await fetchRegistroPublico(`${API_URL_USUARIOS}/registro/vincular-foto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo, fotoUrl }),
+        body: JSON.stringify({ correo: normalizarCorreo(correo), fotoUrl }),
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'No se pudo guardar la foto en el perfil');
+        throw new Error(await parseApiError(response, 'No se pudo guardar la foto en el perfil'));
     }
 };
 
 /** Registro multipart: crea usuario y sube la foto en el servidor (recomendado). */
 export const registrarUsuarioConFoto = async (userData, file) => {
     try {
+        const datos = prepararDatosRegistro(userData);
         const formData = new FormData();
-        appendRegistroFields(formData, userData);
+        appendRegistroFields(formData, datos);
         formData.append('file', file);
 
-        const response = await fetch(`${API_URL_USUARIOS}/registro-con-foto`, {
+        const response = await fetchRegistroPublico(`${API_URL_USUARIOS}/registro-con-foto`, {
             method: 'POST',
             body: formData,
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Error al registrar en el servidor');
+            throw new Error(
+                await parseApiError(response, `Error al registrar en el servidor (${response.status})`)
+            );
         }
 
         return await response.json();
@@ -128,12 +192,14 @@ export const loginUser = async (credentials) => {
         const response = await fetch(`${API_URL_AUTH}/login`, {
             method: 'POST',
             headers: getAuthHeaders(false),
-            body: JSON.stringify(credentials)
+            body: JSON.stringify({
+                ...credentials,
+                correo: normalizarCorreo(credentials.correo),
+            }),
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            throw new Error(errorData?.message || 'Credenciales incorrectas');
+            throw new Error(await parseApiError(response, 'Credenciales incorrectas'));
         }
 
         return await response.json();
@@ -149,7 +215,7 @@ export const verificarCorreo = async ({ correo, codigo }) => {
         const response = await fetch(`${API_URL_AUTH}/verificar-correo`, {
             method: 'POST',
             headers: getAuthHeaders(false),
-            body: JSON.stringify({ correo, codigo }),
+            body: JSON.stringify({ correo: normalizarCorreo(correo), codigo }),
         });
 
         if (!response.ok) {
@@ -168,7 +234,7 @@ export const reenviarCodigoVerificacion = async ({ correo }) => {
         const response = await fetch(`${API_URL_AUTH}/reenviar-codigo-verificacion`, {
             method: 'POST',
             headers: getAuthHeaders(false),
-            body: JSON.stringify({ correo }),
+            body: JSON.stringify({ correo: normalizarCorreo(correo) }),
         });
 
         if (!response.ok) {
@@ -188,11 +254,14 @@ export const recoverPassword = async (emailData) => {
         const response = await fetch(`${API_URL_AUTH}/recuperar-password`, {
             method: 'POST',
             headers: getAuthHeaders(false),
-            body: JSON.stringify(emailData)
+            body: JSON.stringify({
+                ...emailData,
+                correo: normalizarCorreo(emailData.correo),
+            }),
         });
 
         if (!response.ok) {
-            throw new Error('Error al solicitar recuperación');
+            throw new Error(await parseApiError(response, 'Error al solicitar recuperación'));
         }
 
         return await response.text();
@@ -202,25 +271,50 @@ export const recoverPassword = async (emailData) => {
     }
 };
 
+export const cambiarPasswordRecuperacion = async ({ correo, codigo, nuevaContrasena }) => {
+    try {
+        const response = await fetch(`${API_URL_AUTH}/cambiar-password`, {
+            method: 'POST',
+            headers: getAuthHeaders(false),
+            body: JSON.stringify({
+                correo: normalizarCorreo(correo),
+                codigo,
+                nuevaContrasena,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(await parseApiError(response, 'No se pudo actualizar la contraseña'));
+        }
+
+        return await response.text();
+    } catch (error) {
+        console.error('Error en cambiarPasswordRecuperacion:', error);
+        throw error;
+    }
+};
+
 // Registrar usuario (Recibe el objeto con la URL de la foto ya lista)
 export const registrarUsuario = async (dataUsuario) => {
     try {
-        const { fotoUrl, ...resto } = dataUsuario;
-        const response = await fetch(`${API_URL_USUARIOS}/registro`, {
+        const datos = prepararDatosRegistro(dataUsuario);
+        const { fotoUrl, ...resto } = datos;
+        const response = await fetchRegistroPublico(`${API_URL_USUARIOS}/registro`, {
             method: 'POST',
-            headers: getAuthHeaders(false),
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...resto, fotoUrl }),
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || "Error al registrar en el servidor");
+            throw new Error(
+                await parseApiError(response, `Error al registrar en el servidor (${response.status})`)
+            );
         }
 
         const usuario = await response.json();
 
         if (fotoUrl) {
-            await vincularFotoRegistro(dataUsuario.correo, fotoUrl);
+            await vincularFotoRegistro(datos.correo, fotoUrl);
         }
 
         return usuario;

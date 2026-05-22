@@ -45,6 +45,10 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
+.stat-card--link:hover {
+  border: 1px solid var(--servigo-green, #198754);
+}
+
 .stat-card h3 {
   margin: 0 0 10px 0;
   font-size: 14px;
@@ -803,6 +807,162 @@
 }
 
 /* ========================
+   MODAL ADMIN (sin conflicto Bootstrap .modal-content)
+   ======================== */
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.admin-modal-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  max-height: min(90vh, 900px);
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.admin-modal-dialog--lg {
+  max-width: 820px;
+}
+
+.admin-modal-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.admin-modal-dialog__header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #212529;
+  line-height: 1.35;
+}
+
+.admin-modal-dialog__close {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 8px;
+  background: #f1f3f5;
+  color: #495057;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-modal-dialog__close:hover {
+  background: #e9ecef;
+  color: #212529;
+}
+
+.admin-modal-dialog__alerts {
+  padding: 1rem 1.5rem 0;
+  background-color: #ffffff;
+}
+
+.admin-modal-dialog__tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.admin-modal-tab {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-modal-tab:hover {
+  color: var(--servigo-green, #198754);
+}
+
+.admin-modal-tab.is-active {
+  color: var(--servigo-green, #198754);
+  border-bottom-color: var(--servigo-green, #198754);
+}
+
+.admin-modal-dialog__body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+.admin-modal-dialog .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.admin-modal-dialog .detail-item {
+  padding: 0.85rem 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--servigo-green, #198754);
+}
+
+.admin-modal-dialog .detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-modal-dialog .detail-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--servigo-green, #198754);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.admin-modal-dialog .detail-value {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #212529;
+}
+
+.admin-modal-dialog .acciones-prestador,
+.admin-modal-dialog .acciones-usuario {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e9ecef;
+}
+
+@media (max-width: 576px) {
+  .admin-modal-dialog .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================
    DATE PICKER
    ======================== */
 
@@ -1197,4 +1357,160 @@
 .text-muted {
   color: #999;
   font-size: 14px;
+}
+
+/* ========================
+   MODAL ADMIN (sin conflicto Bootstrap .modal-content)
+   ======================== */
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.admin-modal-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  max-height: min(90vh, 900px);
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.admin-modal-dialog--lg {
+  max-width: 820px;
+}
+
+.admin-modal-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.admin-modal-dialog__header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #212529;
+  line-height: 1.35;
+}
+
+.admin-modal-dialog__close {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 8px;
+  background: #f1f3f5;
+  color: #495057;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-modal-dialog__close:hover {
+  background: #e9ecef;
+  color: #212529;
+}
+
+.admin-modal-dialog__alerts {
+  padding: 1rem 1.5rem 0;
+  background-color: #ffffff;
+}
+
+.admin-modal-dialog__tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.admin-modal-tab {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-modal-tab:hover {
+  color: var(--servigo-green, #198754);
+}
+
+.admin-modal-tab.is-active {
+  color: var(--servigo-green, #198754);
+  border-bottom-color: var(--servigo-green, #198754);
+}
+
+.admin-modal-dialog__body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+.admin-modal-dialog .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.admin-modal-dialog .detail-item {
+  padding: 0.85rem 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--servigo-green, #198754);
+}
+
+.admin-modal-dialog .detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-modal-dialog .detail-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--servigo-green, #198754);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.admin-modal-dialog .detail-value {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #212529;
+}
+
+.admin-modal-dialog .acciones-prestador,
+.admin-modal-dialog .acciones-usuario {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e9ecef;
+}
+
+@media (max-width: 576px) {
+  .admin-modal-dialog .detail-grid {
+    grid-template-columns: 1fr;
+  }
 }

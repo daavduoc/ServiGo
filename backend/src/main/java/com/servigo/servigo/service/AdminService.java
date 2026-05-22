@@ -3,6 +3,7 @@ package com.servigo.servigo.service;
 import com.servigo.servigo.dto.*;
 import com.servigo.servigo.entity.*;
 import com.servigo.servigo.repository.*;
+import com.servigo.servigo.util.CloudinaryUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,8 @@ public class AdminService {
     private final CertificacionRepository certificacionRepository;
     private final AuditoriaRepository auditoriaRepository;
     private final RolRepository rolRepository;
+    private final EmpresaRepository empresaRepository;
+    private final FotoPerfilRepository fotoPerfilRepository;
 
     public AdminService(
             UsuarioRepository usuarioRepository,
@@ -35,7 +38,9 @@ public class AdminService {
             ServicioRepository servicioRepository,
             CertificacionRepository certificacionRepository,
             AuditoriaRepository auditoriaRepository,
-            RolRepository rolRepository
+            RolRepository rolRepository,
+            EmpresaRepository empresaRepository,
+            FotoPerfilRepository fotoPerfilRepository
     ) {
         this.usuarioRepository = usuarioRepository;
         this.prestadorRepository = prestadorRepository;
@@ -47,6 +52,8 @@ public class AdminService {
         this.certificacionRepository = certificacionRepository;
         this.auditoriaRepository = auditoriaRepository;
         this.rolRepository = rolRepository;
+        this.empresaRepository = empresaRepository;
+        this.fotoPerfilRepository = fotoPerfilRepository;
     }
 
     public AdminDashboardStatsDTO obtenerEstadisticasDashboard() {
@@ -150,7 +157,7 @@ public class AdminService {
     public List<AdminPrestadorValidacionDTO> listarPrestadoresValidacion() {
         return prestadorRepository.findByEstadoValidacion("pendiente")
                 .stream()
-                .map(this::convertToAdminPrestadorValidacionDTO)
+                .map(this::convertToListItemPrestador)
                 .collect(Collectors.toList());
     }
 
@@ -168,6 +175,22 @@ public class AdminService {
         String valorAnterior = prestador.getEstadoValidacion();
         prestador.setEstadoValidacion("validado");
         prestadorRepository.save(prestador);
+
+        if (prestador.getEmpresa() != null) {
+            Empresa empresa = prestador.getEmpresa();
+            String estadoEmpresaAnterior = empresa.getEstado();
+            empresa.setEstado("activo");
+            empresaRepository.save(empresa);
+            registrarAuditoria(
+                    idAdmin,
+                    "APROBAR_EMPRESA",
+                    "EMPRESA",
+                    empresa.getIdEmpresa(),
+                    estadoEmpresaAnterior,
+                    "activo",
+                    null
+            );
+        }
 
         registrarAuditoria(idAdmin, "APROBAR", "PRESTADOR", idPrestador, valorAnterior, "validado", null);
     }
@@ -313,24 +336,70 @@ public class AdminService {
         return dto;
     }
 
+    /** Listado rápido: sin consultas por servicios ni foto. */
+    private AdminPrestadorValidacionDTO convertToListItemPrestador(Prestador prestador) {
+        AdminPrestadorValidacionDTO dto = mapDatosBasePrestador(prestador);
+        dto.setCertificacionesCount(
+                (int) certificacionRepository.countByPrestadorIdPrestador(prestador.getIdPrestador())
+        );
+        return dto;
+    }
+
     private AdminPrestadorValidacionDTO convertToAdminPrestadorValidacionDTO(Prestador prestador) {
+        AdminPrestadorValidacionDTO dto = mapDatosBasePrestador(prestador);
+
+        fotoPerfilRepository.findByUsuario_IdUsuario(prestador.getUsuario().getIdUsuario())
+                .ifPresent(foto -> dto.setUrlFotoPerfil(
+                        CloudinaryUtil.urlMiniatura(foto.getUrlFotoCloud())
+                ));
+
+        dto.setCertificacionesCount(
+                (int) certificacionRepository.countByPrestadorIdPrestador(prestador.getIdPrestador())
+        );
+
+        return dto;
+    }
+
+    private AdminPrestadorValidacionDTO mapDatosBasePrestador(Prestador prestador) {
         AdminPrestadorValidacionDTO dto = new AdminPrestadorValidacionDTO();
+        Usuario usuario = prestador.getUsuario();
 
         dto.setIdPrestador(prestador.getIdPrestador());
-        dto.setIdUsuario(prestador.getUsuario().getIdUsuario());
-        dto.setNombrePrestador(prestador.getUsuario().getNombre() + " " + prestador.getUsuario().getApellido());
-        dto.setEmail(prestador.getUsuario().getCorreo());
-        dto.setTelefono(prestador.getUsuario().getTelefono());
+        dto.setIdUsuario(usuario.getIdUsuario());
+        dto.setEmail(usuario.getCorreo());
+        dto.setTelefono(usuario.getTelefono());
+        dto.setRut(usuario.getRut());
+        dto.setDireccion(usuario.getDireccion());
+        dto.setComuna(usuario.getComuna());
+        dto.setRegion(usuario.getRegion());
+        dto.setFechaNacimiento(usuario.getFechaNacimiento());
+        dto.setFechaRegistro(usuario.getFechaRegistro());
+        dto.setCorreoValidado(usuario.getCorreoValidado());
 
-        List<Servicio> servicios = servicioRepository.findByPrestadorIdPrestador(prestador.getIdPrestador());
+        if (prestador.getEmpresa() != null) {
+            Empresa empresa = prestador.getEmpresa();
+            dto.setNombrePrestador(
+                    empresa.getRazonSocial() != null
+                            ? empresa.getRazonSocial()
+                            : empresa.getNombreComercial()
+            );
+            dto.setEmpresa(dto.getNombrePrestador());
+            dto.setNombreComercial(empresa.getNombreComercial());
+            dto.setRutEmpresa(empresa.getRutEmpresa());
+            dto.setGiroComercial(empresa.getGiroComercial());
+            dto.setEstadoEmpresa(empresa.getEstado());
+        } else {
+            String apellido = usuario.getApellido() != null ? usuario.getApellido().trim() : "";
+            dto.setNombrePrestador(
+                    (usuario.getNombre() + (apellido.isEmpty() || "-".equals(apellido) ? "" : " " + apellido)).trim()
+            );
+        }
 
-        List<String> especialidades = servicios.stream()
-                .filter(s -> s.getEspecialidad() != null)
-                .map(s -> s.getEspecialidad().getNombre())
-                .distinct()
-                .collect(Collectors.toList());
-
-        dto.setEspecialidadesServicios(especialidades);
+        dto.setEspecialidad(
+                prestador.getEspecialidad() != null && !prestador.getEspecialidad().isBlank()
+                        ? prestador.getEspecialidad()
+                        : null
+        );
 
         dto.setCategoriaPrestador(
                 prestador.getCategoriaPrestador() != null
@@ -342,12 +411,7 @@ public class AdminService {
         dto.setDescripcion(prestador.getDescripcion());
         dto.setExperiencia(prestador.getExperiencia());
         dto.setEstadoValidacion(prestador.getEstadoValidacion());
-        dto.setEmpresa(prestador.getEmpresa() != null ? prestador.getEmpresa().getNombreComercial() : null);
-
-        List<Certificacion> certificaciones =
-                certificacionRepository.findByPrestadorIdPrestador(prestador.getIdPrestador());
-
-        dto.setCertificacionesCount(certificaciones.size());
+        dto.setDireccionLocal(prestador.getDireccionLocal());
 
         return dto;
     }

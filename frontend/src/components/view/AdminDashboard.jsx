@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { obtenerEstadisticas } from '../../serviceFront/adminService';
 
 const AdminDashboard = () => {
@@ -59,11 +60,19 @@ const AdminDashboard = () => {
           <p className="stat-desc">Verificados por admin</p>
         </div>
 
-        <div className="stat-card">
-          <h3>Prestadores Pendientes</h3>
+        <Link
+          to="/admin/prestadores"
+          className="stat-card text-decoration-none stat-card--link"
+          style={{ display: 'block', color: 'inherit' }}
+        >
+          <h3>Prestadores pendientes</h3>
           <p className="stat-value">{stats.prestadoresPendientes}</p>
-          <p className="stat-desc">Aguardando validación</p>
-        </div>
+          <p className="stat-desc mb-0">
+            {stats.prestadoresPendientes > 0
+              ? 'Ir a validar solicitudes →'
+              : 'Sin solicitudes por revisar'}
+          </p>
+        </Link>
 
         <div className="stat-card">
           <h3>Solicitudes Completadas</h3>

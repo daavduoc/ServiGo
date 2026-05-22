@@ -80,13 +80,18 @@ export const ClientRegisterView = () => {
         tipoUsuario: 'CLIENTE',
       };
 
+      let registroResponse;
       if (formData.fotoPerfil) {
-        await registrarUsuarioConFoto(dataParaBackend, formData.fotoPerfil);
+        registroResponse = await registrarUsuarioConFoto(dataParaBackend, formData.fotoPerfil);
       } else {
-        await registrarUsuario(dataParaBackend);
+        registroResponse = await registrarUsuario(dataParaBackend);
       }
 
-      navigate('/verificar-correo', { state: { correo: formData.correo } });
+      navigate('/verificar-correo', {
+        state: {
+          correo: (registroResponse?.correo || formData.correo).trim().toLowerCase(),
+        },
+      });
     } catch (err) {
       setError(err.message || 'Error al registrar en el servidor');
     } finally {

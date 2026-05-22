@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,5 +55,31 @@ public class EmailService {
                 Si no solicitaste este registro, ignora este mensaje.
                 """.formatted(codigo);
         enviarCorreo(destinatario, asunto, cuerpo);
+    }
+
+    public void enviarCodigoRecuperacion(String destinatario, String codigo) {
+        String asunto = "ServiGo - Recuperación de contraseña";
+        String cuerpo = """
+                Recibimos una solicitud para restablecer tu contraseña en ServiGo.
+
+                Tu código de recuperación es: %s
+
+                Este código expira en 1 hora.
+
+                Ingresa el código en la página de recuperación y define tu nueva contraseña.
+
+                Si no solicitaste este cambio, ignora este mensaje.
+                """.formatted(codigo);
+        enviarCorreo(destinatario, asunto, cuerpo);
+    }
+
+    /** No bloquea el registro; el correo se envía en segundo plano. */
+    @Async
+    public void enviarCodigoVerificacionAsync(String destinatario, String codigo) {
+        try {
+            enviarCodigoVerificacion(destinatario, codigo);
+        } catch (RuntimeException e) {
+            log.error("Fallo envío async de verificación a {}: {}", destinatario, e.getMessage());
+        }
     }
 }

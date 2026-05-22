@@ -72,7 +72,7 @@ public class AuthServiceTest {
 
         usuario.setRol(rol);
 
-        when(usuarioRepository.findByCorreo("admin@test.com"))
+        when(usuarioRepository.findFirstByCorreoIgnoreCaseOrderByIdUsuarioDesc("admin@test.com"))
                 .thenReturn(Optional.of(usuario));
 
         when(fotoPerfilRepository.findByUsuario_IdUsuario(1L))
@@ -111,7 +111,7 @@ public class AuthServiceTest {
 
         usuario.setRol(rol);
 
-        when(usuarioRepository.findByCorreo("admin@test.com"))
+        when(usuarioRepository.findFirstByCorreoIgnoreCaseOrderByIdUsuarioDesc("admin@test.com"))
                 .thenReturn(Optional.of(usuario));
 
         LoginRequestDTO dto = new LoginRequestDTO();

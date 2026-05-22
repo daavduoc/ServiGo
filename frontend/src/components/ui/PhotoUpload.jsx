@@ -4,7 +4,9 @@ export const PhotoUpload = ({
   label = 'Foto de Perfil',
   onImageSelect,
   dropzoneTitle = 'Sube tu foto de perfil',
+  variant = 'person',
 }) => {
+  const isEmpresa = variant === 'empresa';
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -50,10 +52,17 @@ export const PhotoUpload = ({
         }}
       >
         {preview ? (
-          <img src={preview} alt="Vista previa" className="registro-photo-dropzone__preview" />
+          <img
+            src={preview}
+            alt="Vista previa"
+            className={`registro-photo-dropzone__preview${isEmpresa ? ' registro-photo-dropzone__preview--square' : ''}`}
+          />
         ) : (
-          <span className="registro-photo-dropzone__avatar" aria-hidden="true">
-            <i className="bi bi-person" />
+          <span
+            className={`registro-photo-dropzone__avatar${isEmpresa ? ' registro-photo-dropzone__avatar--building' : ''}`}
+            aria-hidden="true"
+          >
+            <i className={`bi ${isEmpresa ? 'bi-building' : 'bi-person'}`} />
           </span>
         )}
         <p className="registro-photo-dropzone__title">{dropzoneTitle}</p>

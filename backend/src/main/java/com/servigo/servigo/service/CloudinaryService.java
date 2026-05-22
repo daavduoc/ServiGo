@@ -23,7 +23,21 @@ public class CloudinaryService {
                 file.getBytes(),
                 ObjectUtils.asMap(
                         "folder", carpeta,
-                        "resource_type", "image"
+                        "resource_type", "image",
+                        "quality", "auto:good",
+                        "fetch_format", "auto"
+                )
+        );
+    }
+
+    /** Imágenes y PDF (certificados, patentes, etc.). */
+    public Map subirDocumento(MultipartFile file, String carpeta) throws IOException {
+
+        return cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                        "folder", carpeta,
+                        "resource_type", "auto"
                 )
         );
     }

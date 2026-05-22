@@ -1,0 +1,292 @@
+/* Registro prestador — layout según mockup */
+
+.registro-prestador-form .registro-cliente-page-header {
+  text-align: left;
+  border-bottom: none;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+}
+
+.registro-prestador-form .registro-cliente-page-header h1 {
+  justify-content: flex-start;
+  font-size: clamp(1.35rem, 2.2vw, 1.65rem);
+  color: #212529;
+}
+
+.registro-prestador-form .registro-cliente-page-header p {
+  font-size: 0.95rem;
+}
+
+.registro-prestador-section-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--servigo-green);
+  margin: 0 0 1rem;
+}
+
+.registro-prestador-type-cards {
+  margin-bottom: 1.75rem;
+}
+
+.registro-type-card {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  background: #fff;
+  padding: 1.25rem 1.35rem 1.25rem 1.25rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.registro-type-card:hover {
+  border-color: #b8dfc8;
+}
+
+.registro-type-card.is-selected {
+  border-color: var(--servigo-green);
+  box-shadow: 0 0 0 1px var(--servigo-green);
+}
+
+.registro-type-card__check {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 2px solid #ced4da;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #fff;
+  background: #fff;
+}
+
+.registro-type-card.is-selected .registro-type-card__check {
+  background: var(--servigo-green);
+  border-color: var(--servigo-green);
+}
+
+.registro-type-card__icon {
+  font-size: 1.75rem;
+  color: #6c757d;
+  margin-bottom: 0.65rem;
+  display: block;
+}
+
+.registro-type-card.is-selected .registro-type-card__icon {
+  color: var(--servigo-green);
+}
+
+.registro-type-card__title {
+  display: block;
+  font-weight: 700;
+  color: #212529;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.registro-type-card__sub {
+  display: block;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.registro-servicio-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.registro-servicio-card {
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.registro-servicio-card.is-selected {
+  border-color: var(--servigo-green);
+  background: var(--servigo-green-tint);
+}
+
+.registro-servicio-card i {
+  font-size: 1.5rem;
+  color: #6c757d;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.registro-servicio-card.is-selected i {
+  color: var(--servigo-green);
+}
+
+.registro-servicio-card span {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.registro-prestador-hint-box {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin-bottom: 0.75rem;
+}
+
+.registro-prestador-hint-box--green {
+  background: #e8f8ef;
+  border: 1px solid #c8eed8;
+  color: #1f5c32;
+}
+
+.registro-prestador-hint-box--blue {
+  background: #e7f1ff;
+  border: 1px solid #cfe2ff;
+  color: #0a3d7a;
+}
+
+.registro-prestador-hint-box--yellow {
+  background: #fff8e6;
+  border: 1px solid #ffe8a3;
+  color: #664d03;
+}
+
+.registro-prestador-hint-box i {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.registro-cert-dropzone {
+  border: 2px dashed #d4a72c;
+  border-radius: 12px;
+  background: #fffdf5;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.registro-cert-dropzone:hover {
+  border-color: #c9a227;
+  background: #fff9e8;
+}
+
+.registro-cert-dropzone i {
+  font-size: 2rem;
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.registro-cert-dropzone p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.registro-cert-dropzone small {
+  color: #6b7280;
+}
+
+.registro-empresa-preview {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  background: #fafbfc;
+  margin-bottom: 1.25rem;
+}
+
+.registro-empresa-preview__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.65rem;
+}
+
+.registro-empresa-preview__body {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.registro-empresa-preview__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--servigo-green-tint);
+  color: var(--servigo-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.registro-empresa-preview__name {
+  font-weight: 700;
+  color: #212529;
+  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+}
+
+.registro-empresa-preview .badge-pendiente {
+  background: #ffc107;
+  color: #212529;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.registro-prestador-password-wrap {
+  position: relative;
+}
+
+.registro-prestador-password-wrap .form-control {
+  padding-right: 2.75rem;
+}
+
+.registro-prestador-password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+}
+
+.registro-prestador-form .registro-cliente-actions .btn-crear {
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 8px;
+  min-width: 200px;
+}
+
+.registro-prestador-form .registro-photo-dropzone__avatar--building,
+.registro-photo-dropzone__avatar--building {
+  border-radius: 12px;
+  width: 100px;
+  height: 100px;
+  font-size: 2.25rem;
+}
+
+.registro-photo-dropzone__preview--square {
+  border-radius: 12px;
+}
+
+@media (max-width: 767.98px) {
+  .registro-servicio-cards {
+    grid-template-columns: 1fr;
+  }
+}
