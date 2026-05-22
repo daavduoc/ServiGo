@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-// Mantenemos las rutas perfectas a las imágenes
-import imgTecnica from '../../assets/img/banner-medico.png';
-import imgSalud from '../../assets/img/banner-tecnico.png';
+// 1. Nombres corregidos para que coincidan con la foto
+import imgSalud from '../../assets/img/banner-medico.png';
+import imgTecnica from '../../assets/img/banner-tecnico.png';
 
 const BannerInicio = () => {
   return (
@@ -17,54 +17,49 @@ const BannerInicio = () => {
 
         <div className="carousel-inner" style={{ height: '500px' }}>
           
-          {/* SLIDE 1: GASFITERÍA Y TÉCNICOS */}
+          {/* SLIDE 1: SALUD */}
           <div className="carousel-item active h-100">
-            <img 
-              src={imgTecnica} 
-              className="d-block w-100 h-100" 
-              style={{ objectFit: 'cover' }} 
-              alt="Herramientas" 
-            />
-            {/* Opacidad clara al 35% */}
-            <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark" style={{ opacity: '0.35' }}></div>
-            
-            <div className="carousel-caption d-flex flex-column h-100 justify-content-center align-items-center pb-5">
-              {/* 🔽 CAMBIO 1: Eliminamos la etiqueta (badge) de aquí 🔽 */}
-              
-              <h1 className="display-4 fw-bold text-white mb-3 shadow-sm" style={{ maxWidth: '800px' }}>
-               Tu salud no espera, y nosotros estamos preparados para atenderte hoy mismo.
-              </h1>
-              
-              {/* Botón verde (btn-success) */}
-              <Link to="/buscar?area=Técnica" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow">
-                Encuentra tu Especialista
-              </Link>
-            </div>
-          </div>
-
-          {/* SLIDE 2: SALUD Y BIENESTAR */}
-          <div className="carousel-item h-100">
+            {/* Usamos la imagen correcta */}
             <img 
               src={imgSalud} 
               className="d-block w-100 h-100" 
               style={{ objectFit: 'cover' }} 
               alt="Salud" 
             />
-            {/* Misma opacidad */}
             <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark" style={{ opacity: '0.35' }}></div>
             
             <div className="carousel-caption d-flex flex-column h-100 justify-content-center align-items-center pb-5">
-              {/* 🔽 CAMBIO 2: Eliminamos la etiqueta "Área Salud" de aquí 🔽 */}
-              
               <h1 className="display-4 fw-bold text-white mb-3 shadow-sm" style={{ maxWidth: '800px' }}>
-                Servicio tecnico a domicilio, sin complicaciones ni esperas.
+               Tu salud no espera, y nosotros estamos preparados para atenderte hoy mismo.
+              </h1>
+              
+              <Link to="/buscar" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                Encuentra tu Especialista
+              </Link>
+            </div>
+          </div>
+
+          {/* SLIDE 2: SERVICIO TÉCNICO */}
+          <div className="carousel-item h-100">
+            {/* Usamos la imagen correcta */}
+            <img 
+              src={imgTecnica} 
+              className="d-block w-100 h-100" 
+              style={{ objectFit: 'cover' }} 
+              alt="Servicio Técnico" 
+            />
+            <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark" style={{ opacity: '0.35' }}></div>
+            
+            <div className="carousel-caption d-flex flex-column h-100 justify-content-center align-items-center pb-5">
+              <h1 className="display-4 fw-bold text-white mb-3 shadow-sm" style={{ maxWidth: '800px' }}>
+                Servicio técnico a domicilio, sin complicaciones ni esperas.
               </h1>
               <p className="fs-5 text-light mb-4" style={{ maxWidth: '600px' }}>
                
               </p>
-              {/* 🔽 CAMBIO 3: Botón cambiado a Verde (btn-success) 🔽 */}
-              <Link to="/buscar?area=Salud" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow">
-                Agendar Atención tecnica
+              
+              <Link to="/buscar" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                Agendar Atención técnica
               </Link>
             </div>
           </div>

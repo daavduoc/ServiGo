@@ -4,74 +4,85 @@ export const ContactCTA = () => {
   return (
     <section className="py-5 bg-light">
       <div className="container py-4">
+        
+        {/* =========================================
+            SECCIÓN: TESTIMONIOS DE CLIENTES
+        ========================================= */}
         <div className="row justify-content-center">
           <div className="col-lg-10">
-            <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-              <div className="row g-0">
-                
-                {/* LADO IZQUIERDO: Mensaje y Contacto (Fondo Verde) */}
-                <div className="col-md-5 bg-success text-white p-5 d-flex flex-column justify-content-center">
-                  <h3 className="fw-bold mb-3">¿No sabes por dónde empezar?</h3>
-                  <p className="mb-4" style={{ fontSize: '0.95rem', opacity: '0.9' }}>
-                    Déjanos tus datos y un asesor de ServiGo te contactará a la brevedad para entender tu necesidad y conectarte con el especialista ideal.
+            <div className="text-center mb-5">
+              <h3 className="fw-bold text-dark">Lo que dicen nuestros clientes</h3>
+              <p className="text-muted">Personas reales, soluciones reales.</p>
+            </div>
+            
+            <div className="row g-4">
+              {/* Testimonio 1 */}
+              <div className="col-md-4">
+                <div className="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white border-top border-success border-4">
+                  <div className="text-warning mb-2">
+                    <i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i>
+                  </div>
+                  <p className="text-muted small fst-italic mb-4">
+                    "Se me rompió una cañería a las 8 PM. Encontré un gasfíter en ServiGo en 5 minutos y llegó en media hora. Excelente servicio, muy profesional."
                   </p>
-                  <div className="d-flex align-items-center gap-3 mb-3">
-                    <div className="bg-white text-success rounded-circle d-flex justify-content-center align-items-center" style={{ width: '35px', height: '35px' }}>
-                      <i className="bi bi-telephone-fill"></i>
+                  <div className="d-flex align-items-center gap-3 mt-auto">
+                    <div className="bg-light text-success rounded-circle d-flex justify-content-center align-items-center fw-bold" style={{ width: '40px', height: '40px' }}>
+                      C
                     </div>
-                    <span className="fw-medium">+56 9 1234 5678</span>
-                  </div>
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="bg-white text-success rounded-circle d-flex justify-content-center align-items-center" style={{ width: '35px', height: '35px' }}>
-                      <i className="bi bi-envelope-fill"></i>
+                    <div>
+                      <h6 className="fw-bold mb-0">Carolina P.</h6>
+                      <small className="text-muted">Puente Alto</small>
                     </div>
-                    {/* AQUÍ ACTUALIZAMOS EL CORREO */}
-                    <span className="fw-medium">Contacto.servigo@gmail.com</span>
                   </div>
                 </div>
-                
-                {/* LADO DERECHO: Formulario (Fondo Blanco) */}
-                <div className="col-md-7 p-5">
-                  <h4 className="fw-bold text-dark mb-4">Te contactamos</h4>
-                  <form>
-                    <div className="mb-3">
-                      <label className="form-label small text-muted fw-medium">Nombre completo</label>
-                      <input type="text" className="form-control" placeholder="Ej. Juan Pérez" />
-                    </div>
-                    
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label small text-muted fw-medium">Teléfono</label>
-                        <input type="tel" className="form-control" placeholder="+56 9..." />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label small text-muted fw-medium">Servicio que buscas</label>
-                        <select className="form-select text-muted">
-                          <option value="">Selecciona una opción...</option>
-                          <option value="gasfiteria">Gasfitería</option>
-                          <option value="electricidad">Electricidad</option>
-                          <option value="kinesiologia">Kinesiología</option>
-                          <option value="aseo">Aseo y Limpieza</option>
-                          <option value="otro">Otro / No estoy seguro</option>
-                        </select>
-                      </div>
-                    </div>
+              </div>
 
-                    <div className="mb-4">
-                      <label className="form-label small text-muted fw-medium">Breve descripción (Opcional)</label>
-                      <textarea className="form-control" rows="2" placeholder="Cuéntanos un poco sobre lo que necesitas..."></textarea>
+              {/* Testimonio 2 */}
+              <div className="col-md-4">
+                <div className="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white border-top border-success border-4">
+                  <div className="text-warning mb-2">
+                    <i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i>
+                  </div>
+                  <p className="text-muted small fst-italic mb-4">
+                    "Necesitaba un kinesiólogo a domicilio para mi papá. Encontrar a alguien verificado y con tan buenas recomendaciones me dio mucha tranquilidad."
+                  </p>
+                  <div className="d-flex align-items-center gap-3 mt-auto">
+                    <div className="bg-light text-success rounded-circle d-flex justify-content-center align-items-center fw-bold" style={{ width: '40px', height: '40px' }}>
+                      M
                     </div>
-                    
-                    <button type="button" className="btn btn-success w-100 rounded-pill fw-bold py-2 shadow-sm">
-                      Solicitar Contacto
-                    </button>
-                  </form>
+                    <div>
+                      <h6 className="fw-bold mb-0">Miguel A.</h6>
+                      <small className="text-muted">La Florida</small>
+                    </div>
+                  </div>
                 </div>
+              </div>
 
+              {/* Testimonio 3 */}
+              <div className="col-md-4">
+                <div className="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white border-top border-success border-4">
+                  <div className="text-warning mb-2">
+                    <i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-fill"></i><i className="bi bi-star-half"></i>
+                  </div>
+                  <p className="text-muted small fst-italic mb-4">
+                    "La plataforma es súper fácil de usar. Agendé una limpieza profunda para mi departamento y el especialista fue puntual y muy detallista."
+                  </p>
+                  <div className="d-flex align-items-center gap-3 mt-auto">
+                    <div className="bg-light text-success rounded-circle d-flex justify-content-center align-items-center fw-bold" style={{ width: '40px', height: '40px' }}>
+                      V
+                    </div>
+                    <div>
+                      <h6 className="fw-bold mb-0">Valentina R.</h6>
+                      <small className="text-muted">Santiago Centro</small>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+            
           </div>
         </div>
+
       </div>
     </section>
   );
