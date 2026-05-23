@@ -1,4 +1,6 @@
-/* Panel cliente: layout con sidebar (/perfil, /mis-reservas, /dashboard-cliente, etc.) */
+/* ==========================================================================
+   Panel cliente: Layout con sidebar (/perfil, /mis-reservas, etc.)
+   ========================================================================== */
 
 .client-panel-main {
   min-height: 100vh;
@@ -92,6 +94,10 @@
   line-height: 1.25;
 }
 
+/* ==========================================================================
+   Sidebar del Cliente
+   ========================================================================== */
+
 .client-sidebar h5 {
   font-size: 0.95rem;
   font-weight: 600;
@@ -143,6 +149,10 @@
   color: #fff;
 }
 
+/* ==========================================================================
+   Vistas de Perfil y Configuración
+   ========================================================================== */
+
 .profile-panel-title {
   display: flex;
   align-items: center;
@@ -155,7 +165,7 @@
   font-weight: 600;
 }
 
-/* Más aire entre el título de la tarjeta y el contenido (datos, formulario, lista) */
+/* Más aire entre el título de la tarjeta y el contenido */
 .client-panel-content .card .profile-panel-title,
 .client-panel-content .card .profile-settings-title,
 .client-panel-content .card > .profile-panel-title {
@@ -180,7 +190,6 @@
   line-height: 1;
 }
 
-/* Configuración de cuenta (/perfil) */
 .profile-settings-title {
   display: flex;
   align-items: center;
@@ -236,7 +245,10 @@
   color: #dc3545;
 }
 
-/* Panel admin: tablas y filtros (misma línea que reservas/perfil) */
+/* ==========================================================================
+   Panel admin: Tablas y filtros
+   ========================================================================== */
+
 .admin-page-title {
   display: flex;
   align-items: center;
@@ -272,4 +284,25 @@
 
 .admin-data-table .table tbody td {
   color: #495057;
+}
+
+/* ==========================================================================
+   Correcciones y Adiciones para Perfil Modularizado
+   ========================================================================== */
+
+/* Contenedor exacto para mantener el círculo del avatar responsivo */
+.profile-avatar-container {
+  width: 150px;
+  height: 150px;
+}
+
+/* Ajuste de la imagen dentro del círculo sin deformarse */
+.profile-avatar-img {
+  object-fit: cover;
+}
+
+/* Backdrop para simular el comportamiento oscuro del modal nativo de Bootstrap */
+.custom-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
 }

@@ -121,12 +121,11 @@ function App() {
             <Route element={<ClientLayout />}>
               <Route path="/dashboard-cliente" element={<ClientDashboard />} />
               <Route path="/perfil" element={<ProfileView />} />
-             {/* Reemplaza la que tiene el <h2> por esta: */}
-            <Route path="/mis-reservas" element={<ClientReservationsView />} />
+               {/* Reemplaza la que tiene el <h2> por esta: */}
+              <Route path="/mis-reservas" element={<ClientReservationsView />} />
               <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
-              <Route path="/servicio-detalle" element={<ServiceDetailView />} /> {/* <-- NUEVA RUTA AQUÍ */}
-               <Route path="/notificaciones" element={<NotificationsView />} />
-              
+              <Route path="/servicio-detalle/:id" element={<ServiceDetailView />} /> {/* CORRECCIÓN: Agregamos :id para recibir el parámetro de la cita */}
+              <Route path="/notificaciones" element={<NotificationsView />} />
             </Route>
 
             {/* Rutas para administrador */}
@@ -139,7 +138,6 @@ function App() {
               <Route path="/admin/solicitudes" element={<AdminSolicitudesView />} />
               <Route path="/admin/reportes" element={<AdminReportesView />} />
               <Route path="/admin/auditoria" element={<AdminAuditoriaView />} />
-             
             </Route>
 
             <Route path="*" element={<NotFoundView />} />
