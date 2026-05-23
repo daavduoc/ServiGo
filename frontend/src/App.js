@@ -110,6 +110,7 @@ function App() {
 
             {/* Buscador público: accesible desde el banner sin estar registrado */}
             <Route path="/buscar" element={<SearchView />} />
+            <Route path="/servicio-detalle/:id" element={<ServiceDetailView />} />
             <Route path="/unete-especialista" element={<UneteComoEspecialistaView />} />
             {/* Alias por si el enlace antiguo apuntaba al formulario directo desde el menú */}
             <Route path="/unete-como-especialista" element={<UneteComoEspecialistaView />} />
@@ -125,7 +126,6 @@ function App() {
                {/* Reemplaza la que tiene el <h2> por esta: */}
               <Route path="/mis-reservas" element={<ClientReservationsView />} />
               <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
-              <Route path="/servicio-detalle/:id" element={<ServiceDetailView />} /> {/* CORRECCIÓN: Agregamos :id para recibir el parámetro de la cita */}
               <Route path="/notificaciones" element={<NotificationsView />} />
             </Route>
 

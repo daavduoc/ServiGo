@@ -1,5 +1,7 @@
 package com.servigo.servigo.controller;
 
+import com.servigo.servigo.dto.PrestadorBusquedaDTO;
+import com.servigo.servigo.dto.PrestadorPublicoDetalleDTO;
 import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.service.PrestadorService;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,19 @@ public class PrestadorController {
         }
 
         return prestadorService.listarPrestadores();
+    }
+
+    @GetMapping("/publicos")
+    public List<PrestadorBusquedaDTO> listarPrestadoresPublicos(
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) String query
+    ) {
+        return prestadorService.listarPrestadoresPublicos(categoria, query);
+    }
+
+    @GetMapping("/publicos/{id}")
+    public PrestadorPublicoDetalleDTO obtenerPrestadorPublico(@PathVariable Long id) {
+        return prestadorService.obtenerPrestadorPublicoPorId(id);
     }
 
     // GET: Obtener prestador por ID

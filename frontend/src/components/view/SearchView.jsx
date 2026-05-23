@@ -1,31 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-// Importamos la tarjeta que acabas de crear
 import { ServiceCard } from '../ui/ServiceCard';
+import { buscarPrestadoresPublicos } from '../../serviceFront/prestadorService';
 
 export const SearchView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedArea, setSelectedArea] = useState(searchParams.get('area') || 'Todos');
   const [query, setQuery] = useState(searchParams.get('query') || '');
+  const [especialistas, setEspecialistas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setSelectedArea(searchParams.get('area') || 'Todos');
     setQuery(searchParams.get('query') || '');
   }, [searchParams]);
 
-  // CAMBIO 1: Actualizamos las áreas en los datos de los especialistas
-  const especialistas = [
-    { id: 1, nombre: 'Dra. María González', profesion: 'Médico General', area: 'Profesionales', precio: 25000 },
-    { id: 2, nombre: 'Juan Pérez', profesion: 'Gasfíter Certificado', area: 'Técnicos / Oficios', precio: 15000 },
-    { id: 3, nombre: 'Carlos Rojas', profesion: 'Electricista SEC', area: 'Técnicos / Oficios', precio: 20000 },
-    { id: 4, nombre: 'Ana Silva', profesion: 'Enfermera', area: 'Profesionales', precio: 18000 },
-  ];
+  useEffect(() => {
+    const cargarPrestadores = async () => {
+      const areaParam = searchParams.get('area') || 'Todos';
+      const queryParam = searchParams.get('query') || '';
+
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await buscarPrestadoresPublicos({
+          categoria: areaParam,
+          query: queryParam,
+        });
+        setEspecialistas(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.warn('Error buscando prestadores:', err.message);
+        setError(err.message || 'No se pudieron cargar los especialistas');
+        setEspecialistas([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarPrestadores();
+  }, [searchParams]);
+
+  const categoriasDisponibles = useMemo(() => {
+    const unicas = [...new Set(especialistas.map((e) => e.area).filter(Boolean))];
+    return ['Todos', ...unicas.sort((a, b) => a.localeCompare(b, 'es'))];
+  }, [especialistas]);
 
   const actualizarFiltros = (area) => {
     const params = {};
     if (area && area !== 'Todos') params.area = area;
     if (query.trim()) params.query = query.trim();
     setSearchParams(params);
+    setSelectedArea(area);
   };
 
   const handleSearchSubmit = (event) => {
@@ -33,12 +59,17 @@ export const SearchView = () => {
     actualizarFiltros(selectedArea);
   };
 
-  const listaMostrada = especialistas.filter((especialista) => {
-    const cumpleArea = selectedArea === 'Todos' || especialista.area === selectedArea;
-    const termino = query.trim().toLowerCase();
-    const cumpleQuery = !termino || especialista.nombre.toLowerCase().includes(termino) || especialista.profesion.toLowerCase().includes(termino);
-    return cumpleArea && cumpleQuery;
-  });
+  const areasFiltro = useMemo(() => {
+    const desdeUrl = searchParams.get('area');
+    const base = categoriasDisponibles.length > 1
+      ? categoriasDisponibles
+      : ['Todos', 'Profesionales', 'Técnicos / Oficios'];
+
+    if (desdeUrl && !base.includes(desdeUrl)) {
+      return ['Todos', desdeUrl, ...base.filter((a) => a !== 'Todos')];
+    }
+    return base;
+  }, [categoriasDisponibles, searchParams]);
 
   return (
     <div className="container py-5">
@@ -61,8 +92,7 @@ export const SearchView = () => {
         </div>
         <div className="col-12 mt-3">
           <div className="btn-group flex-wrap" role="group" aria-label="Filtro de área">
-            {/* CAMBIO 2: Actualizamos los nombres de los botones */}
-            {['Todos', 'Profesionales', 'Técnicos / Oficios'].map((area) => (
+            {areasFiltro.map((area) => (
               <button
                 key={area}
                 type="button"
@@ -76,7 +106,13 @@ export const SearchView = () => {
         </div>
       </form>
 
-      {selectedArea !== 'Todos' && (
+      {error && (
+        <div className="alert alert-warning" role="alert">
+          {error}
+        </div>
+      )}
+
+      {selectedArea !== 'Todos' && !error && (
         <div className="alert alert-success d-flex justify-content-between align-items-center">
           <span>
             Mostrando resultados para: <strong>{selectedArea}</strong>
@@ -87,24 +123,39 @@ export const SearchView = () => {
         </div>
       )}
 
-      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-2">
-        {listaMostrada.length > 0 ? (
-          listaMostrada.map((especialista) => (
-            <div className="col" key={especialista.id}>
-              <ServiceCard 
-                nombre={especialista.nombre}
-                profesion={especialista.profesion}
-                area={especialista.area}
-                precio={especialista.precio}
-              />
-            </div>
-          ))
-        ) : (
-          <div className="col-12">
-            <div className="alert alert-warning">No se encontraron especialistas para esa búsqueda.</div>
+      {loading && (
+        <div className="text-center py-5">
+          <div className="spinner-border text-success" role="status">
+            <span className="visually-hidden">Cargando especialistas...</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {!loading && (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-2">
+          {especialistas.length > 0 ? (
+            especialistas.map((especialista) => (
+              <div className="col" key={especialista.idPrestador}>
+                <ServiceCard
+                  idPrestador={especialista.idPrestador}
+                  nombre={especialista.nombre}
+                  profesion={especialista.profesion}
+                  area={especialista.area}
+                  precio={especialista.precio}
+                  imagen={especialista.imagen}
+                  comuna={especialista.comuna}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-12">
+              <div className="alert alert-warning mb-0">
+                No se encontraron especialistas validados para esa búsqueda.
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
