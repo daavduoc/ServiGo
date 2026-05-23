@@ -27,6 +27,9 @@ export const ServiceDetailView = () => {
   const [horaSeleccionada, setHoraSeleccionada] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
 
+  const [usuarioAutenticado, setUsuarioAutenticado] = useState(false); 
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const bloquesHorarios = ['09:00', '11:00', '14:30', '16:30'];
 
   useEffect(() => {
@@ -66,6 +69,11 @@ export const ServiceDetailView = () => {
 
     if (fechaSeleccionada === fechaHoyString && horaSeleccionada < horaActualString) {
       alert('El horario seleccionado ya ha pasado. Por favor, elige un bloque posterior.');
+      return;
+    }
+
+    if (!usuarioAutenticado) {
+      setShowAuthModal(true);
       return;
     }
 
@@ -276,6 +284,41 @@ export const ServiceDetailView = () => {
           </div>
         </div>
       )}
+
+      {/* 🔽 MODAL DE AUTENTICACIÓN REQUERIDA ACTUALIZADO 🔽 */}
+      {showAuthModal && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 rounded-4 shadow">
+              <div className="modal-header border-0 pb-0">
+                <button type="button" className="btn-close" onClick={() => setShowAuthModal(false)} aria-label="Close"></button>
+              </div>
+              <div className="modal-body text-center px-4 pb-5">
+                
+                {/* AQUÍ ESTÁ EL CAMBIO: Título de la marca en lugar del punto verde */}
+                <div className="mb-4">
+                  <h2 className="fw-bold text-success display-6 mb-0">ServiGo</h2>
+                </div>
+                
+                <h4 className="fw-bold mb-3">¡Casi listo!</h4>
+                <p className="text-muted px-3">
+                  Para poder agendar la visita de <strong>{prestador.nombre}</strong> a tu domicilio, necesitamos que inicies sesión o crees una cuenta gratuita.
+                </p>
+                
+                <div className="d-grid gap-3 mt-4">
+                  <Link to="/login" className="btn btn-success fw-bold py-2 rounded-pill shadow-sm">
+                    Iniciar Sesión
+                  </Link>
+                  <Link to="/registro" className="btn btn-outline-success fw-bold py-2 rounded-pill">
+                    Registrarse
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 🔼 ----------------------------------- 🔼 */}
 
       <style>{`
         .hover-hour:hover:not(:disabled) {
