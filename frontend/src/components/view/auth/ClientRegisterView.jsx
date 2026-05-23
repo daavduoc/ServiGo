@@ -90,6 +90,7 @@ export const ClientRegisterView = () => {
       navigate('/verificar-correo', {
         state: {
           correo: (registroResponse?.correo || formData.correo).trim().toLowerCase(),
+          tipoUsuario: 'CLIENTE',
         },
       });
     } catch (err) {

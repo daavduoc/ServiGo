@@ -8,6 +8,7 @@ export const RegistroPrestadorConfirmacionView = () => {
 
   const correo = location.state?.correo || '';
   const esEmpresa = location.state?.tipoPrestador === 'empresa';
+  const emailVerificado = location.state?.emailVerificado === true;
 
   useEffect(() => {
     if (!correo) {
@@ -78,11 +79,20 @@ export const RegistroPrestadorConfirmacionView = () => {
 
         <div className="registro-prestador-confirmacion__email-box" role="note">
           <i className="bi bi-envelope me-1" aria-hidden="true" />
-          También enviamos un código a tu correo por seguridad. Puedes{' '}
-          <Link to="/verificar-correo" state={{ correo }}>
-            verificar tu email ahora
-          </Link>{' '}
-          o hacerlo más tarde desde el inicio de sesión.
+          {emailVerificado ? (
+            <>
+              <strong>Correo verificado.</strong> Te avisaremos cuando el equipo apruebe tu perfil para
+              que puedas iniciar sesión.
+            </>
+          ) : (
+            <>
+              También enviamos un código a tu correo por seguridad. Puedes{' '}
+              <Link to="/verificar-correo" state={{ correo, tipoUsuario: 'PRESTADOR' }}>
+                verificar tu email ahora
+              </Link>{' '}
+              (opcional). Cuando el admin apruebe tu perfil podrás iniciar sesión.
+            </>
+          )}
         </div>
 
         <div className="registro-prestador-confirmacion__actions">

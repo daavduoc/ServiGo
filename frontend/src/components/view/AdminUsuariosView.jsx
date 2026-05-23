@@ -2,11 +2,18 @@ import React, { useEffect, useState } from 'react';
 import AdminTable from '../ui/AdminTable';
 import FilterPanel from '../ui/FilterPanel';
 import UsuarioDetalleModal from './UsuarioDetalleModal';
+import { listarUsuariosAdmin } from '../../serviceFront/adminService';
+
+const mapUsuarioParaTabla = (usuario) => ({
+  ...usuario,
+  nombre: [usuario.nombre, usuario.apellido].filter(Boolean).join(' ').trim() || '—',
+});
 
 const AdminUsuariosView = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [modalUsuario, setModalUsuario] = useState(null);
 
   useEffect(() => {
@@ -16,42 +23,16 @@ const AdminUsuariosView = () => {
   const cargarUsuarios = async () => {
     try {
       setLoading(true);
-      // TODO: Conectar con endpoint /admin/usuarios cuando esté disponible
-      // Por ahora, datos de ejemplo
-      const usuariosEjemplo = [
-        {
-          idUsuario: 1,
-          rut: '12345678-9',
-          nombre: 'Juan',
-          apellido: 'Pérez',
-          correo: 'juan@servigo.cl',
-          telefono: '912345678',
-          rol: 'CLIENTE',
-          estado: 'activo',
-          region: 'Metropolitana',
-          comuna: 'Santiago',
-          correoValidado: true,
-          fechaRegistro: new Date()
-        },
-        {
-          idUsuario: 2,
-          rut: '87654321-0',
-          nombre: 'María',
-          apellido: 'González',
-          correo: 'maria@servigo.cl',
-          telefono: '987654321',
-          rol: 'PRESTADOR',
-          estado: 'bloqueado',
-          region: 'Metropolitana',
-          comuna: 'Providencia',
-          correoValidado: true,
-          fechaRegistro: new Date()
-        }
-      ];
-      setUsuarios(usuariosEjemplo);
-      setUsuariosFiltrados(usuariosEjemplo);
-    } catch (error) {
-      console.error('Error:', error);
+      setError(null);
+      const data = await listarUsuariosAdmin();
+      const usuariosArray = Array.isArray(data) ? data.map(mapUsuarioParaTabla) : [];
+      setUsuarios(usuariosArray);
+      setUsuariosFiltrados(usuariosArray);
+    } catch (err) {
+      console.error('Error cargando usuarios admin:', err);
+      setError(err.message || 'No se pudo cargar la lista de usuarios');
+      setUsuarios([]);
+      setUsuariosFiltrados([]);
     } finally {
       setLoading(false);
     }
@@ -62,15 +43,15 @@ const AdminUsuariosView = () => {
     { key: 'correo', label: 'Email' },
     { key: 'telefono', label: 'Teléfono' },
     { key: 'rol', label: 'Rol' },
-    { key: 'estado', label: 'Estado' }
+    { key: 'estado', label: 'Estado' },
   ];
 
   const handleFilterApply = (filters) => {
     let filtered = usuarios;
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
-        filtered = filtered.filter(user =>
-          String(user[key]).toLowerCase().includes(String(value).toLowerCase())
+        filtered = filtered.filter((user) =>
+          String(user[key] ?? '').toLowerCase().includes(String(value).toLowerCase())
         );
       }
     });
@@ -81,7 +62,15 @@ const AdminUsuariosView = () => {
     setUsuariosFiltrados(usuarios);
   };
 
-  if (loading) return <p>Cargando usuarios...</p>;
+  if (loading) {
+    return (
+      <div className="admin-usuarios text-center py-5">
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Cargando usuarios...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-usuarios">
@@ -89,6 +78,16 @@ const AdminUsuariosView = () => {
         <i className="bi bi-people" aria-hidden="true" />
         Gestión de Usuarios
       </h2>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      {!error && usuarios.length === 0 && (
+        <div className="alert alert-info">No hay usuarios registrados en el sistema.</div>
+      )}
 
       <FilterPanel
         columns={columns}

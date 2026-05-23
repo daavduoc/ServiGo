@@ -80,6 +80,7 @@ export const VerifyEmailView = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const correo = location.state?.correo || '';
+  const tipoUsuario = (location.state?.tipoUsuario || 'CLIENTE').toUpperCase();
 
   const [digits, setDigits] = useState(() => Array(CODE_LENGTH).fill(''));
   const [error, setError] = useState('');
@@ -119,7 +120,19 @@ export const VerifyEmailView = () => {
       try {
         const mensaje = await verificarCorreo({ correo, codigo: code });
         setSuccess(mensaje || 'Correo verificado correctamente');
-        setTimeout(() => navigate('/', { replace: true, state: { correoVerificado: true } }), 1800);
+
+        if (tipoUsuario === 'PRESTADOR') {
+          setTimeout(
+            () =>
+              navigate('/registro/prestador/confirmacion', {
+                replace: true,
+                state: { correo, emailVerificado: true },
+              }),
+            1800
+          );
+        } else {
+          setTimeout(() => navigate('/', { replace: true, state: { correoVerificado: true } }), 1800);
+        }
       } catch (err) {
         setError(err.message || 'No se pudo verificar el código');
         setDigits(Array(CODE_LENGTH).fill(''));
@@ -127,7 +140,7 @@ export const VerifyEmailView = () => {
         setIsLoading(false);
       }
     },
-    [codigo, correo, navigate]
+    [codigo, correo, navigate, tipoUsuario]
   );
 
   const handleResend = async () => {

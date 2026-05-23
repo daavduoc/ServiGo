@@ -35,10 +35,14 @@ import { RegistroPrestadorConfirmacionView } from './components/view/auth/Regist
 
 // --- VISTAS DE USUARIOS ---
 import { ClientDashboard } from './components/view/ClientDashboard';
-import { ProviderDashboard } from './components/view/ProviderDashboard';
+import { UserDashboardView } from './components/view/UserDashboardView';
+import { ProviderDashboardView } from './components/view/ProviderDashboard';
+import { ProviderServicesView } from './components/view/ProviderServicesView';
+import { ProviderProfileView } from './components/view/ProviderProfileView';
 import SupportView from './components/view/SupportView'; // <-- CAMBIO 1: Importamos tu vista de soporte
 
 import { ClientLayout } from './components/ui/ClientLayout';
+import { ProviderLayout } from './components/ui/ProviderLayout';
 // Importamos el layout y vistas del admin
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './components/view/AdminDashboard';
@@ -104,9 +108,6 @@ function App() {
                   Ingresa a http://localhost:3000/test-camara para probarla */}
             <Route path="/test-camara" element={<CameraCaptureView modo="verificacion" />} />
 
-            {/* El dashboard del prestador va aparte, porque él tendrá su propia vista/menú */}
-            <Route path="/dashboard-prestador" element={<ProviderDashboard />} />
-
             {/* Buscador público: accesible desde el banner sin estar registrado */}
             <Route path="/buscar" element={<SearchView />} />
             <Route path="/unete-especialista" element={<UneteComoEspecialistaView />} />
@@ -126,6 +127,15 @@ function App() {
               <Route path="/soporte" element={<SupportView />} /> {/* <-- CAMBIO 2: Conectamos la ruta con tu formulario */}
               <Route path="/servicio-detalle/:id" element={<ServiceDetailView />} /> {/* CORRECCIÓN: Agregamos :id para recibir el parámetro de la cita */}
               <Route path="/notificaciones" element={<NotificationsView />} />
+            </Route>
+
+            {/* Panel privado del prestador (sidebar + rutas propias) */}
+            <Route element={<ProviderLayout />}>
+              <Route path="/dashboard-prestador" element={<UserDashboardView />} />
+              <Route path="/prestador/solicitudes" element={<ProviderDashboardView />} />
+              <Route path="/prestador/mis-servicios" element={<ProviderServicesView />} />
+              <Route path="/prestador/perfil" element={<ProviderProfileView />} />
+              <Route path="/prestador/soporte" element={<SupportView />} />
             </Route>
 
             {/* Rutas para administrador */}

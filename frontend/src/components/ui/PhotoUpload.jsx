@@ -1,33 +1,50 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export const PhotoUpload = ({
   label = 'Foto de Perfil',
   onImageSelect,
   dropzoneTitle = 'Sube tu foto de perfil',
   variant = 'person',
+  initialPreview = null,
+  disabled = false,
 }) => {
   const isEmpresa = variant === 'empresa';
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState(initialPreview || null);
   const fileInputRef = useRef(null);
 
+  useEffect(() => {
+    if (initialPreview) {
+      setPreview(initialPreview);
+    }
+  }, [initialPreview]);
+
   const handleButtonClick = () => {
+    if (disabled) return;
     fileInputRef.current?.click();
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (disabled) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      if (onImageSelect) {
-        onImageSelect(file);
-      }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    if (onImageSelect) {
+      onImageSelect(file);
     }
   };
+
+  const dropzoneClass = [
+    'registro-photo-dropzone',
+    disabled ? 'registro-photo-dropzone--disabled' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className="mb-4">
@@ -38,18 +55,21 @@ export const PhotoUpload = ({
         onChange={handleFileChange}
         accept="image/jpeg,image/png,image/jpg"
         style={{ display: 'none' }}
+        disabled={disabled}
       />
       <div
-        className="registro-photo-dropzone"
+        className={dropzoneClass}
         role="button"
-        tabIndex={0}
+        tabIndex={disabled ? -1 : 0}
         onClick={handleButtonClick}
         onKeyDown={(e) => {
+          if (disabled) return;
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             handleButtonClick();
           }
         }}
+        style={disabled ? { cursor: 'default', opacity: 0.95 } : undefined}
       >
         {preview ? (
           <img
@@ -68,9 +88,11 @@ export const PhotoUpload = ({
         <p className="registro-photo-dropzone__title">{dropzoneTitle}</p>
         <p className="registro-photo-dropzone__meta">Formato JPG o PNG · Máx. 5MB</p>
       </div>
-      <button type="button" className="registro-photo-btn-select" onClick={handleButtonClick}>
-        Seleccionar archivo
-      </button>
+      {!disabled && (
+        <button type="button" className="registro-photo-btn-select" onClick={handleButtonClick}>
+          Seleccionar archivo
+        </button>
+      )}
     </div>
   );
 };

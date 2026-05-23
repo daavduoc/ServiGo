@@ -39,6 +39,16 @@ export const obtenerEstadisticas = async () => {
 // ========================
 // USUARIOS (CONTROL ADMIN)
 // ========================
+export const listarUsuariosAdmin = async ({ rol, estado } = {}) => {
+  const params = new URLSearchParams({ page: '0', size: '500' });
+  if (rol) params.set('rol', rol);
+  if (estado) params.set('estado', estado);
+
+  return fetchRequest(`${API_BASE_URL}/admin/usuarios?${params}`, {
+    method: 'GET',
+  });
+};
+
 export const bloquearUsuario = async (id, motivo) => {
   return fetchRequest(`${API_BASE_URL}/admin/control-usuarios/${id}/bloquear`, {
     method: 'PUT',

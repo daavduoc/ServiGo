@@ -2,28 +2,40 @@
 const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
 const API_URL_FOTOS = 'http://localhost:8080/fotos-perfil';
 
+const isNetworkError = (error) =>
+  error instanceof TypeError && error.message === 'Failed to fetch';
+
 // GET: obtener perfil completo del usuario autenticado
 export const getMyProfile = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL_USUARIOS}/me/perfil`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión no válida. Inicia sesión nuevamente.');
+  }
 
-        if (!response.ok) {
-            throw new Error('Error al obtener perfil');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error al obtener perfil:", error);
-        throw error;
+  let response;
+  try {
+    response = await fetch(`${API_URL_USUARIOS}/me/perfil`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new Error(
+        'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo en http://localhost:8080'
+      );
     }
+    throw error;
+  }
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || body.error || 'Error al obtener perfil');
+  }
+
+  return response.json();
 };
 
 // POST: subir o actualizar foto de perfil (multipart → backend → Cloudinary + BD)
