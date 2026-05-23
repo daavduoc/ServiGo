@@ -8,7 +8,7 @@ export const AuthButtons = () => {
   // Estado para la ventana de Iniciar Sesión
   const [showLoginModal, setShowLoginModal] = useState(false);
   
-  // NUEVO: Estado para controlar el puntito verde de las notificaciones
+  // Estado para controlar el puntito verde de las notificaciones
   const [hayNotificacionesNuevas, setHayNotificacionesNuevas] = useState(true);
 
   const { isAuthenticated, user, logout } = useAuth();

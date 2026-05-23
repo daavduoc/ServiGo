@@ -1,151 +1,136 @@
-// Componente de detalles de perfil para mostrar y editar la información personal del usuario
 import React from 'react';
 
-export const ProfileDetails = ({ 
-  isEditing, profileData, setProfileData, error, setError, 
-  successMessage, setSuccessMessage, handleSave, handleCancel, toggleModal 
-}) => {
-  
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // NUEVO: Función para manejar el "Enter" en el formulario
-  const handleSubmitForm = (e) => {
-    e.preventDefault(); // Evita que la página se recargue
-    handleSave(); // Llama a tu función original de guardado
-  };
-
+export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa }) => {
   return (
-    <>
-      <div className="card shadow-sm border-0 p-4">
-        <h4 className="mb-4 profile-panel-title">
-          <i className={`bi ${isEditing ? 'bi-pencil-square' : 'bi-person-vcard'}`} aria-hidden="true" /> 
-          {isEditing ? 'Actualizar mis Datos' : 'Mis Datos Personales'}
-        </h4>
+    <div className="card shadow-sm border-0 p-4 h-100">
+      <h5 className="text-success fw-bold mb-4 text-uppercase border-bottom pb-2">
+        <i className="bi bi-card-heading me-2"></i>Credenciales e Identidad
+      </h5>
+      
+      <div className="row g-4 mb-4">
+        
+        {/* RUT - AHORA ES EDITABLE */}
+        <div className="col-12">
+          <label className="form-label text-muted small fw-bold text-uppercase">RUT Registrado</label>
+          <input 
+            type="text" 
+            name="rut" 
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`} 
+            value={formData.rut} 
+            onChange={handleChange}
+            disabled={!isEditing} 
+            required
+          />
+        </div>
 
-        {error && (
-          <div className="alert alert-danger alert-dismissible fade show" role="alert">
-            {error}
-            <button type="button" className="btn-close" onClick={() => setError(null)}></button>
+        {/* NOMBRE O RAZÓN SOCIAL */}
+        <div className="col-md-6">
+          <label className="form-label text-muted small fw-bold text-uppercase">
+            {esEmpresa ? 'Razón Social / Empresa' : 'Nombres'}
+          </label>
+          <input
+            type="text"
+            name="nombre"
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+            value={formData.nombre}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+          />
+        </div>
+
+        {/* APELLIDO (SE OCULTA SI ES EMPRESA) */}
+        {!esEmpresa && (
+          <div className="col-md-6">
+            <label className="form-label text-muted small fw-bold text-uppercase">Apellidos</label>
+            <input
+              type="text"
+              name="apellido"
+              className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+              value={formData.apellido}
+              onChange={handleChange}
+              disabled={!isEditing}
+              required
+            />
           </div>
         )}
 
-        {successMessage && (
-          <div className="alert alert-success alert-dismissible fade show" role="alert">
-            {successMessage}
-            <button type="button" className="btn-close" onClick={() => setSuccessMessage('')}></button>
-          </div>
-        )}
+        {/* CORREO */}
+        <div className="col-md-6">
+          <label className="form-label text-muted small fw-bold text-uppercase">Correo de Contacto</label>
+          <input
+            type="email"
+            name="correo"
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+            value={formData.correo}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+          />
+        </div>
 
-        {isEditing ? (
-          // CORRECCIÓN: Agregamos onSubmit al form
-          <form onSubmit={handleSubmitForm}>
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <label className="form-label fw-bold">Nombre</label>
-                <input type="text" className="form-control" name="nombre" value={profileData.nombre} onChange={handleInputChange} required />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label fw-bold">Apellido</label>
-                <input type="text" className="form-control" name="apellido" value={profileData.apellido} onChange={handleInputChange} required />
-              </div>
-            </div>
-
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <label className="form-label fw-bold">Correo</label>
-                <input type="email" className="form-control" value={profileData.correo} disabled />
-                <small className="text-muted">El correo no puede ser modificado</small>
-              </div>
-              <div className="col-md-6">
-                <label className="form-label fw-bold">Teléfono</label>
-                <input type="tel" className="form-control" name="telefono" value={profileData.telefono} onChange={handleInputChange} placeholder="Ej: +56912345678" />
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label fw-bold">Dirección</label>
-              <input type="text" className="form-control" name="direccion" value={profileData.direccion} onChange={handleInputChange} placeholder="Ej: Calle Principal 123" />
-            </div>
-
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <label className="form-label fw-bold">Comuna</label>
-                <input type="text" className="form-control" name="comuna" value={profileData.comuna} onChange={handleInputChange} placeholder="Ej: Puente Alto" />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label fw-bold">Región</label>
-                <input type="text" className="form-control" name="region" value={profileData.region} onChange={handleInputChange} placeholder="Ej: Metropolitana" />
-              </div>
-            </div>
-
-            <div className="d-flex gap-2 mt-4">
-              {/* CORRECCIÓN: type="submit" en vez de type="button" y quitamos onClick */}
-              <button type="submit" className="btn btn-success flex-grow-1 fw-bold">
-                <i className="bi bi-check-lg me-1" aria-hidden="true" /> Guardar Cambios
-              </button>
-              <button type="button" className="btn btn-secondary flex-grow-1 fw-bold" onClick={handleCancel}>
-                <i className="bi bi-x-lg me-1" aria-hidden="true" /> Cancelar
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div>
-            {/* ... Todo el bloque de solo lectura queda exactamente igual ... */}
-            <div className="row mb-4">
-              <div className="col-md-6">
-                <h5 className="text-muted mb-2">Nombre Completo</h5>
-                <p className="fs-5 fw-bold">{profileData.nombre} {profileData.apellido}</p>
-              </div>
-              <div className="col-md-6">
-                <h5 className="text-muted mb-2">Teléfono</h5>
-                <p className="fs-5 fw-bold">{profileData.telefono || 'No especificado'}</p>
-              </div>
-            </div>
-
-            <div className="row mb-4">
-              <div className="col-md-6">
-                <h5 className="text-muted mb-2">Correo</h5>
-                <p className="fs-5">{profileData.correo}</p>
-              </div>
-              <div className="col-md-6">
-                <h5 className="text-muted mb-2">RUT</h5>
-                <p className="fs-5">{profileData.rut}</p>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h5 className="text-muted mb-2">Dirección</h5>
-              <p className="fs-5">{profileData.direccion || 'No especificada'}</p>
-            </div>
-
-            <div className="row mb-4">
-              <div className="col-md-6">
-                <h5 className="text-muted mb-2">Comuna</h5>
-                <p className="fs-5">{profileData.comuna || 'No especificada'}</p>
-              </div>
-              <div className="col-md-6">
-                <h5 className="text-muted mb-2">Región</h5>
-                <p className="fs-5">{profileData.region || 'No especificada'}</p>
-              </div>
-            </div>
-
-            <div className="bg-light p-4 rounded-3 border-start border-success border-4">
-              <p className="text-muted mb-0">
-                <i className="bi bi-lightbulb text-success me-2" aria-hidden="true" />
-                Haz clic en <strong>&quot;Editar Perfil&quot;</strong> para actualizar tu información de contacto y dirección.
-              </p>
-            </div>
-          </div>
-        )}
+        {/* TELÉFONO */}
+        <div className="col-md-6">
+          <label className="form-label text-muted small fw-bold text-uppercase">Teléfono</label>
+          <input
+            type="text"
+            name="telefono"
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+            value={formData.telefono}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+          />
+        </div>
       </div>
 
-      {/* Menú de configuraciones (queda igual) */}
-      <div className="card shadow-sm border-0 p-4 mt-4">
-        {/* ... */}
+      <h5 className="text-success fw-bold mb-4 mt-2 text-uppercase border-bottom pb-2">
+        <i className="bi bi-geo-alt me-2"></i>Ubicación de Operaciones
+      </h5>
+      
+      <div className="row g-4">
+        {/* REGIÓN */}
+        <div className="col-md-6">
+          <label className="form-label text-muted small fw-bold text-uppercase">Región</label>
+          <input
+            type="text"
+            name="region"
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+            value={formData.region}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        
+        {/* COMUNA */}
+        <div className="col-md-6">
+          <label className="form-label text-muted small fw-bold text-uppercase">Comuna</label>
+          <input
+            type="text"
+            name="comuna"
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+            value={formData.comuna}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        
+        {/* DIRECCIÓN */}
+        <div className="col-12">
+          <label className="form-label text-muted small fw-bold text-uppercase">Dirección Exacta</label>
+          <input
+            type="text"
+            name="direccion"
+            className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
+            value={formData.direccion}
+            onChange={handleChange}
+            disabled={!isEditing}
+            required
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
