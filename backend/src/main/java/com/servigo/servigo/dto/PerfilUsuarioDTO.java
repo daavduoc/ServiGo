@@ -33,6 +33,7 @@ public class PerfilUsuarioDTO {
     private String descripcion;
     private String experiencia;
     private String estadoValidacion;
+    private String especialidad;
 
     private String urlFotoCloud;
 }

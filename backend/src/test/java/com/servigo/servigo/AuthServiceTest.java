@@ -6,6 +6,7 @@ import com.servigo.servigo.entity.Rol;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.jwt.JwtUtil;
 import com.servigo.servigo.repository.FotoPerfilRepository;
+import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.service.AuthService;
 import com.servigo.servigo.service.EmailService;
@@ -49,6 +50,7 @@ public class AuthServiceTest {
         authService = new AuthService(
                 usuarioRepository,
                 fotoPerfilRepository,
+                Mockito.mock(PrestadorRepository.class),
                 jwtUtil,
                 passwordEncoder,
                 Mockito.mock(EmailService.class)

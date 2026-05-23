@@ -5,9 +5,11 @@ import com.servigo.servigo.dto.LoginRequestDTO;
 import com.servigo.servigo.dto.LoginResponseDTO;
 import com.servigo.servigo.dto.RecuperarPasswordDTO;
 import com.servigo.servigo.dto.ValidarCodigoDTO;
+import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.jwt.JwtUtil;
 import com.servigo.servigo.repository.FotoPerfilRepository;
+import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final FotoPerfilRepository fotoPerfilRepository;
+    private final PrestadorRepository prestadorRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -30,12 +33,14 @@ public class AuthService {
     public AuthService(
             UsuarioRepository usuarioRepository,
             FotoPerfilRepository fotoPerfilRepository,
+            PrestadorRepository prestadorRepository,
             JwtUtil jwtUtil,
             PasswordEncoder passwordEncoder,
             EmailService emailService
     ) {
         this.usuarioRepository = usuarioRepository;
         this.fotoPerfilRepository = fotoPerfilRepository;
+        this.prestadorRepository = prestadorRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
@@ -51,6 +56,8 @@ public class AuthService {
         )) {
             throw new RuntimeException("Contraseña incorrecta");
         }
+
+        validarAccesoLogin(usuario);
 
         String token = jwtUtil.generarToken(
                 usuario.getCorreo(),
@@ -187,5 +194,43 @@ public class AuthService {
         return usuarioRepository
                 .findFirstByCorreoIgnoreCaseOrderByIdUsuarioDesc(normalizarCorreo(correo))
                 .orElseThrow(() -> new RuntimeException("No existe una cuenta con ese correo electrónico"));
+    }
+
+    private void validarAccesoLogin(Usuario usuario) {
+        String rol = usuario.getRol().getNombre().trim().toUpperCase();
+
+        if ("ADMIN".equals(rol)) {
+            return;
+        }
+
+        if ("CLIENTE".equals(rol)) {
+            if (!Boolean.TRUE.equals(usuario.getCorreoValidado())) {
+                throw new RuntimeException(
+                        "Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja o solicita un nuevo código."
+                );
+            }
+            return;
+        }
+
+        if ("PRESTADOR".equals(rol)) {
+            Prestador prestador = prestadorRepository.findByUsuario_IdUsuario(usuario.getIdUsuario())
+                    .orElseThrow(() -> new RuntimeException("No se encontró el perfil de especialista asociado a tu cuenta."));
+
+            String estadoValidacion = prestador.getEstadoValidacion() != null
+                    ? prestador.getEstadoValidacion().trim().toLowerCase()
+                    : "";
+
+            if ("rechazado".equals(estadoValidacion)) {
+                throw new RuntimeException(
+                        "Tu solicitud como especialista fue rechazada. Escríbenos a soporte si necesitas más información."
+                );
+            }
+
+            if (!"validado".equals(estadoValidacion)) {
+                throw new RuntimeException(
+                        "Tu cuenta está en revisión. Podrás iniciar sesión cuando el equipo de ServiGo apruebe tu perfil (plazo estimado: 24 horas hábiles)."
+                );
+            }
+        }
     }
 }

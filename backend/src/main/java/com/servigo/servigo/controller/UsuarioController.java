@@ -305,6 +305,7 @@ public class UsuarioController {
                     dto.setDescripcion(prestador.getDescripcion());
                     dto.setExperiencia(prestador.getExperiencia());
                     dto.setEstadoValidacion(prestador.getEstadoValidacion());
+                    dto.setEspecialidad(prestador.getEspecialidad());
                 });
 
         fotoPerfilRepository.findByUsuario_IdUsuario(usuario.getIdUsuario())

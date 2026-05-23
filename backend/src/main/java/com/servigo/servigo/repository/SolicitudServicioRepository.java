@@ -1,5 +1,6 @@
 package com.servigo.servigo.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.servigo.servigo.entity.SolicitudServicio;
 
@@ -10,4 +11,7 @@ public interface SolicitudServicioRepository extends JpaRepository<SolicitudServ
     List<SolicitudServicio> findByEstado(String estado);
     long countByEstado(String estado);
     List<SolicitudServicio> findByFechaHoraSolicitudBetween(LocalDateTime inicio, LocalDateTime fin);
+
+    @EntityGraph(attributePaths = {"cliente", "cliente.usuario", "servicio", "servicio.prestador"})
+    List<SolicitudServicio> findByServicio_Prestador_IdPrestadorOrderByFechaHoraPreferidaDesc(Long idPrestador);
 }

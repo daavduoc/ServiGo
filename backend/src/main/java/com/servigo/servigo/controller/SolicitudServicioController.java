@@ -1,7 +1,9 @@
 package com.servigo.servigo.controller;
 
+import com.servigo.servigo.dto.PrestadorTrabajoDTO;
 import com.servigo.servigo.entity.SolicitudServicio;
 import com.servigo.servigo.service.SolicitudServicioService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +21,11 @@ public class SolicitudServicioController {
     @GetMapping
     public List<SolicitudServicio> listarSolicitudes() {
         return solicitudService.listarSolicitudes();
+    }
+
+    @GetMapping("/prestador/mis-trabajos")
+    public List<PrestadorTrabajoDTO> misTrabajosPrestador(Authentication authentication) {
+        return solicitudService.listarTrabajosPrestadorAutenticado(authentication.getName());
     }
 
     @GetMapping("/{id}")
