@@ -45,12 +45,42 @@ const AdminAuditoriaView = () => {
   const columns = [
     { key: 'nombreAdmin', label: 'Admin' },
     { key: 'accion', label: 'Acción' },
+    { key: 'email', label: 'Email' },
     { key: 'tablaAfectada', label: 'Tabla' },
     { key: 'registroId', label: 'ID Registro' },
     { key: 'fechaHora', label: 'Fecha/Hora' }
   ];
 
-  if (loading) return <p>Cargando auditoría...</p>;
+  const formatearFecha = (fechaHora) => {
+    if (!fechaHora) return '-';
+    try {
+      let fecha;
+      
+      // Si es un array [año, mes, día, hora, minuto, segundo]
+      if (Array.isArray(fechaHora)) {
+        const [year, month, day, hour, minute, second] = fechaHora;
+        fecha = new Date(year, month - 1, day, hour, minute, second);
+      }
+      // Si es un string ISO 8601
+      else if (typeof fechaHora === 'string') {
+        fecha = new Date(fechaHora);
+      }
+      // Si es un número (timestamp)
+      else if (typeof fechaHora === 'number') {
+        fecha = new Date(fechaHora);
+      }
+      
+      // Validar que la fecha sea válida
+      if (isNaN(fecha.getTime())) {
+        return '-';
+      }
+      
+      return fecha.toLocaleString('es-CL');
+    } catch (error) {
+      console.error('Error al formatear fecha:', error, fechaHora);
+      return '-';
+    }
+  };
 
   return (
     <div className="admin-auditoria">
@@ -103,9 +133,11 @@ const AdminAuditoriaView = () => {
         data={auditorias.map(a => ({
           ...a,
           nombreAdmin: a.nombreAdmin || 'Sistema',
-          fechaHora: new Date(a.fechaHora).toLocaleString('es-CL')
+          email: a.email || a.correo || '-',
+          fechaHora: formatearFecha(a.fechaHora)
         }))}
         onEdit={(item) => setDetalleModal(item)}
+        actionLabel="Ver Detalles"
       />
 
       {detalleModal && (
@@ -141,13 +173,6 @@ const AdminAuditoriaView = () => {
                 <div className="detail-item">
                   <p className="detail-label">ID Registro</p>
                   <p className="detail-value">{detalleModal.registroId}</p>
-                </div>
-
-                <div className="detail-item">
-                  <p className="detail-label">Fecha/Hora</p>
-                  <p className="detail-value">
-                    {new Date(detalleModal.fechaHora).toLocaleString('es-CL')}
-                  </p>
                 </div>
 
                 <div className="detail-item">

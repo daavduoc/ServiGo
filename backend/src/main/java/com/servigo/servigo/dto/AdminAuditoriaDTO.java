@@ -19,4 +19,5 @@ public class AdminAuditoriaDTO {
     private String valorNuevo;
     private LocalDateTime fechaHora;
     private String detalles;
+    private String email;
 }

@@ -453,6 +453,15 @@ public class AdminService {
         usuarioRepository.findById(auditoria.getIdAdmin())
                 .ifPresent(admin -> dto.setNombreAdmin(admin.getNombre()));
 
+        // Obtener email del usuario afectado
+        if ("USUARIO".equals(auditoria.getTablaAfectada())) {
+            usuarioRepository.findById(auditoria.getRegistroId())
+                    .ifPresent(usuario -> dto.setEmail(usuario.getCorreo()));
+        } else if ("PRESTADOR".equals(auditoria.getTablaAfectada())) {
+            prestadorRepository.findById(auditoria.getRegistroId())
+                    .ifPresent(prestador -> dto.setEmail(prestador.getUsuario().getCorreo()));
+        }        
+
         return dto;
     }
 

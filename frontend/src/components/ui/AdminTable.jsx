@@ -8,6 +8,7 @@ const AdminTable = ({
   onAction,
   sortable = true,
   editLabel = 'Ver detalle',
+  actionLabel = 'Editar',
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -62,6 +63,9 @@ const AdminTable = ({
       <i className="bi bi-sort-down ms-1 text-success" aria-hidden="true" />
     );
   };
+
+  // Usar actionLabel si se proporciona, si no usar editLabel como fallback
+  const labelBoton = actionLabel || editLabel || 'Editar';
 
   return (
     <div className="card shadow-sm border-0 admin-data-table">
@@ -135,11 +139,11 @@ const AdminTable = ({
                               type="button"
                               className="btn btn-sm btn-outline-success rounded-pill px-3"
                               onClick={() => onEdit(item)}
-                              title={editLabel}
-                              aria-label={editLabel}
+                              title={labelBoton}
+                              aria-label={labelBoton}
                             >
                               <i className="bi bi-pencil-square me-1" aria-hidden="true" />
-                              Editar
+                              {labelBoton}
                             </button>
                           )}
                           {onAction && (
