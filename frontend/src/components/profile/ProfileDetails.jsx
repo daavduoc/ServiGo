@@ -1,6 +1,18 @@
 import React from 'react';
 
-export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa }) => {
+export const ProfileDetails = ({ profileData, setProfileData, isEditing, esEmpresa }) => {
+  
+  // SALVAVIDAS: Si la información aún no llega, no dibujamos nada para no explotar
+  if (!profileData) return null;
+
+  // FUNCIÓN PARA PODER ESCRIBIR: Como el padre no la envía, la creamos aquí
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (setProfileData) {
+      setProfileData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
   return (
     <div className="card shadow-sm border-0 p-4 h-100">
       <h5 className="text-success fw-bold mb-4 text-uppercase border-bottom pb-2">
@@ -9,14 +21,14 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
       
       <div className="row g-4 mb-4">
         
-        {/* RUT - AHORA ES EDITABLE */}
+        {/* RUT */}
         <div className="col-12">
           <label className="form-label text-muted small fw-bold text-uppercase">RUT Registrado</label>
           <input 
             type="text" 
             name="rut" 
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`} 
-            value={formData.rut} 
+            value={profileData?.rut || ''} 
             onChange={handleChange}
             disabled={!isEditing} 
             required
@@ -32,14 +44,14 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
             type="text"
             name="nombre"
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-            value={formData.nombre}
+            value={profileData?.nombre || ''}
             onChange={handleChange}
             disabled={!isEditing}
             required
           />
         </div>
 
-        {/* APELLIDO (SE OCULTA SI ES EMPRESA) */}
+        {/* APELLIDO */}
         {!esEmpresa && (
           <div className="col-md-6">
             <label className="form-label text-muted small fw-bold text-uppercase">Apellidos</label>
@@ -47,7 +59,7 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
               type="text"
               name="apellido"
               className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-              value={formData.apellido}
+              value={profileData?.apellido || ''}
               onChange={handleChange}
               disabled={!isEditing}
               required
@@ -62,7 +74,7 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
             type="email"
             name="correo"
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-            value={formData.correo}
+            value={profileData?.correo || ''}
             onChange={handleChange}
             disabled={!isEditing}
             required
@@ -76,7 +88,7 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
             type="text"
             name="telefono"
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-            value={formData.telefono}
+            value={profileData?.telefono || ''}
             onChange={handleChange}
             disabled={!isEditing}
             required
@@ -96,7 +108,7 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
             type="text"
             name="region"
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-            value={formData.region}
+            value={profileData?.region || ''}
             onChange={handleChange}
             disabled={!isEditing}
             required
@@ -110,7 +122,7 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
             type="text"
             name="comuna"
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-            value={formData.comuna}
+            value={profileData?.comuna || ''}
             onChange={handleChange}
             disabled={!isEditing}
             required
@@ -124,7 +136,7 @@ export const ProfileDetails = ({ formData, handleChange, isEditing, esEmpresa })
             type="text"
             name="direccion"
             className={`form-control ${!isEditing ? 'bg-light text-secondary fw-semibold border-0' : ''}`}
-            value={formData.direccion}
+            value={profileData?.direccion || ''}
             onChange={handleChange}
             disabled={!isEditing}
             required
