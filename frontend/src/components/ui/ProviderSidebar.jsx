@@ -5,9 +5,12 @@ import { getDisplayName, getRolLabel } from '../../utils/userDisplay';
 const NAV_ITEMS = [
   { to: '/dashboard-prestador', icon: 'bi-grid-1x2', label: 'Mi Resumen' },
   { to: '/prestador/solicitudes', icon: 'bi-inbox', label: 'Nuevas Solicitudes' },
+  // generar servicio
+  { to: '/prestador/ingresar-servicio', icon: 'bi-plus-circle', label: 'Ingrese su servicio' },
   { to: '/prestador/mis-servicios', icon: 'bi-calendar-check', label: 'Mis Trabajos' },
   { to: '/prestador/perfil', icon: 'bi-person-vcard', label: 'Mi Perfil Profesional' },
   { to: '/prestador/soporte', icon: 'bi-headset', label: 'Centro de Ayuda' },
+
 ];
 
 const navLinkClass = ({ isActive }) =>

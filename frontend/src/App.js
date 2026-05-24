@@ -5,7 +5,6 @@ import { ClientReservationsView } from './components/view/ClientReservationsView
 import { NotificationsView } from './components/view/NotificationsView';
 import { NotFoundView } from './components/view/NotFoundView'; 
 
-
 // Maneja la sesion del usuario
 import { AuthProvider } from './context/AuthContext';
 
@@ -39,7 +38,9 @@ import { UserDashboardView } from './components/view/UserDashboardView';
 import { ProviderDashboardView } from './components/view/ProviderDashboard';
 import { ProviderServicesView } from './components/view/ProviderServicesView';
 import { ProviderProfileView } from './components/view/ProviderProfileView';
-import SupportView from './components/view/SupportView'; // <-- CAMBIO 1: Importamos tu vista de soporte
+import SupportView from './components/view/SupportView';
+// Importamos la vista para ingresar servicios del prestador
+import { ProviderIngresarServicioView } from './components/view/ProviderIngresarServicioView';
 
 import { ClientLayout } from './components/ui/ClientLayout';
 import { ProviderLayout } from './components/ui/ProviderLayout';
@@ -133,6 +134,10 @@ function App() {
             <Route element={<ProviderLayout />}>
               <Route path="/dashboard-prestador" element={<UserDashboardView />} />
               <Route path="/prestador/solicitudes" element={<ProviderDashboardView />} />
+              
+              {/* NUEVA RUTA: formulario para ingresar servicio */}
+              <Route path="/prestador/ingresar-servicio" element={<ProviderIngresarServicioView />} />
+              
               <Route path="/prestador/mis-servicios" element={<ProviderServicesView />} />
               <Route path="/prestador/perfil" element={<ProviderProfileView />} />
               <Route path="/prestador/soporte" element={<SupportView />} />
