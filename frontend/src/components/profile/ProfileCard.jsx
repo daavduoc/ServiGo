@@ -1,66 +1,42 @@
-// Componente de tarjeta de perfil para mostrar la información del usuario y permitir la edición
 import React from 'react';
+import { PhotoUpload } from '../ui/PhotoUpload';
 
 export const ProfileCard = ({ 
-  profileData, fotoError, setFotoError, fileInputRef, 
-  handlePhotoSelect, uploadingPhoto, isEditing, setIsEditing 
+  fotoPreviewUrl, 
+  esEmpresa, 
+  uploadingPhoto, 
+  isEditing, 
+  onPhotoSelect 
 }) => {
   return (
-    <div className="card shadow-sm border-0 p-4 text-center">
-      <div className="rounded-circle overflow-hidden d-inline-flex justify-content-center align-items-center mb-3 mx-auto bg-secondary bg-opacity-25 profile-avatar-container">
-        {profileData.urlFotoCloud && !fotoError ? (
-          <img 
-            src={profileData.urlFotoCloud} 
-            alt={`Foto de ${profileData.nombre}`} 
-            className="w-100 h-100 profile-avatar-img" 
-            onError={() => setFotoError(true)} 
-          />
-        ) : (
-          <i className="bi bi-person-circle profile-avatar-placeholder" aria-label="Sin foto" />
-        )}
-      </div>
-      
-      <input 
-        ref={fileInputRef} 
-        type="file" 
-        accept="image/jpeg,image/png,image/jpg" 
-        className="d-none" 
-        onChange={handlePhotoSelect} 
+    <div className="card shadow-sm border-0 p-4 text-center h-100">
+      <PhotoUpload
+        key={fotoPreviewUrl || 'sin-foto-perfil'}
+        label={esEmpresa ? 'Logo Corporativo' : 'Fotografía de Perfil'}
+        variant={esEmpresa ? 'empresa' : 'person'}
+        onImageSelect={onPhotoSelect}
+        dropzoneTitle={
+          uploadingPhoto 
+            ? 'Subiendo imagen...' 
+            : (fotoPreviewUrl ? 'Clic o arrastrar para cambiar' : 'Clic o arrastrar para subir')
+        }
+        initialPreview={fotoPreviewUrl}
+        disabled={!isEditing || uploadingPhoto} 
       />
       
-      <button 
-        type="button" 
-        className="btn btn-outline-success btn-sm mb-3" 
-        disabled={uploadingPhoto} 
-        onClick={() => fileInputRef.current?.click()}
-      >
-        {uploadingPhoto ? 'Subiendo foto...' : <><i className="bi bi-camera me-1" aria-hidden="true" /> Cambiar foto</>}
-      </button>
-      
-      <h3 className="fw-semibold mb-0">{profileData.nombre} {profileData.apellido}</h3>
-      <p className="text-muted mb-2">{profileData.correo}</p>
-      <p className="text-muted small">RUT: {profileData.rut}</p>
-      
-      <hr />
-      
-      <div className="text-start">
-        <p className="mb-2"><strong>Teléfono:</strong> {profileData.telefono || 'No especificado'}</p>
-        <p className="mb-2"><strong>Dirección:</strong> {profileData.direccion || 'No especificada'}</p>
-        <p className="mb-2"><strong>Comuna:</strong> {profileData.comuna || 'No especificada'}</p>
-        <p className="mb-0"><strong>Región:</strong> {profileData.region || 'No especificada'}</p>
-      </div>
-
-      <hr />
-
-      {!isEditing && (
-        <button 
-          className="btn btn-success w-100 shadow-sm text-white fw-medium"
-          onClick={() => setIsEditing(true)}
-        >
-          <i className="bi bi-pencil-square me-1" aria-hidden="true" />
-          Editar Perfil
-        </button>
+      {uploadingPhoto && (
+        <div className="mt-2 text-success small fw-bold">
+          <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          Actualizando en la base de datos...
+        </div>
       )}
+      
+      <div className="mt-4">
+        <span className="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 text-capitalize fw-bold rounded-pill">
+          <i className={`bi ${esEmpresa ? 'bi-building' : 'bi-person-badge'} me-2`}></i>
+          Perfil: {esEmpresa ? 'Persona Jurídica (Empresa)' : 'Persona Natural'}
+        </span>
+      </div>
     </div>
   );
 };
