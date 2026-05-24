@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMyProfile } from '../../serviceFront/userService';
-import { getDisplayName } from '../../utils/userDisplay';
+
+// Avatar por defecto dibujado en código (nunca se rompe)
+const PLACEHOLDER_AVATAR =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">' +
+      '<rect width="100" height="100" fill="#f8f9fa"/>' +
+      '<circle cx="50" cy="38" r="18" fill="#ced4da"/>' +
+      '<ellipse cx="50" cy="78" rx="28" ry="18" fill="#ced4da"/>' +
+      '</svg>'
+  );
 
 export const ClientDashboard = () => {
   const { user, updateUserData } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
-  // Estados para la data del dashboard
-  const [stats, setStats] = useState({ activas: 0, contratados: 0, nuevos: 0 });
-  const [citas, setCitas] = useState([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -35,27 +39,8 @@ export const ClientDashboard = () => {
           urlFotoCloud: profileData.urlFotoCloud,
           rol: profileData.rol,
         });
-
-        // Simulamos la data para el dashboard
-        setStats({ activas: 2, contratados: 3, nuevos: 1 });
-        setCitas([
-          {
-            id: 'b-101',
-            servicio: 'Limpieza de Hogar Profunda',
-            profesional: 'María Loreto',
-            fechaHora: '25 de Mayo, 2026 - 10:00 AM',
-            estado: 'Confirmada'
-          },
-          {
-            id: 'b-102',
-            servicio: 'Gasfitería - Reparación de Fuga',
-            profesional: 'Carlos Muñoz',
-            fechaHora: '02 de Junio, 2026 - 15:30 PM',
-            estado: 'Pendiente'
-          }
-        ]);
       } catch (error) {
-        console.error("Error cargando el dashboard:", error);
+        console.error("Error cargando el perfil:", error);
       } finally {
         setLoading(false);
       }
@@ -64,98 +49,134 @@ export const ClientDashboard = () => {
     fetchDashboardData();
   }, [updateUserData]);
 
-  const nombreVisible = getDisplayName(user);
-
   if (loading) {
     return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-success" role="status">
-          <span className="visually-hidden">Cargando Panel...</span>
+      <div className="container mt-5 text-center py-5">
+        <div className="spinner-border text-success" role="status" style={{width: '3rem', height: '3rem'}}>
+          <span className="visually-hidden">Cargando tu perfil...</span>
         </div>
+        <p className="text-muted mt-3 fw-medium">Cargando tus datos de ServiGo...</p>
       </div>
     );
   }
 
   return (
     <div className="container mt-4 mb-5 client-panel-content">
-      {/* Encabezado del Dashboard */}
-      <div className="mb-4">
-        <h2 className="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
-          ¡Hola, {nombreVisible}! 👋
-        </h2>
-        <p className="text-muted mb-0">
-          Bienvenido a tu panel de control de <strong>ServiGo</strong>. Aquí puedes gestionar tus citas y servicios de manera rápida.
+      {/* Encabezado Principal */}
+      <div className="mb-4 pb-2 border-bottom">
+        <h2 className="fw-extrabold text-dark mb-1 display-6">Mi Perfil</h2>
+        <p className="text-muted mb-0 fs-6">
+          Gestiona tu información personal y verifica los datos de tu cuenta en ServiGo.
         </p>
       </div>
 
-      {/* Tarjetas de Estadísticas integradas (Sin archivos extra) */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-sm-4">
-          <div className="card border-0 bg-success bg-opacity-10 p-3 shadow-sm h-100">
-            <div className="card-body p-2">
-              <span className="text-muted fw-semibold small text-uppercase">Citas Activas</span>
-              <h2 className="fw-bold text-success m-0 mt-1">{stats.activas}</h2>
+      {/* TARJETA DE PERFIL PREMIUM */}
+      <div className="card border-0 shadow rounded-4 bg-white overflow-hidden">
+        {/* Banner decorativo superior suave */}
+        <div className="bg-success bg-opacity-10 py-3 border-bottom border-success border-opacity-25"></div>
+        
+        <div className="card-body p-4 p-md-5">
+          <div className="row g-5 align-items-center">
+            
+            {/* COLUMNA IZQUIERDA: Avatar y Nombre */}
+            <div className="col-12 col-md-4 text-center border-end-md pe-md-5">
+              <div className="position-relative d-inline-block mb-4">
+                <img
+                  src={user?.urlFotoCloud || PLACEHOLDER_AVATAR}
+                  alt="Perfil"
+                  className="rounded-circle object-fit-cover shadow-sm p-1 bg-white border border-2 border-success"
+                  style={{ width: '130px', height: '130px' }}
+                  onError={(e) => {
+                    e.currentTarget.src = PLACEHOLDER_AVATAR;
+                  }}
+                />
+                <span className="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style={{ width: '35px', height: '35px', border: '3px solid white' }} title="Cliente Verificado">
+                  <i className="bi bi-patch-check-fill fs-6"></i>
+                </span>
+              </div>
+              
+              <h3 className="fw-bold text-dark mb-1">
+                {user?.nombre} {user?.apellido}
+              </h3>
+              <p className="text-primary small mb-0 fw-semibold">
+                Cliente Activo ServiGo
+              </p>
+              <p className="text-muted small">Miembro desde 2024</p>
             </div>
-          </div>
-        </div>
-        <div className="col-12 col-sm-4">
-          <div className="card border-0 bg-primary bg-opacity-10 p-3 shadow-sm h-100">
-            <div className="card-body p-2">
-              <span className="text-muted fw-semibold small text-uppercase">Servicios Contratados</span>
-              <h2 className="fw-bold text-primary m-0 mt-1">{stats.contratados}</h2>
-            </div>
-          </div>
-        </div>
-        <div className="col-12 col-sm-4">
-          <div className="card border-0 bg-warning bg-opacity-10 p-3 shadow-sm h-100">
-            <div className="card-body p-2">
-              <span className="text-muted fw-semibold small text-uppercase">Mensajes / Nuevos</span>
-              <h2 className="fw-bold text-warning m-0 mt-1">{stats.nuevos}</h2>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Tabla de Reservas integrada (Sin archivos extra) */}
-      <div className="card border-0 shadow-sm p-4 bg-white rounded-3 mt-4">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="fw-bold text-dark m-0 fs-5">Próximas Reservas</h4>
-          <button onClick={() => navigate('/mis-reservas')} className="btn btn-sm btn-outline-success px-3 rounded-pill fw-semibold">
-            Ver todas mis reservas
-          </button>
-        </div>
+            {/* COLUMNA DERECHA: Grilla de Información Detallada */}
+            <div className="col-12 col-md-8">
+              <h5 className="fw-bold text-secondary text-uppercase small mb-4 tracking-wider">Información de Contacto y Cuenta</h5>
+              
+              <div className="row g-4">
+                
+                {/* Caja Correo */}
+                <div className="col-12 col-sm-6">
+                  <div className="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border">
+                    <div className="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '45px', height: '45px' }}>
+                      <i className="bi bi-envelope-fill fs-5"></i>
+                    </div>
+                    <div>
+                      <label className="text-muted small fw-bold text-uppercase d-block mb-0">Correo Electrónico</label>
+                      <span className="fw-medium text-dark">{user?.correo || 'No registrado'}</span>
+                    </div>
+                  </div>
+                </div>
 
-        <div className="table-responsive">
-          <table className="table align-middle table-hover mb-0">
-            <thead className="table-light text-secondary text-uppercase fs-7 small">
-              <tr>
-                <th className="border-0 py-3">Servicio</th>
-                <th className="border-0 py-3">Profesional</th>
-                <th className="border-0 py-3">Fecha y Hora</th>
-                <th className="border-0 py-3">Estado</th>
-                <th className="border-0 py-3 text-end">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {citas.map((cita) => (
-                <tr key={cita.id}>
-                  <td className="fw-semibold text-dark py-3">{cita.servicio}</td>
-                  <td className="text-secondary py-3">{cita.profesional}</td>
-                  <td className="text-secondary py-3">{cita.fechaHora}</td>
-                  <td className="py-3">
-                    <span className={`badge rounded-pill px-3 py-2 fs-7 ${cita.estado === 'Confirmada' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning'}`}>
-                      {cita.estado}
-                    </span>
-                  </td>
-                  <td className="py-3 text-end">
-                    <button onClick={() => navigate(`/servicio-detalle/${cita.id}`)} className="btn btn-sm btn-light border text-primary fw-semibold px-3 rounded-pill">
-                      Ver detalles
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                {/* Caja Teléfono */}
+                <div className="col-12 col-sm-6">
+                  <div className="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border">
+                    <div className="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '45px', height: '45px' }}>
+                      <i className="bi bi-telephone-fill fs-5"></i>
+                    </div>
+                    <div>
+                      <label className="text-muted small fw-bold text-uppercase d-block mb-0">Teléfono</label>
+                      <span className="fw-medium text-dark">{user?.telefono || 'No registrado'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Caja Ubicación */}
+                <div className="col-12 col-sm-6">
+                  <div className="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border">
+                    <div className="bg-white text-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '45px', height: '45px' }}>
+                      <i className="bi bi-geo-alt-fill fs-5"></i>
+                    </div>
+                    <div>
+                      <label className="text-muted small fw-bold text-uppercase d-block mb-0">Ubicación principal</label>
+                      <span className="fw-medium text-dark">
+                        {[user?.comuna, user?.region].filter(Boolean).join(', ') || 'No registrada'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Caja RUT */}
+                <div className="col-12 col-sm-6">
+                  <div className="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border">
+                    <div className="bg-white text-secondary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '45px', height: '45px' }}>
+                      <i className="bi bi-card-text fs-5"></i>
+                    </div>
+                    <div>
+                      <label className="text-muted small fw-bold text-uppercase d-block mb-0">RUT / Identificación</label>
+                      <span className="fw-medium text-dark">{user?.rut || 'No registrado'}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div> {/* Fin grilla info */}
+              
+            </div> {/* Fin columna derecha */}
+            
+          </div> {/* Fin row principal */}
+        </div> {/* Fin card-body */}
+        
+        {/* Pie de tarjeta con mensaje de seguridad */}
+        <div className="card-footer bg-light border-0 py-3 px-5 text-center text-md-start">
+          <small className="text-muted">
+            <i className="bi bi-shield-lock-fill text-success me-2"></i>
+            Tus datos personales están protegidos bajo nuestras políticas de seguridad y privacidad. ServiGo nunca compartirá tu información sin tu consentimiento.
+          </small>
         </div>
       </div>
     </div>
