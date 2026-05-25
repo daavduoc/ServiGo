@@ -256,6 +256,7 @@ const PrestadorValidacionModal = ({ prestador: prestadorInicial, onClose, onActi
                       )}
                     </p>
                     {cert.urlDocumento && (
+                    <>
                       <a
                         href={cert.urlDocumento}
                         target="_blank"
@@ -265,7 +266,23 @@ const PrestadorValidacionModal = ({ prestador: prestadorInicial, onClose, onActi
                         <i className="bi bi-box-arrow-up-right me-1" aria-hidden="true" />
                         Ver / descargar archivo
                       </a>
-                    )}
+
+                      {!esEmpresa &&
+                        prestador?.especialidad === 'Kinesiología' && (
+                          <div className="mt-2">
+                            <a
+                              href="https://rnpi.superdesalud.gob.cl/#"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-sm btn-outline-primary"
+                            >
+                              <i className="bi bi-search me-1" aria-hidden="true" />
+                              Verificar en Registro Nacional de Prestadores
+                            </a>
+                          </div>
+                        )}
+                    </>
+                  )}
                   </div>
                 ))
               ) : (
