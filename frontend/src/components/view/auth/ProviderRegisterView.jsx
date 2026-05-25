@@ -7,7 +7,6 @@ import {
   subirCertificacionesRegistro,
   subirFotoRegistro,
 } from '../../../serviceFront/authService';
-import '../../../assets/css/registro-cliente.css';
 import '../../../assets/css/registro-prestador.css';
 
 const REGIONES = [

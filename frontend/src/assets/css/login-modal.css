@@ -13,8 +13,8 @@
 }
 
 .login-modal .login-modal-btn-submit {
-  background-color: #2f9e44;
-  border-color: #2f9e44;
+  background-color: var(--servigo-green);
+  border-color: var(--servigo-green);
   color: #fff;
 }
 
@@ -25,7 +25,7 @@
 }
 
 .login-modal .login-modal-btn-submit:disabled {
-  background-color: #2f9e44;
-  border-color: #2f9e44;
+  background-color: var(--servigo-green);
+  border-color: var(--servigo-green);
   opacity: 0.65;
 }

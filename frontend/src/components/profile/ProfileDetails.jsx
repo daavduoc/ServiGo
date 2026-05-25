@@ -1,11 +1,8 @@
 import React from 'react';
 
 export const ProfileDetails = ({ profileData, setProfileData, isEditing, esEmpresa }) => {
-  
-  // SALVAVIDAS: Si la información aún no llega, no dibujamos nada para no explotar
   if (!profileData) return null;
 
-  // FUNCIÓN PARA PODER ESCRIBIR: Como el padre no la envía, la creamos aquí
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (setProfileData) {

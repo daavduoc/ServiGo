@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';

@@ -325,8 +325,9 @@ public class AdminService {
         dto.setApellido(usuario.getApellido());
         dto.setCorreo(usuario.getCorreo());
         dto.setTelefono(usuario.getTelefono());
-        dto.setRol(usuario.getRol().getNombre());
-        dto.setEstado(usuario.getEstado());
+        Rol rol = usuario.getRol();
+        dto.setRol(rol != null && rol.getNombre() != null ? rol.getNombre() : "SIN_ROL");
+        dto.setEstado(usuario.getEstado() != null ? usuario.getEstado() : "desconocido");
         dto.setRegion(usuario.getRegion());
         dto.setComuna(usuario.getComuna());
         dto.setCorreoValidado(usuario.getCorreoValidado());

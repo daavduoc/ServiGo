@@ -1,28 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getMyProfile, uploadProfilePhoto } from '../../serviceFront/userService';
-import { ProfileCard } from '../profile/ProfileCard';
-import { ProfileDetails } from '../profile/ProfileDetails';
+import { getMyProfile, uploadProfilePhoto, updateUserProfile } from '../../serviceFront/userService';
+import { ClientProfileCard } from '../profile/ClientProfileCard';
+import { ClientProfileDetails } from '../profile/ClientProfileDetails';
 import { ProfileModals } from '../profile/ProfileModals';
 
 export const ProfileView = () => {
   const { user, isAuthenticated, updateUserData } = useAuth();
   const fileInputRef = useRef(null);
-  
+
   const [profileData, setProfileData] = useState({
-    nombre: '', apellido: '', correo: '', telefono: '', direccion: '', comuna: '', region: '', rut: '', urlFotoCloud: ''
+    nombre: '',
+    apellido: '',
+    correo: '',
+    telefono: '',
+    direccion: '',
+    comuna: '',
+    region: '',
+    rut: '',
+    urlFotoCloud: '',
   });
+  const [savedSnapshot, setSavedSnapshot] = useState(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [fotoError, setFotoError] = useState(false);
 
-  // Unificamos el manejo de modales en un solo objeto de estado
   const [modals, setModals] = useState({ password: false, notifications: false, delete: false });
-  const toggleModal = (type, value) => setModals(prev => ({ ...prev, [type]: value }));
+  const toggleModal = (type, value) => setModals((prev) => ({ ...prev, [type]: value }));
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -31,15 +40,23 @@ export const ProfileView = () => {
         setError(null);
         const data = await getMyProfile();
         const fotoUrl = data.urlFotoCloud || '';
+        const loaded = {
+          nombre: data.nombre || '',
+          apellido: data.apellido || '',
+          correo: data.correo || '',
+          telefono: data.telefono || '',
+          direccion: data.direccion || '',
+          comuna: data.comuna || '',
+          region: data.region || '',
+          rut: data.rut || '',
+          urlFotoCloud: fotoUrl,
+        };
         setFotoError(false);
-        setProfileData({
-          nombre: data.nombre || '', apellido: data.apellido || '', correo: data.correo || '',
-          telefono: data.telefono || '', direccion: data.direccion || '', comuna: data.comuna || '',
-          region: data.region || '', rut: data.rut || '', urlFotoCloud: fotoUrl,
-        });
+        setProfileData(loaded);
+        setSavedSnapshot(loaded);
         updateUserData({ ...data, urlFotoCloud: fotoUrl });
       } catch (err) {
-        setError('Error al cargar el perfil');
+        setError(err.message || 'Error al cargar el perfil');
         console.error(err);
       } finally {
         setLoading(false);
@@ -65,7 +82,11 @@ export const ProfileView = () => {
       const result = await uploadProfilePhoto(user.idUsuario, file);
       const nuevaUrl = result.urlFotoCloud || '';
       setFotoError(false);
-      setProfileData(prev => ({ ...prev, urlFotoCloud: nuevaUrl }));
+      setProfileData((prev) => {
+        const next = { ...prev, urlFotoCloud: nuevaUrl };
+        setSavedSnapshot(next);
+        return next;
+      });
       updateUserData({ urlFotoCloud: nuevaUrl });
       setSuccessMessage('Foto de perfil actualizada');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -77,28 +98,42 @@ export const ProfileView = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user?.idUsuario) return;
+
+    setIsSaving(true);
+    setError(null);
+    setSuccessMessage('');
+
     try {
-      setError(null);
-      setSuccessMessage('');
-      updateUserData(profileData); 
+      const payload = {
+        nombre: profileData.nombre,
+        apellido: profileData.apellido,
+        telefono: profileData.telefono,
+        direccion: profileData.direccion,
+        comuna: profileData.comuna,
+        region: profileData.region,
+      };
+
+      await updateUserProfile(user.idUsuario, payload);
+      updateUserData(payload);
+      setSavedSnapshot(profileData);
       setSuccessMessage('Perfil actualizado correctamente');
       setIsEditing(false);
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      setError('Error al actualizar el perfil');
+      setError(err.message || 'Error al actualizar el perfil');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    if (user) {
-      setProfileData({
-        nombre: user.nombre || '', apellido: user.apellido || '', correo: user.correo || '',
-        telefono: user.telefono || '', direccion: user.direccion || '', comuna: user.comuna || '',
-        region: user.region || '', rut: user.rut || '', urlFotoCloud: user.urlFotoCloud || ''
-      });
+    if (savedSnapshot) {
+      setProfileData(savedSnapshot);
     }
     setIsEditing(false);
+    setError(null);
   };
 
   if (loading) {
@@ -115,17 +150,32 @@ export const ProfileView = () => {
     <div className="container mt-5 mb-5 position-relative client-panel-content">
       <div className="row">
         <div className="col-md-4 mb-4">
-          <ProfileCard 
-            profileData={profileData} fotoError={fotoError} setFotoError={setFotoError}
-            fileInputRef={fileInputRef} handlePhotoSelect={handlePhotoSelect}
-            uploadingPhoto={uploadingPhoto} isEditing={isEditing} setIsEditing={setIsEditing}
+          <ClientProfileCard
+            profileData={profileData}
+            fotoError={fotoError}
+            setFotoError={setFotoError}
+            fileInputRef={fileInputRef}
+            handlePhotoSelect={handlePhotoSelect}
+            uploadingPhoto={uploadingPhoto}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
           />
         </div>
         <div className="col-md-8">
-          <ProfileDetails 
-            isEditing={isEditing} profileData={profileData} setProfileData={setProfileData}
-            error={error} setError={setError} successMessage={successMessage} setSuccessMessage={setSuccessMessage}
-            handleSave={handleSave} handleCancel={handleCancel} toggleModal={toggleModal}
+          <ClientProfileDetails
+            isEditing={isEditing}
+            profileData={profileData}
+            setProfileData={setProfileData}
+            error={error}
+            setError={setError}
+            successMessage={successMessage}
+            setSuccessMessage={setSuccessMessage}
+            handleSave={handleSave}
+            handleCancel={handleCancel}
+            toggleModal={toggleModal}
+            uploadingPhoto={uploadingPhoto}
+            isSaving={isSaving}
+            fileInputRef={fileInputRef}
           />
         </div>
       </div>

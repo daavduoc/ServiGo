@@ -1,9 +1,6 @@
-const API_BASE_URL = 'http://localhost:8080';
+import { API_BASE_URL, getAuthHeaders, parseApiError } from './apiConfig';
 
-const getAuthHeader = () => ({
-  'Authorization': `Bearer ${localStorage.getItem('token')}`,
-  'Content-Type': 'application/json'
-});
+const getAuthHeader = () => getAuthHeaders(false);
 
 // ========================
 // HELPER - Función para requests
@@ -16,8 +13,11 @@ const fetchRequest = async (url, options = {}) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+      const message = await parseApiError(
+        response,
+        `Error del servidor (HTTP ${response.status})`
+      );
+      throw new Error(message);
     }
 
     return await response.json();

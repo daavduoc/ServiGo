@@ -1,24 +1,9 @@
-// Definición de rutas (Apuntando a tu Spring Boot en 8080)
-const API_URL_AUTH = 'http://localhost:8080/auth';
-const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
-const API_URL_CLOUDINARY = 'http://localhost:8080/cloudinary';
-
-// Cabeceras para usar en Spring Boot 
-const getAuthHeaders = (isFormData = false) => {
-    const token = localStorage.getItem('token');
-    const headers = {};
-
-    // Si enviamos fotos (FormData), el navegador pone el Content-Type solo con el boundary.
-    if (!isFormData) {
-        headers['Content-Type'] = 'application/json';
-    }
-
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return headers;
-};
+import {
+    API_URL_AUTH,
+    API_URL_CLOUDINARY,
+    API_URL_USUARIOS,
+    getAuthHeaders,
+} from './apiConfig';
 
 
 export const normalizarCorreo = (correo) => {

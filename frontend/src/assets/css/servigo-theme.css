@@ -66,3 +66,29 @@
   color: var(--servigo-green);
   font-weight: 700;
 }
+
+/* Iconos circulares (landings, tarjetas de beneficios) */
+.servigo-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--servigo-green-badge);
+  color: var(--servigo-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.servigo-icon-badge--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+}
+
+/* Modales overlay (detalle servicio, perfil, etc.) */
+.custom-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+}

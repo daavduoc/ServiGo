@@ -17,7 +17,7 @@ const PROVIDER_FEATURES = [
 ];
 
 export const RegisterSelectionView = () => (
-    <div className="register-selection-view">
+    <div className="container register-selection-view py-3">
       <header className="register-selection-header">
         <h1>Crear tu cuenta</h1>
         <p className="subtitle">Selecciona el tipo de cuenta que deseas registrar</p>

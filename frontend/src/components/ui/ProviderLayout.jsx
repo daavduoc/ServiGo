@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getMyProfile } from '../../serviceFront/userService';
 import { isAdminUser, isPrestadorUser } from '../../utils/userDisplay';
 import '../../assets/css/client-panel.css';
+import '../../assets/css/provider-panel.css';
 
 export const ProviderLayout = () => {
   const { isAuthenticated, user, updateUserData } = useAuth();

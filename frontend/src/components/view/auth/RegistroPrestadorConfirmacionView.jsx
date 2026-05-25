@@ -19,7 +19,7 @@ export const RegistroPrestadorConfirmacionView = () => {
   if (!correo) return null;
 
   return (
-    <div className="registro-prestador-confirmacion">
+    <div className="container registro-prestador-confirmacion py-3">
       <div className="registro-prestador-confirmacion__badge">
         <i className="bi bi-shield-check" aria-hidden="true" />
         Registro de especialista

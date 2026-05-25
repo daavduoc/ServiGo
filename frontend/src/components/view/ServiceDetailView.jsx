@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { obtenerPrestadorPublico } from '../../serviceFront/prestadorService';
+import { formatearPrecio } from '../../utils/formatPrice';
+import { LoginModal } from '../ui/LoginModal';
+import { BookingForm } from './BookingForm';
+import '../../assets/css/service-detail.css';
 
 const PLACEHOLDER_AVATAR =
   'data:image/svg+xml,' +
@@ -12,25 +17,16 @@ const PLACEHOLDER_AVATAR =
       '</svg>'
   );
 
-const formatearPrecio = (precio) => {
-  if (precio == null || precio <= 0) return 'Consultar precio';
-  return `$${Number(precio).toLocaleString('es-CL')}`;
-};
-
 export const ServiceDetailView = () => {
   const { id } = useParams();
+  const { isAuthenticated } = useAuth();
   const [prestador, setPrestador] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [fechaSeleccionada, setFechaSeleccionada] = useState('');
-  const [horaSeleccionada, setHoraSeleccionada] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
-
-  const [usuarioAutenticado, setUsuarioAutenticado] = useState(false); 
   const [showAuthModal, setShowAuthModal] = useState(false);
-
-  const bloquesHorarios = ['09:00', '11:00', '14:30', '16:30'];
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const cargarPrestador = async () => {
@@ -52,33 +48,15 @@ export const ServiceDetailView = () => {
     }
   }, [id]);
 
-  const hoy = new Date();
-  const anio = hoy.getFullYear();
-  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-  const dia = String(hoy.getDate()).padStart(2, '0');
-  const fechaHoyString = `${anio}-${mes}-${dia}`;
-  const horaActualString =
-    String(hoy.getHours()).padStart(2, '0') + ':' + String(hoy.getMinutes()).padStart(2, '0');
-
-  const handleAgendar = (e) => {
-    e.preventDefault();
-    if (!fechaSeleccionada || !horaSeleccionada) {
-      alert('Por favor, selecciona una fecha y una hora para continuar.');
-      return;
-    }
-
-    if (fechaSeleccionada === fechaHoyString && horaSeleccionada < horaActualString) {
-      alert('El horario seleccionado ya ha pasado. Por favor, elige un bloque posterior.');
-      return;
-    }
-
-    if (!usuarioAutenticado) {
+  const handleBookingSubmit = (fecha, hora) => {
+    const tieneSesion = isAuthenticated && Boolean(localStorage.getItem('token'));
+    if (!tieneSesion) {
       setShowAuthModal(true);
       return;
     }
 
     setMensajeExito(
-      `¡Excelente! Tu solicitud con ${prestador.nombre} ha sido registrada para el ${fechaSeleccionada} a las ${horaSeleccionada} hrs. (Próximamente conectaremos la reserva al sistema).`
+      `¡Excelente! Tu solicitud con ${prestador.nombre} ha sido registrada para el ${fecha} a las ${hora} hrs. (Próximamente conectaremos la reserva al sistema).`
     );
   };
 
@@ -214,80 +192,14 @@ export const ServiceDetailView = () => {
           </div>
 
           <div className="col-lg-5">
-            <div className="card border-0 shadow-sm p-4 rounded-3 bg-white h-100 border-top border-success border-4">
-              <h4 className="fw-bold text-dark mb-3">📅 Agendar cita</h4>
-              <p className="text-muted small mb-4">
-                Selecciona fecha y hora para solicitar una cita con {prestador.nombre}.
-              </p>
-
-              <form onSubmit={handleAgendar}>
-                <div className="mb-4">
-                  <label htmlFor="fecha" className="form-label small fw-bold text-secondary">
-                    1. Selecciona la fecha
-                  </label>
-                  <input
-                    type="date"
-                    id="fecha"
-                    className="form-control border-2 focus-success"
-                    min={fechaHoyString}
-                    value={fechaSeleccionada}
-                    onChange={(e) => {
-                      setFechaSeleccionada(e.target.value);
-                      setHoraSeleccionada('');
-                    }}
-                    required
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="form-label small fw-bold text-secondary d-block mb-2">
-                    2. Selecciona una hora disponible
-                  </label>
-                  <div className="row g-2">
-                    {bloquesHorarios.map((hora) => {
-                      const esHoy = fechaSeleccionada === fechaHoyString;
-                      const horaPasada = esHoy && hora < horaActualString;
-
-                      return (
-                        <div key={hora} className="col-6">
-                          <button
-                            type="button"
-                            className={`btn w-100 py-2 rounded-3 fw-medium transition-all small ${
-                              horaSeleccionada === hora
-                                ? 'btn-success text-white shadow-sm'
-                                : 'btn-outline-secondary border-2 hover-hour'
-                            }`}
-                            onClick={() => setHoraSeleccionada(hora)}
-                            disabled={horaPasada}
-                            style={horaPasada ? { cursor: 'not-allowed', opacity: 0.4 } : {}}
-                          >
-                            {horaPasada ? '❌ Pasado' : `🕒 ${hora} hrs`}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="d-grid mt-4 pt-2">
-                  <button
-                    type="submit"
-                    className="btn btn-success py-2 fw-bold text-white shadow-sm hover-btn-success"
-                  >
-                    {fechaSeleccionada && horaSeleccionada
-                      ? `Confirmar para el ${fechaSeleccionada}`
-                      : 'Selecciona fecha y hora'}
-                  </button>
-                </div>
-              </form>
-            </div>
+            <BookingForm prestador={prestador} onSubmit={handleBookingSubmit} />
           </div>
         </div>
       )}
 
       {/* 🔽 MODAL DE AUTENTICACIÓN REQUERIDA ACTUALIZADO 🔽 */}
       {showAuthModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
+        <div className="modal show d-block custom-modal-backdrop" tabIndex="-1">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content border-0 rounded-4 shadow">
               <div className="modal-header border-0 pb-0">
@@ -306,10 +218,21 @@ export const ServiceDetailView = () => {
                 </p>
                 
                 <div className="d-grid gap-3 mt-4">
-                  <Link to="/login" className="btn btn-success fw-bold py-2 rounded-pill shadow-sm">
+                  <button
+                    type="button"
+                    className="btn btn-success fw-bold py-2 rounded-pill shadow-sm"
+                    onClick={() => {
+                      setShowAuthModal(false);
+                      setShowLoginModal(true);
+                    }}
+                  >
                     Iniciar Sesión
-                  </Link>
-                  <Link to="/registro" className="btn btn-outline-success fw-bold py-2 rounded-pill">
+                  </button>
+                  <Link
+                    to="/registro"
+                    className="btn btn-outline-success fw-bold py-2 rounded-pill"
+                    onClick={() => setShowAuthModal(false)}
+                  >
                     Registrarse
                   </Link>
                 </div>
@@ -318,25 +241,7 @@ export const ServiceDetailView = () => {
           </div>
         </div>
       )}
-      {/* 🔼 ----------------------------------- 🔼 */}
-
-      <style>{`
-        .hover-hour:hover:not(:disabled) {
-          border-color: #198754 !important;
-          color: #198754 !important;
-          background-color: #f0fff4 !important;
-        }
-        .focus-success:focus {
-          border-color: #198754 !important;
-          box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important;
-        }
-        .transition-all {
-          transition: all 0.15s ease-in-out;
-        }
-        .hover-btn-success:hover {
-          background-color: #157347;
-        }
-      `}</style>
+      <LoginModal show={showLoginModal} handleClose={() => setShowLoginModal(false)} />
     </div>
   );
 };

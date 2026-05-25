@@ -1,535 +1,96 @@
-/* Vista "Únete como Especialista" — alineada con HomeView / ServiGo */
+/* Únete como Especialista — importar solo desde UneteComoEspecialistaView.jsx */
 
-.unete-especialista-view {
-  --esp-green: var(--servigo-green);
-  --esp-green-light: var(--servigo-green-hover);
-  --esp-green-pale: var(--servigo-green-pale);
-  --esp-green-badge: var(--servigo-green-badge);
-  --esp-text: #212529;
-  --esp-muted: #6c757d;
-  padding-bottom: 2rem;
-}
-
-/* Hero */
-.unete-hero {
-  background: var(--esp-green-pale);
-  border-radius: 20px;
-  padding: 2.5rem 2rem;
-  margin-bottom: 3rem;
-  overflow: hidden;
-}
-
-.unete-hero__badge {
-  display: inline-block;
-  background: var(--esp-green-badge);
-  color: var(--esp-green);
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.4rem 1rem;
-  border-radius: 999px;
-  margin-bottom: 1.25rem;
-}
-
-.unete-hero__title {
+.unete-especialista-view .unete-hero-title {
   font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 700;
-  color: var(--esp-text);
-  line-height: 1.2;
-  margin-bottom: 1rem;
 }
 
-.unete-hero__brand-servi {
-  color: var(--esp-green);
-}
-
-.unete-hero__brand-go {
-  color: var(--esp-text);
-}
-
-.unete-hero__lead {
-  color: var(--esp-muted);
-  font-size: 1.05rem;
-  line-height: 1.6;
+.unete-especialista-view .unete-hero-lead {
   max-width: 520px;
-  margin-bottom: 1.5rem;
 }
 
-.unete-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1.75rem;
+.unete-especialista-view .unete-trust-desc {
+  max-width: 420px;
 }
 
-.unete-btn-primary {
-  background: var(--esp-green);
-  border: none;
-  color: #fff;
-  font-weight: 600;
-  padding: 0.65rem 1.35rem;
-  border-radius: 10px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s ease;
+.unete-especialista-view .unete-como-funciona {
+  scroll-margin-top: calc(var(--servigo-navbar-h, 64px) + 1rem);
 }
 
-.unete-btn-primary:hover {
-  background: var(--servigo-green-hover);
-  color: #fff;
-}
-
-.unete-btn-outline {
-  background: #fff;
-  border: 2px solid var(--esp-green);
-  color: var(--esp-green);
-  font-weight: 600;
-  padding: 0.6rem 1.25rem;
-  border-radius: 10px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.unete-btn-outline:hover {
-  background: var(--esp-green-badge);
-  color: var(--esp-green);
-}
-
-.unete-hero__benefits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem 2rem;
-}
-
-.unete-hero__benefit {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  max-width: 220px;
-}
-
-.unete-hero__benefit i {
-  color: var(--esp-green);
-  font-size: 1.35rem;
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-}
-
-.unete-hero__benefit strong {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--esp-text);
-  margin-bottom: 0.15rem;
-}
-
-.unete-hero__benefit span {
-  font-size: 0.8rem;
-  color: var(--esp-muted);
-  line-height: 1.4;
-}
-
-.unete-hero__media {
+/* Hero: imagen y tarjeta flotante */
+.unete-especialista-view .unete-hero-media {
   position: relative;
-  text-align: center;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
-.unete-hero__media img {
+.unete-especialista-view .unete-hero-img {
   width: 100%;
-  max-width: 100%;
   min-height: 320px;
   max-height: 520px;
-  border-radius: 18px;
   object-fit: cover;
   object-position: center top;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
 }
 
-@media (min-width: 992px) {
-  .unete-hero__media img {
-    min-height: 440px;
-    max-height: 560px;
-  }
-}
-
-.unete-hero__float-card {
+.unete-especialista-view .unete-float-card {
   position: absolute;
   right: 4%;
   bottom: 10%;
   max-width: 220px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   text-align: left;
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
 }
 
-.unete-hero__float-card i {
-  color: var(--esp-green);
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.unete-hero__float-card strong {
-  display: block;
+.unete-especialista-view .unete-float-card strong {
   font-size: 0.8rem;
-  color: var(--esp-text);
-  margin-bottom: 0.2rem;
 }
 
-.unete-hero__float-card p {
+.unete-especialista-view .unete-float-card p {
   font-size: 0.72rem;
-  color: var(--esp-muted);
-  margin: 0;
   line-height: 1.35;
 }
 
-.unete-brand {
-  color: var(--esp-green);
+.unete-especialista-view .unete-hero-benefit {
+  max-width: 220px;
 }
 
-/* Beneficios (grid) */
-.unete-benefits-section {
-  margin-bottom: 3.5rem;
-}
-
-.unete-benefits-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-}
-
-.unete-benefit-card {
-  background: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 14px;
-  padding: 1.75rem 1.25rem;
-  text-align: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  height: 100%;
-}
-
-.unete-benefit-card__icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--esp-green-badge);
-  color: var(--esp-green);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  margin-bottom: 1rem;
-}
-
-.unete-benefit-card h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--esp-text);
-  margin-bottom: 0.5rem;
-}
-
-.unete-benefit-card p {
-  font-size: 0.88rem;
-  color: var(--esp-muted);
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Cómo funciona */
-.unete-como-funciona {
-  scroll-margin-top: 88px;
-  margin-bottom: 3rem;
-}
-
-.unete-section-title {
-  text-align: center;
-  font-weight: 700;
-  color: var(--esp-text);
-  margin-bottom: 0.5rem;
-}
-
-.unete-section-title--left {
-  text-align: left;
-  margin-bottom: 1.25rem;
-}
-
-.unete-section-subtitle {
-  text-align: center;
-  color: var(--esp-muted);
-  margin-bottom: 2.5rem;
-}
-
-.unete-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  position: relative;
-  margin-bottom: 3rem;
-}
-
-.unete-step-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 1.5rem 1rem 1.25rem;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  position: relative;
-  z-index: 1;
-  height: 100%;
-}
-
-.unete-step-card__num {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--esp-green);
-  color: #fff;
+.unete-especialista-view .unete-hero-benefit span {
   font-size: 0.8rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.75rem;
 }
 
-.unete-step-card__icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--esp-green-badge);
-  color: var(--esp-green);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 0.85rem;
-}
-
-.unete-step-card h5 {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--esp-text);
-  margin-bottom: 0.5rem;
-}
-
-.unete-step-card p {
-  font-size: 0.85rem;
-  color: var(--esp-muted);
-  margin: 0;
-  line-height: 1.45;
-}
-
-.unete-step-card__cta {
-  display: inline-block;
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--esp-green);
-  text-decoration: none;
-}
-
-.unete-step-card__cta:hover {
-  color: var(--servigo-green-hover);
-}
-
-.unete-steps-connector {
+/* Pasos: línea conectora (solo desktop) */
+.unete-especialista-view .unete-steps-line {
   display: none;
 }
 
 @media (min-width: 992px) {
-  .unete-steps-connector {
+  .unete-especialista-view .unete-hero-img {
+    min-height: 440px;
+    max-height: 560px;
+  }
+
+  .unete-especialista-view .unete-steps-line {
     display: block;
     position: absolute;
     top: 72px;
     left: 12%;
     right: 12%;
-    height: 2px;
+    height: 0;
     border-top: 2px dashed #c5d0c8;
     z-index: 0;
   }
 }
 
-/* Banner confianza */
-.unete-trust {
-  background: var(--esp-green-pale);
-  border-radius: 16px;
-  padding: 2rem 2rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1.5rem 2rem;
-  margin-bottom: 3.5rem;
-}
-
-.unete-trust__shield {
+/* Confianza: ícono escudo */
+.unete-especialista-view .unete-trust-icon {
   width: 72px;
   height: 72px;
-  border-radius: 50%;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(47, 158, 68, 0.12);
 }
 
-.unete-trust__shield i {
-  color: var(--esp-green);
+.unete-especialista-view .unete-trust-icon i {
   font-size: 2rem;
 }
 
-.unete-trust__heading {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--esp-text);
-  margin: 0 0 0.5rem;
-}
-
-.unete-trust__desc {
-  color: var(--esp-muted);
-  font-size: 0.95rem;
-  margin: 0 0 0.65rem;
-  line-height: 1.5;
-  max-width: 420px;
-}
-
-.unete-trust__link {
-  color: var(--esp-green);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.unete-trust__link:hover {
-  color: var(--servigo-green-hover);
-}
-
-.unete-trust__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.unete-trust__list li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--esp-text);
-  white-space: nowrap;
-}
-
-.unete-trust__list i {
-  color: var(--esp-green);
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-/* Testimonios */
-.unete-testimonials {
-  margin-bottom: 3.5rem;
-}
-
-.unete-testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-}
-
-.unete-testimonial-card {
-  background: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 14px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-}
-
-.unete-testimonial-card__avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.75rem;
-}
-
-.unete-testimonial-card__meta strong {
-  display: block;
-  font-size: 0.95rem;
-  color: var(--esp-text);
-}
-
-.unete-testimonial-card__meta span {
-  font-size: 0.82rem;
-  color: var(--esp-muted);
-}
-
-.unete-testimonial-card__stars {
-  margin: 0.5rem 0 0.75rem;
-  color: var(--esp-green);
-  font-size: 0.75rem;
-  display: flex;
-  gap: 0.15rem;
-}
-
-.unete-testimonial-card blockquote {
-  margin: 0;
-  font-size: 0.88rem;
-  font-style: italic;
-  color: var(--esp-muted);
-  line-height: 1.55;
-}
-
-/* Requisitos y FAQ */
-.unete-req-faq {
-  margin-bottom: 3.5rem;
-}
-
-.unete-requirements {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.unete-requirements__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex: 1;
-}
-
-.unete-requirements__list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  margin-bottom: 0.85rem;
-  font-size: 0.95rem;
-  color: var(--esp-text);
-}
-
-.unete-requirements__list i {
-  color: var(--esp-green);
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-}
-
-.unete-requirements__illus {
+/* Requisitos: ilustración */
+.unete-especialista-view .unete-requirements-illus {
   position: relative;
   flex-shrink: 0;
   width: 120px;
@@ -541,238 +102,74 @@
   font-size: 5.5rem;
 }
 
-.unete-requirements__badge {
+.unete-especialista-view .unete-requirements-illus .badge {
   position: absolute;
   right: 0;
   bottom: 8px;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: var(--esp-green);
-  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(47, 158, 68, 0.35);
+  box-shadow: 0 4px 12px rgba(var(--servigo-green-rgb), 0.35);
 }
 
-.unete-faq {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.unete-faq__item {
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.unete-faq__question {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.15rem;
-  border: none;
-  background: #fff;
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: var(--esp-text);
-  text-align: left;
-  cursor: pointer;
-}
-
-.unete-faq__question i {
-  color: var(--esp-muted);
+/* FAQ: chevron al abrir */
+.unete-especialista-view .unete-faq-btn i {
   transition: transform 0.2s ease;
-  flex-shrink: 0;
 }
 
-.unete-faq__item.is-open .unete-faq__question i {
+.unete-especialista-view .unete-faq-btn[aria-expanded='true'] i {
   transform: rotate(180deg);
 }
 
-.unete-faq__answer {
-  padding: 0 1.15rem 1rem;
-}
-
-.unete-faq__answer p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--esp-muted);
-  line-height: 1.55;
-}
-
-/* CTA final */
-.unete-cta-banner {
-  background: var(--esp-green);
-  border-radius: 16px;
-  padding: 2rem 2.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.25rem 2rem;
-  margin-bottom: 1rem;
-}
-
-.unete-cta-banner__rocket {
+/* Testimonios: avatares */
+.unete-especialista-view .unete-avatar {
   width: 56px;
   height: 56px;
-  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.unete-especialista-view .unete-avatar--cm {
+  background-color: var(--servigo-green);
+}
+
+.unete-especialista-view .unete-avatar--mg {
+  background-color: var(--servigo-green-hover);
+}
+
+.unete-especialista-view .unete-avatar--rl {
+  background-color: var(--servigo-green-dark);
+}
+
+/* CTA: ícono cohete */
+.unete-especialista-view .unete-cta-icon {
+  width: 56px;
+  height: 56px;
   background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
   font-size: 1.5rem;
-  flex-shrink: 0;
 }
 
-.unete-cta-banner__text {
-  flex: 1;
-  min-width: 200px;
-}
-
-.unete-cta-banner__text h2 {
-  color: #fff;
-  font-size: clamp(1.25rem, 3vw, 1.65rem);
-  font-weight: 700;
-  margin: 0 0 0.35rem;
-}
-
-.unete-cta-banner__text p {
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.unete-cta-banner__btn {
-  background: #fff;
-  color: var(--esp-green);
-  font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.unete-cta-banner__btn:hover {
-  background: var(--esp-green-badge);
-  color: var(--esp-green);
-}
-
-/* Navbar activo en esta vista */
-.nav-link--especialista.active {
-  color: var(--esp-green) !important;
-  font-weight: 600;
-  position: relative;
-}
-
-.nav-link--especialista.active::after {
-  content: '';
-  position: absolute;
-  left: 0.85rem;
-  right: 0.85rem;
-  bottom: 0;
-  height: 2px;
-  background: var(--servigo-green);
-  border-radius: 2px;
-}
-
+/* Responsive */
 @media (max-width: 991.98px) {
-  .unete-hero {
-    padding: 1.75rem 1.25rem;
-  }
-
-  .unete-hero__media {
+  .unete-especialista-view .unete-hero-media {
     margin-top: 1.5rem;
   }
 
-  .unete-hero__media img {
+  .unete-especialista-view .unete-hero-img {
     min-height: 280px;
     max-height: 400px;
   }
 
-  .unete-hero__float-card {
+  .unete-especialista-view .unete-float-card {
     right: 50%;
     transform: translateX(50%);
     bottom: 6%;
     max-width: 90%;
   }
 
-  .unete-benefits-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .unete-trust {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .unete-trust__shield {
-    margin: 0 auto;
-  }
-
-  .unete-trust__desc {
-    max-width: none;
-  }
-
-  .unete-trust__list {
-    align-items: center;
-  }
-
-  .unete-testimonials-grid {
-    grid-template-columns: 1fr;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-
-  .unete-requirements {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .unete-cta-banner {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .unete-cta-banner__btn {
-    width: 100%;
-    text-align: center;
-  }
-
-  .unete-steps {
-    grid-template-columns: 1fr;
-    max-width: 360px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991.98px) {
-  .unete-steps {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 100%;
-  }
-
-  .unete-testimonials-grid {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 575.98px) {
-  .unete-benefits-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .unete-trust__list li {
+  .unete-especialista-view .unete-trust-list li {
     white-space: normal;
   }
 }

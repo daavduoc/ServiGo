@@ -273,8 +273,12 @@ public class UsuarioService {
             usuario.setRut(usuarioActualizado.getRut().trim());
         }
 
-        usuario.setNombre(usuarioActualizado.getNombre());
-        usuario.setApellido(usuarioActualizado.getApellido());
+        if (usuarioActualizado.getNombre() != null) {
+            usuario.setNombre(usuarioActualizado.getNombre());
+        }
+        if (usuarioActualizado.getApellido() != null) {
+            usuario.setApellido(usuarioActualizado.getApellido());
+        }
 
         if (usuarioActualizado.getCorreo() != null && !usuarioActualizado.getCorreo().isBlank()) {
             String correoNormalizado = UsuarioRepository.normalizarCorreo(usuarioActualizado.getCorreo());
@@ -284,17 +288,44 @@ public class UsuarioService {
             }
         }
 
-        usuario.setTelefono(usuarioActualizado.getTelefono());
-        usuario.setFechaNacimiento(usuarioActualizado.getFechaNacimiento());
-        usuario.setDireccion(usuarioActualizado.getDireccion());
-        usuario.setComuna(usuarioActualizado.getComuna());
-        usuario.setRegion(usuarioActualizado.getRegion());
-        usuario.setLatitud(usuarioActualizado.getLatitud());
-        usuario.setLongitud(usuarioActualizado.getLongitud());
-        usuario.setEstado(usuarioActualizado.getEstado());
-        usuario.setRol(usuarioActualizado.getRol());
+        if (usuarioActualizado.getTelefono() != null) {
+            usuario.setTelefono(usuarioActualizado.getTelefono());
+        }
+        if (usuarioActualizado.getFechaNacimiento() != null) {
+            usuario.setFechaNacimiento(usuarioActualizado.getFechaNacimiento());
+        }
+        if (usuarioActualizado.getDireccion() != null) {
+            usuario.setDireccion(usuarioActualizado.getDireccion());
+        }
+        if (usuarioActualizado.getComuna() != null) {
+            usuario.setComuna(usuarioActualizado.getComuna());
+        }
+        if (usuarioActualizado.getRegion() != null) {
+            usuario.setRegion(usuarioActualizado.getRegion());
+        }
+        if (usuarioActualizado.getLatitud() != null) {
+            usuario.setLatitud(usuarioActualizado.getLatitud());
+        }
+        if (usuarioActualizado.getLongitud() != null) {
+            usuario.setLongitud(usuarioActualizado.getLongitud());
+        }
+        if (usuarioActualizado.getEstado() != null) {
+            usuario.setEstado(usuarioActualizado.getEstado());
+        }
+        if (usuarioActualizado.getRol() != null) {
+            usuario.setRol(usuarioActualizado.getRol());
+        }
 
-        return usuarioRepository.save(usuario);
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        if (usuarioActualizado.getDireccion() != null) {
+            prestadorRepository.findByUsuario_IdUsuario(id).ifPresent(prestador -> {
+                prestador.setDireccionLocal(usuarioActualizado.getDireccion());
+                prestadorRepository.save(prestador);
+            });
+        }
+
+        return guardado;
     }
 
     public String cambiarPasswordPerfil(

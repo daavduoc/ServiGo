@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { formatearPrecio } from '../../utils/formatPrice';
 
 const PLACEHOLDER_AVATAR =
   'data:image/svg+xml,' +
@@ -14,10 +15,7 @@ const PLACEHOLDER_AVATAR =
 export const ServiceCard = ({ idPrestador, nombre, profesion, area, precio, imagen, comuna }) => {
   const badgeClass = 'bg-success';
 
-  const precioTexto =
-    precio != null && precio > 0
-      ? `$${Number(precio).toLocaleString('es-CL')}`
-      : 'Consultar precio';
+  const precioTexto = formatearPrecio(precio);
 
   const detalleLink = idPrestador ? `/servicio-detalle/${idPrestador}` : '/buscar';
 

@@ -1,0 +1,21 @@
+/* Detalle de servicio (/servicio-detalle/:id) — importar desde ServiceDetailView */
+
+.servigo-booking-hour:hover:not(:disabled) {
+  border-color: var(--servigo-green) !important;
+  color: var(--servigo-green) !important;
+  background-color: var(--servigo-green-tint) !important;
+}
+
+.servigo-booking-hour:focus-visible:not(:disabled) {
+  border-color: var(--servigo-green) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--servigo-green-rgb), 0.25) !important;
+}
+
+.servigo-booking-date:focus {
+  border-color: var(--servigo-green) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--servigo-green-rgb), 0.25) !important;
+}
+
+.servigo-transition {
+  transition: all 0.15s ease-in-out;
+}

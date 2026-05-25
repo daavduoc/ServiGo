@@ -1,4 +1,55 @@
 /* Registro prestador — layout según mockup */
+@import './registro-shared.css';
+
+/* Paleta verde ServiGo (sobre estilos compartidos) */
+.registro-prestador-form {
+  --reg-green: var(--servigo-green);
+  --reg-green-dark: var(--servigo-green-dark);
+  --reg-green-light: var(--servigo-green-hover);
+  --reg-green-pale: var(--servigo-green-pale);
+  --reg-green-border: var(--servigo-green-badge);
+}
+
+.registro-prestador-form .registro-prestador-type-box {
+  background-color: var(--reg-green-pale) !important;
+  border-color: var(--reg-green-border) !important;
+}
+
+.registro-prestador-form .registro-prestador-type-box > .form-label {
+  color: var(--reg-green);
+}
+
+.registro-prestador-form .registro-cliente-hint--provider,
+.registro-prestador-form .registro-cliente-hint--info {
+  background-color: var(--reg-green-pale);
+  color: var(--reg-green-dark);
+  border: 1px solid var(--reg-green-border);
+}
+
+.registro-prestador-form .registro-cliente-hint--provider i,
+.registro-prestador-form .registro-cliente-hint--info i {
+  color: var(--reg-green);
+}
+
+.registro-prestador-form .registro-photo-dropzone:hover {
+  border-color: var(--reg-green-light);
+  background: var(--reg-green-pale);
+}
+
+.registro-prestador-form .registro-photo-btn-select:hover {
+  border-color: var(--reg-green);
+  color: var(--reg-green-dark);
+}
+
+.registro-prestador-form .registro-cliente-actions .btn-crear {
+  background-color: var(--reg-green);
+  border-color: var(--reg-green);
+}
+
+.registro-prestador-form .registro-cliente-actions .btn-crear:hover:not(:disabled) {
+  background-color: var(--reg-green-dark);
+  border-color: var(--reg-green-dark);
+}
 
 .registro-prestador-form .registro-cliente-page-header {
   text-align: left;

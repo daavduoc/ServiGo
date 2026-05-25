@@ -1,42 +1,83 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const PROXIMAS_CITAS = [
-  {
-    id: 101,
-    servicio: 'Reparación e Instalación de Calefón',
-    especialista: 'Juan Pérez',
-    fecha: '25 de Mayo, 2026',
-    hora: '14:30 hrs',
-    estado: 'Confirmada',
-    precio: '$25.000',
-    etiqueta: 'success',
-  },
-];
+import { cancelarReservaCliente, getMisReservasCliente } from '../../serviceFront/reservaService';
 
 const estadoBadgeClass = (etiqueta) => {
   if (etiqueta === 'success') return 'badge bg-success text-white';
   if (etiqueta === 'warning') return 'badge bg-warning text-dark';
+  if (etiqueta === 'danger') return 'badge bg-danger text-white';
   return 'badge bg-secondary text-white';
 };
 
-const HISTORIAL_CITAS = [
-  {
-    id: 84,
-    servicio: 'Evaluación Kinesiología',
-    especialista: 'Ana Silva',
-    fecha: '10 de Abril, 2026',
-    hora: '10:00 hrs',
-    estado: 'Finalizada',
-    precio: '$18.000',
-    etiqueta: 'secondary',
-  },
-];
+const mapCitaDesdeApi = (item) => ({
+  id: item.idReserva,
+  idPrestador: item.idPrestador,
+  servicio: item.servicio,
+  especialista: item.especialista,
+  fecha: item.fechaTexto,
+  hora: item.horaTexto,
+  estado: item.estado,
+  precio: item.precioTexto,
+  etiqueta: item.estadoEtiqueta || 'secondary',
+});
 
 export const ClientReservationsView = () => {
+  const [proximasCitas, setProximasCitas] = useState([]);
+  const [historialCitas, setHistorialCitas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [cancelandoId, setCancelandoId] = useState(null);
+
+  const cargarReservas = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getMisReservasCliente();
+      setProximasCitas((data?.proximas || []).map(mapCitaDesdeApi));
+      setHistorialCitas((data?.historial || []).map(mapCitaDesdeApi));
+    } catch (err) {
+      console.error('Error cargando reservas:', err);
+      setError(err.message || 'No se pudieron cargar tus reservas');
+      setProximasCitas([]);
+      setHistorialCitas([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarReservas();
+  }, [cargarReservas]);
+
+  const handleCancelar = async (idReserva) => {
+    if (!window.confirm('¿Deseas cancelar esta cita?')) {
+      return;
+    }
+
+    try {
+      setCancelandoId(idReserva);
+      await cancelarReservaCliente(idReserva);
+      await cargarReservas();
+    } catch (err) {
+      alert(err.message || 'No se pudo cancelar la reserva');
+    } finally {
+      setCancelandoId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container mt-5 mb-5 text-center py-5">
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+        <p className="text-muted mt-3 mb-0">Cargando tus reservas...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mt-5 mb-5">
-      {/* Mismo patrón de encabezado que el resto del panel cliente */}
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
         <h2 className="m-0 d-flex align-items-center gap-2 profile-panel-title">
           <i className="bi bi-calendar-check" aria-hidden="true" />
@@ -51,16 +92,24 @@ export const ClientReservationsView = () => {
         </Link>
       </div>
 
-      {/* Panel 1 — igual estilo que "Mis Datos Personales" en /perfil */}
+      {error && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <span>{error}</span>
+          <button type="button" className="btn btn-sm btn-outline-danger" onClick={cargarReservas}>
+            Reintentar
+          </button>
+        </div>
+      )}
+
       <div className="card shadow-sm border-0 p-4 mb-4">
         <h4 className="mb-4 profile-panel-title">
           <i className="bi bi-clock-history" aria-hidden="true" />
           Próximas Citas
         </h4>
 
-        {PROXIMAS_CITAS.length > 0 ? (
+        {proximasCitas.length > 0 ? (
           <div className="row g-3">
-            {PROXIMAS_CITAS.map((cita) => (
+            {proximasCitas.map((cita) => (
               <div className="col-12" key={cita.id}>
                 <div className="card border-0 shadow-sm rounded-3 bg-white border-start border-success border-4">
                   <div className="card-body p-4">
@@ -76,11 +125,9 @@ export const ClientReservationsView = () => {
                       </div>
                       <div
                         className="text-end bg-light p-2 rounded-3 text-center"
-                        style={{ minWidth: '100px' }}
+                        style={{ minWidth: '120px' }}
                       >
-                        <span className="d-block fw-bold text-dark">
-                          {cita.fecha.split(' ')[0]} {cita.fecha.split(' ')[2]}
-                        </span>
+                        <span className="d-block fw-bold text-dark small">{cita.fecha}</span>
                         <small className="text-success fw-bold">{cita.hora}</small>
                       </div>
                     </div>
@@ -91,15 +138,23 @@ export const ClientReservationsView = () => {
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger px-3 rounded-pill"
+                          disabled={cancelandoId === cita.id}
+                          onClick={() => handleCancelar(cita.id)}
                         >
-                          Cancelar
+                          {cancelandoId === cita.id ? 'Cancelando...' : 'Cancelar'}
                         </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-success px-3 rounded-pill"
-                        >
-                          Ver Detalle
-                        </button>
+                        {cita.idPrestador ? (
+                          <Link
+                            to={`/servicio-detalle/${cita.idPrestador}`}
+                            className="btn btn-sm btn-success px-3 rounded-pill"
+                          >
+                            Ver Detalle
+                          </Link>
+                        ) : (
+                          <button type="button" className="btn btn-sm btn-success px-3 rounded-pill" disabled>
+                            Ver Detalle
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -118,44 +173,51 @@ export const ClientReservationsView = () => {
         )}
       </div>
 
-      {/* Panel 2 — historial */}
       <div className="card shadow-sm border-0 p-4">
         <h4 className="mb-4 profile-panel-title">
           <i className="bi bi-journal-text" aria-hidden="true" />
           Historial de Atenciones
         </h4>
-        <div className="row g-3">
-          {HISTORIAL_CITAS.map((cita) => (
-            <div className="col-12" key={cita.id}>
-              <div className="card border-0 shadow-sm rounded-3 bg-light">
-                <div className="card-body p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                  <div className="d-flex align-items-center gap-3">
-                    <div className="bg-white p-3 rounded-circle shadow-sm text-success">
-                      <i className="bi bi-calendar-check fs-5" aria-hidden="true" />
+
+        {historialCitas.length > 0 ? (
+          <div className="row g-3">
+            {historialCitas.map((cita) => (
+              <div className="col-12" key={cita.id}>
+                <div className="card border-0 shadow-sm rounded-3 bg-light">
+                  <div className="card-body p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="bg-white p-3 rounded-circle shadow-sm text-success">
+                        <i className="bi bi-calendar-check fs-5" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h6 className="fw-bold m-0 text-dark">{cita.servicio}</h6>
+                        <small className="text-muted">
+                          {cita.fecha} • {cita.especialista}
+                        </small>
+                      </div>
                     </div>
-                    <div>
-                      <h6 className="fw-bold m-0 text-dark">{cita.servicio}</h6>
-                      <small className="text-muted">
-                        {cita.fecha} • {cita.especialista}
-                      </small>
+                    <div className="d-flex align-items-center gap-3">
+                      <span
+                        className={`${estadoBadgeClass(cita.etiqueta)} px-3 py-1 rounded-pill fw-semibold`}
+                      >
+                        {cita.estado}
+                      </span>
+                      <Link to="/buscar" className="btn btn-sm btn-outline-secondary rounded-pill">
+                        Volver a agendar
+                      </Link>
                     </div>
-                  </div>
-                  <div className="d-flex align-items-center gap-3">
-                    <span className={`${estadoBadgeClass(cita.etiqueta)} px-3 py-1 rounded-pill fw-semibold`}>
-                      {cita.estado}
-                    </span>
-                    <Link to="/buscar" className="btn btn-sm btn-outline-secondary rounded-pill">
-                      Volver a agendar
-                    </Link>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="alert alert-light border text-center p-4 rounded-3 mb-0 text-muted">
+            Aún no tienes atenciones finalizadas en tu historial.
+          </div>
+        )}
       </div>
 
-      {/* Mismo recuadro informativo que /perfil */}
       <div className="bg-light p-4 rounded-3 border-start border-success border-4 mt-4">
         <p className="text-muted mb-0">
           <i className="bi bi-lightbulb text-success me-2" aria-hidden="true" />

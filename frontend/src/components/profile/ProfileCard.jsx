@@ -32,7 +32,7 @@ export const ProfileCard = ({
       )}
       
       <div className="mt-4">
-        <span className="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 text-capitalize fw-bold rounded-pill">
+        <span className="badge bg-success text-white px-3 py-2 text-capitalize fw-bold rounded-pill">
           <i className={`bi ${esEmpresa ? 'bi-building' : 'bi-person-badge'} me-2`}></i>
           Perfil: {esEmpresa ? 'Persona Jurídica (Empresa)' : 'Persona Natural'}
         </span>

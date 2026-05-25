@@ -1,9 +1,13 @@
+import {
+  API_BASE_URL,
+  API_URL_USUARIOS,
+  getAuthHeaders,
+  isNetworkError,
+  networkErrorMessage,
+  parseApiError,
+} from './apiConfig';
 
-const API_URL_USUARIOS = 'http://localhost:8080/usuarios';
-const API_URL_FOTOS = 'http://localhost:8080/fotos-perfil';
-
-const isNetworkError = (error) =>
-  error instanceof TypeError && error.message === 'Failed to fetch';
+const API_URL_FOTOS = `${API_BASE_URL}/fotos-perfil`;
 
 // GET: obtener perfil completo del usuario autenticado
 export const getMyProfile = async () => {
@@ -16,23 +20,17 @@ export const getMyProfile = async () => {
   try {
     response = await fetch(`${API_URL_USUARIOS}/me/perfil`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(false),
     });
   } catch (error) {
     if (isNetworkError(error)) {
-      throw new Error(
-        'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo en http://localhost:8080'
-      );
+      throw new Error(networkErrorMessage());
     }
     throw error;
   }
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.message || body.error || 'Error al obtener perfil');
+    throw new Error(await parseApiError(response, 'Error al obtener perfil'));
   }
 
   return response.json();
@@ -40,52 +38,59 @@ export const getMyProfile = async () => {
 
 // POST: subir o actualizar foto de perfil (multipart → backend → Cloudinary + BD)
 export const uploadProfilePhoto = async (userId, file) => {
-    try {
-        const token = localStorage.getItem('token');
-        const formData = new FormData();
-        formData.append('file', file);
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión no válida. Inicia sesión nuevamente.');
+  }
 
-        const response = await fetch(`${API_URL_FOTOS}/upload/${userId}`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        });
+  const formData = new FormData();
+  formData.append('file', file);
 
-        if (!response.ok) {
-            throw new Error('Error al subir la foto de perfil');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error al subir foto de perfil:', error);
-        throw error;
+  let response;
+  try {
+    response = await fetch(`${API_URL_FOTOS}/upload/${userId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(true),
+      body: formData,
+    });
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new Error(networkErrorMessage());
     }
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al subir la foto de perfil'));
+  }
+
+  return response.json();
 };
 
 // PUT: actualizar datos del usuario autenticado
 export const updateUserProfile = async (userId, userData) => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL_USUARIOS}/${userId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(userData)
-        });
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión no válida. Inicia sesión nuevamente.');
+  }
 
-        if (!response.ok) {
-            throw new Error('Error al actualizar perfil');
-        }
-
-        const data = await response.json();
-        console.log("Perfil actualizado:", data);
-        return data;
-    } catch (error) {
-        console.error("Error al actualizar perfil:", error);
-        throw error;
+  let response;
+  try {
+    response = await fetch(`${API_URL_USUARIOS}/${userId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(false),
+      body: JSON.stringify(userData),
+    });
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new Error(networkErrorMessage());
     }
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al actualizar perfil'));
+  }
+
+  return response.json();
 };
