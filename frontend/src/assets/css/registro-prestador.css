@@ -1,7 +1,7 @@
 /* Registro prestador — layout según mockup */
 @import './registro-shared.css';
 
-/* Paleta verde ServiGo (sobre estilos compartidos) */
+/* Paleta verde ServiGo (estilos compartidos) */
 .registro-prestador-form {
   --reg-green: var(--servigo-green);
   --reg-green-dark: var(--servigo-green-dark);
@@ -341,3 +341,101 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* inicio dropzone del registro de prestadores de servicio*/
+
+.cert-dropzone-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Botón principal de carga */
+.cert-dropzone-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 1.75rem 1.5rem;
+  background: #fffdf5;
+  border: 2px dashed #d4a72c;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  text-align: center;
+  font-family: inherit;
+}
+
+.cert-dropzone-btn:hover,
+.cert-dropzone-btn:focus {
+  border-color: var(--servigo-green, #198754);
+  background: var(--servigo-green-pale, #e8f8ef);
+  outline: none;
+}
+
+.cert-dropzone-btn__icon {
+  font-size: 2rem;
+  color: #9ca3af;
+  display: block;
+}
+
+.cert-dropzone-btn:hover .cert-dropzone-btn__icon,
+.cert-dropzone-btn:focus .cert-dropzone-btn__icon {
+  color: var(--servigo-green, #198754);
+}
+
+.cert-dropzone-btn__text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cert-dropzone-btn__hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Lista de archivos seleccionados */
+.cert-dropzone-preview {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cert-dropzone-preview__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.cert-dropzone-preview__icon {
+  color: var(--servigo-green, #198754);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.cert-dropzone-preview__name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #1f5c32;
+  font-weight: 500;
+}
+
+.cert-dropzone-preview__size {
+  color: #6b7280;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+/* fin dropzone */

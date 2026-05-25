@@ -1,0 +1,78 @@
+/* Estilos para las vistas del prestador de servicio */
+
+/* vista */
+.provider-view {
+  --pv-green:       #198754;
+  --pv-green-dark:  #146c43;
+  --pv-green-pale:  #e8f8ef;
+  --pv-green-border:#c8eed8;
+  --pv-radius:      12px;
+  --pv-shadow:      0 2px 12px rgba(0,0,0,.07);
+}
+
+/* encavezado */
+.pv-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.pv-page-header__title {
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.15rem;
+}
+
+.pv-page-header__sub {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* panel */
+.pv-card {
+  background: #fff;
+  border: none;
+  border-radius: var(--pv-radius);
+  box-shadow: var(--pv-shadow);
+  padding: 1.5rem;
+}
+
+/* tabla */
+.pv-table-wrap {
+  border-radius: var(--pv-radius);
+  overflow: hidden;
+  box-shadow: var(--pv-shadow);
+}
+
+/* estado inicial vacio (formulario)*/
+.pv-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.pv-empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  color: #adb5bd;
+  display: block;
+}
+
+/* modalidad responsiva*/
+@media (max-width: 991.98px) {
+  .provider-nav-tabs-wrap {
+    display: none !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .pv-page-header {
+    flex-direction: column;
+  }
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ServiceDetailView } from './components/view/ServiceDetailView';
 import { ClientReservationsView } from './components/view/ClientReservationsView';
@@ -34,13 +34,15 @@ import { RegistroPrestadorConfirmacionView } from './components/view/auth/Regist
 
 // --- VISTAS DE USUARIOS ---
 import { ClientDashboard } from './components/view/ClientDashboard';
-import { UserDashboardView } from './components/view/UserDashboardView';
-import { ProviderDashboardView } from './components/view/ProviderDashboard';
-import { ProviderServicesView } from './components/view/ProviderServicesView';
-import { ProviderProfileView } from './components/view/ProviderProfileView';
 import SupportView from './components/view/SupportView';
+
+// ===== NUEVAS VISTAS MODULARES DEL PRESTADOR DIRECTAS =====
+import { ProviderResumenPage }          from './components/view/provider/ProviderResumenPage';
+import { ProviderSolicitudesPage }      from './components/view/provider/ProviderSolicitudesPage';
+import { ProviderTrabajosPage }         from './components/view/provider/ProviderTrabajosPage';
+import { ProviderPerfilPage }           from './components/view/provider/ProviderPerfilPage';
 // Importamos la vista para ingresar servicios del prestador
-import { ProviderIngresarServicioView } from './components/view/ProviderIngresarServicioView';
+import { ProviderIngresarServicioPage } from './components/view/provider/ProviderIngresarServicioPage';
 
 import { ClientLayout } from './components/ui/ClientLayout';
 import { ProviderLayout } from './components/ui/ProviderLayout';
@@ -130,18 +132,19 @@ function App() {
               <Route path="/notificaciones" element={<NotificationsView />} />
             </Route>
 
-            {/* Panel privado del prestador (sidebar + rutas propias) */}
+            {/* Prestado De servicio Panel privado del prestador (sidebar y rutas propias) */}
             <Route element={<ProviderLayout />}>
-              <Route path="/dashboard-prestador" element={<UserDashboardView />} />
-              <Route path="/prestador/solicitudes" element={<ProviderDashboardView />} />
+              <Route path="/dashboard-prestador" element={<ProviderResumenPage />} />
+              <Route path="/prestador/solicitudes" element={<ProviderSolicitudesPage />} />
               
-              {/* NUEVA RUTA: formulario para ingresar servicio */}
-              <Route path="/prestador/ingresar-servicio" element={<ProviderIngresarServicioView />} />
+              {/*  formulario para ingresar servicio */}
+              <Route path="/prestador/ingresar-servicio" element={<ProviderIngresarServicioPage />} />
               
-              <Route path="/prestador/mis-servicios" element={<ProviderServicesView />} />
-              <Route path="/prestador/perfil" element={<ProviderProfileView />} />
+              <Route path="/prestador/mis-servicios" element={<ProviderTrabajosPage />} />
+              <Route path="/prestador/perfil" element={<ProviderPerfilPage />} />
               <Route path="/prestador/soporte" element={<SupportView />} />
             </Route>
+            {/*fin rutas del prestador de servicio */}
 
             {/* Rutas para administrador */}
             <Route element={<AdminLayout />}>
