@@ -1,11 +1,33 @@
 // validaciones para el Registro de Usuario comun Cliente y prestador de servicio
 
+const calcularEdad = (fechaNacimiento) => {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad -= 1;
+    }
+    return edad;
+};
+
 export const authValidations = (formData) => {
     const camposRequeridos = ['rut', 'nombre', 'apellido', 'correo', 'contrasena', 'telefono'];
     const faltanDatos = camposRequeridos.some(campo => !formData[campo] || String(formData[campo]).trim() === '');
 
     // regla todos los campos deben ser rellenados
     if (faltanDatos) return "Rellene todos los campos obligatorios.";
+
+    if (formData.tipoUsuario === 'CLIENTE') {
+        if (!formData.fechaNacimiento) return "La fecha de nacimiento es obligatoria.";
+        const fecha = new Date(formData.fechaNacimiento);
+        if (!(fecha instanceof Date) || Number.isNaN(fecha.getTime())) {
+            return "Ingresa una fecha de nacimiento válida.";
+        }
+        if (calcularEdad(fecha) < 18) {
+            return "Debes tener al menos 18 años para registrarte.";
+        }
+    }
 
     //regla de rut con guion
     if (!String(formData.rut).includes('-')) return "El RUT debe incluir guion (ej: 12345678-9)";

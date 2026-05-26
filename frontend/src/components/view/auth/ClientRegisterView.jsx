@@ -18,6 +18,8 @@ export const ClientRegisterView = () => {
     direccion: '',
     comuna: '',
     region: '',
+    tipoUsuario: 'CLIENTE',
+    fechaNacimiento: '',
     idRol: 1,
     latitud: '',
     longitud: '',
@@ -58,7 +60,7 @@ export const ClientRegisterView = () => {
       return setError('Las contraseñas no coinciden.');
     }
 
-    const errorValidacion = authValidations(formData);
+    const errorValidacion = authValidations({ ...formData, tipoUsuario: 'CLIENTE' });
     if (errorValidacion) return setError(errorValidacion);
 
     setIsLoading(true);
@@ -72,6 +74,7 @@ export const ClientRegisterView = () => {
         correo: formData.correo,
         contrasena: formData.contrasena,
         telefono: formData.telefono,
+        fechaNacimiento: formData.fechaNacimiento || null,
         direccion: formData.direccion,
         comuna: formData.comuna,
         region: formData.region,

@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 
 @Service
@@ -116,6 +118,15 @@ public class UsuarioService {
 
         validarRutDisponible(dto.getRut(), null);
         validarCorreoDisponible(dto.getCorreo(), null);
+
+        if (tipoUsuario.equals("CLIENTE")) {
+            if (dto.getFechaNacimiento() == null) {
+                throw new RuntimeException("La fecha de nacimiento es obligatoria para registrarse como cliente");
+            }
+            if (Period.between(dto.getFechaNacimiento(), LocalDate.now()).getYears() < 18) {
+                throw new RuntimeException("Debes tener 18 años o más para registrarte como cliente");
+            }
+        }
 
         Usuario usuario = new Usuario();
         usuario.setRut(dto.getRut().trim());

@@ -135,6 +135,20 @@ export const SeccionUsuarioBase = ({
           />
         </FieldCol>
       )}
+
+      {isClient && (
+        <FieldCol>
+          <FormRow
+            {...formRowProps}
+            label="Fecha de nacimiento"
+            name="fechaNacimiento"
+            type="date"
+            value={formData.fechaNacimiento}
+            onChange={handleChange}
+            required
+          />
+        </FieldCol>
+      )}
     </>
   );
 
