@@ -25,5 +25,17 @@ export const authValidations = (formData) => {
         return "Por favor, completa tu Región, Comuna y Dirección, y espera un segundo a que el mapa te ubique automáticamente.";
     }
 
+    // Validación de edad mínima 18 años (solo aplica si hay fecha de nacimiento)
+    if (formData.fechaNacimiento) {
+        const hoy = new Date();
+        const nacimiento = new Date(formData.fechaNacimiento + 'T00:00:00');
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const mesDiff = hoy.getMonth() - nacimiento.getMonth();
+        if (mesDiff < 0 || (mesDiff === 0 && hoy.getDate() < nacimiento.getDate())) {
+            edad--;
+        }
+        if (edad < 18) return "Debes tener al menos 18 años para registrarte como prestador.";
+    }
+
     return null;
 };

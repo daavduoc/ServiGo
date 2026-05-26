@@ -28,7 +28,7 @@ export const ProviderIngresarServicioPage = () => {
   const [precio,        setPrecio]        = useState('');
   const [modalidad,     setModalidad]     = useState('Domicilio');
   const [coordenadas,   setCoordenadas]   = useState({ lat: -33.4489, lng: -70.6693 });
-  const [agenda,        setAgenda]        = useState([{ fecha: '', hora: '', error: '' }]);
+  const [agenda,        setAgenda]        = useState([{ id: Date.now(), dias: [], hora: '', error: '' }]); // cambiado: ahora cada grupo tiene un array de días en lugar de una sola fecha
   const [fotoCapturada, setFotoCapturada] = useState(null);
   const [cargando,      setCargando]      = useState(false);
   const [mensajeExito,  setMensajeExito]  = useState('');
@@ -39,7 +39,7 @@ export const ProviderIngresarServicioPage = () => {
   const handleClear = () => {
     setNombre(''); setArea(''); setDescripcion(''); setPrecio('');
     setModalidad('Domicilio');
-    setAgenda([{ fecha: '', hora: '', error: '' }]);
+    setAgenda([{ id: Date.now(), dias: [], hora: '', error: '' }]); // cambiado: reinicia con la nueva estructura de grupos
     setFotoCapturada(null);
     setMensajeExito(''); setMensajeError('');
   };
@@ -54,10 +54,14 @@ export const ProviderIngresarServicioPage = () => {
       setMensajeError('Por favor, rellene todos los campos de información básica.');
       return;
     }
-    if (agenda.some((s) => s.error !== '' || !s.fecha || !s.hora)) {
-      setMensajeError('La agenda tiene fechas inválidas. Corrija antes de continuar.');
+
+    // cambiado: valida que cada grupo tenga al menos un día seleccionado y una hora asignada
+    const agendaInvalida = agenda.some((g) => g.dias.length === 0 || !g.hora);
+    if (agendaInvalida) {
+      setMensajeError('Cada horario debe tener al menos un día seleccionado y una hora asignada.');
       return;
     }
+
     if (!fotoCapturada) {
       setMensajeError('Es obligatorio tomarse una foto de verificación para crear el servicio.');
       return;
@@ -78,7 +82,7 @@ export const ProviderIngresarServicioPage = () => {
         modalidad,
         latitud:           coordenadas.lat,
         longitud:          coordenadas.lng,
-        agendaDisponible:  agenda.map((s) => ({ fecha: s.fecha, hora: s.hora })),
+        agendaDisponible:  agenda.flatMap((grupo) => grupo.dias.map((fecha) => ({ fecha, hora: grupo.hora }))), // cambiado: flatMap expande cada grupo en pares {fecha, hora} que el backend ya entiende
       };
 
       const servicioCreado = await crearNuevoServicio(servicioPayload);
