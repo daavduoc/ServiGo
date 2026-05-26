@@ -28,6 +28,7 @@ public class AdminService {
     private final RolRepository rolRepository;
     private final EmpresaRepository empresaRepository;
     private final FotoPerfilRepository fotoPerfilRepository;
+    private final MensajeSoporteRepository mensajeSoporteRepository;
 
     public AdminService(
             UsuarioRepository usuarioRepository,
@@ -41,7 +42,8 @@ public class AdminService {
             AuditoriaRepository auditoriaRepository,
             RolRepository rolRepository,
             EmpresaRepository empresaRepository,
-            FotoPerfilRepository fotoPerfilRepository
+            FotoPerfilRepository fotoPerfilRepository,
+            MensajeSoporteRepository mensajeSoporteRepository
     ) {
         this.usuarioRepository = usuarioRepository;
         this.prestadorRepository = prestadorRepository;
@@ -55,6 +57,7 @@ public class AdminService {
         this.rolRepository = rolRepository;
         this.empresaRepository = empresaRepository;
         this.fotoPerfilRepository = fotoPerfilRepository;
+        this.mensajeSoporteRepository = mensajeSoporteRepository;
     }
 
     public AdminDashboardStatsDTO obtenerEstadisticasDashboard() {
@@ -544,6 +547,83 @@ public class AdminService {
             prestadorRepository.findById(auditoria.getRegistroId())
                     .ifPresent(prestador -> dto.setEmail(prestador.getUsuario().getCorreo()));
         }        
+
+        return dto;
+    }
+
+    // ========================
+    // SOPORTE / MENSAJES
+    // ========================
+
+    public List<AdminMensajeSoporteDTO> listarMensajesSoporte(String estado, String rolRemitente) {
+        List<MensajeSoporte> mensajes;
+
+        if (estado != null && !estado.isEmpty() && rolRemitente != null && !rolRemitente.isEmpty()) {
+            mensajes = mensajeSoporteRepository.findByEstadoAndRolRemitenteOrderByFechaCreacionDesc(estado, rolRemitente);
+        } else if (estado != null && !estado.isEmpty()) {
+            mensajes = mensajeSoporteRepository.findByEstadoOrderByFechaCreacionDesc(estado);
+        } else if (rolRemitente != null && !rolRemitente.isEmpty()) {
+            mensajes = mensajeSoporteRepository.findByRolRemitenteOrderByFechaCreacionDesc(rolRemitente);
+        } else {
+            mensajes = mensajeSoporteRepository.findAllByOrderByFechaCreacionDesc();
+        }
+
+        return mensajes.stream()
+                .map(this::convertToAdminMensajeSoporteDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void actualizarEstadoMensaje(Long idMensaje, String nuevoEstado, Long idAdmin) {
+        MensajeSoporte mensaje = mensajeSoporteRepository.findById(idMensaje)
+                .orElseThrow(() -> new RuntimeException("Mensaje de soporte no encontrado"));
+
+        String valorAnterior = mensaje.getEstado();
+        mensaje.setEstado(nuevoEstado);
+        mensaje.setFechaActualizacion(LocalDateTime.now());
+        mensajeSoporteRepository.save(mensaje);
+
+        registrarAuditoria(idAdmin, "ACTUALIZAR_ESTADO", "MENSAJE_SOPORTE", idMensaje, valorAnterior, nuevoEstado, null);
+    }
+
+    public void responderMensajeSoporte(Long idMensaje, String respuesta, Long idAdmin) {
+        MensajeSoporte mensaje = mensajeSoporteRepository.findById(idMensaje)
+                .orElseThrow(() -> new RuntimeException("Mensaje de soporte no encontrado"));
+
+        String valorAnterior = mensaje.getEstado();
+        mensaje.setRespuesta(respuesta);
+        mensaje.setEstado("resuelto");
+        mensaje.setFechaActualizacion(LocalDateTime.now());
+        mensajeSoporteRepository.save(mensaje);
+
+        registrarAuditoria(idAdmin, "RESPONDER_SOPORTE", "MENSAJE_SOPORTE", idMensaje, valorAnterior, "resuelto", null);
+    }
+
+    public void eliminarMensajeSoporte(Long idMensaje, Long idAdmin) {
+        MensajeSoporte mensaje = mensajeSoporteRepository.findById(idMensaje)
+                .orElseThrow(() -> new RuntimeException("Mensaje de soporte no encontrado"));
+
+        mensajeSoporteRepository.delete(mensaje);
+
+        registrarAuditoria(idAdmin, "ELIMINAR", "MENSAJE_SOPORTE", idMensaje, mensaje.getEstado(), null, null);
+    }
+
+    private AdminMensajeSoporteDTO convertToAdminMensajeSoporteDTO(MensajeSoporte mensaje) {
+        AdminMensajeSoporteDTO dto = new AdminMensajeSoporteDTO();
+
+        dto.setIdMensaje(mensaje.getIdMensaje());
+        dto.setIdUsuario(mensaje.getUsuario().getIdUsuario());
+        dto.setNombreRemitente(
+                mensaje.getUsuario().getNombre() + " " + (mensaje.getUsuario().getApellido() != null ? mensaje.getUsuario().getApellido() : "")
+        );
+        dto.setCorreoRemitente(mensaje.getUsuario().getCorreo());
+        dto.setRolRemitente(mensaje.getRolRemitente());
+        dto.setTipoProblema(mensaje.getTipoProblema());
+        dto.setAsunto(mensaje.getAsunto());
+        dto.setDescripcion(mensaje.getDescripcion());
+        dto.setEstado(mensaje.getEstado());
+        dto.setRespuesta(mensaje.getRespuesta());
+        dto.setFechaCreacion(mensaje.getFechaCreacion());
+        dto.setFechaActualizacion(mensaje.getFechaActualizacion());
 
         return dto;
     }
