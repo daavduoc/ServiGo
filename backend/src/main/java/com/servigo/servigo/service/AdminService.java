@@ -591,11 +591,11 @@ public class AdminService {
 
         String valorAnterior = mensaje.getEstado();
         mensaje.setRespuesta(respuesta);
-        mensaje.setEstado("resuelto");
+        mensaje.setEstado("en_proceso");
         mensaje.setFechaActualizacion(LocalDateTime.now());
         mensajeSoporteRepository.save(mensaje);
 
-        registrarAuditoria(idAdmin, "RESPONDER_SOPORTE", "MENSAJE_SOPORTE", idMensaje, valorAnterior, "resuelto", null);
+        registrarAuditoria(idAdmin, "RESPONDER_SOPORTE", "MENSAJE_SOPORTE", idMensaje, valorAnterior, "en_proceso", null);
     }
 
     public void eliminarMensajeSoporte(Long idMensaje, Long idAdmin) {

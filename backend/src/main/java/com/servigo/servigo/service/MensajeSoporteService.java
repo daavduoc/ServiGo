@@ -69,7 +69,7 @@ public class MensajeSoporteService {
     public MensajeSoporte responderMensaje(Long idMensaje, String respuesta) {
         MensajeSoporte mensaje = obtenerMensaje(idMensaje);
         mensaje.setRespuesta(respuesta);
-        mensaje.setEstado("resuelto");
+        mensaje.setEstado("en_proceso");
         mensaje.setFechaActualizacion(LocalDateTime.now());
         return mensajeSoporteRepository.save(mensaje);
     }

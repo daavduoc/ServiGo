@@ -128,6 +128,7 @@ const AdminSoporteView = () => {
         columns={columns}
         data={mensajesFiltrados}
         editLabel="Ver detalle"
+        actionLabel="Ver detalle"
         onEdit={(msg) => setModalMensaje(msg)}
       />
 

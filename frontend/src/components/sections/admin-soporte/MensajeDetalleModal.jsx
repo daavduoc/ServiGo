@@ -65,7 +65,8 @@ const MensajeDetalleModal = ({ mensaje, onClose, onActionComplete }) => {
       setLoading(true);
       setError(null);
       await actualizarEstadoMensajeAdmin(mensaje.idMensaje, nuevoEstado);
-      setSuccess(`Estado cambiado a "${nuevoEstado === 'en_proceso' ? 'En proceso' : nuevoEstado}"`);
+      const estadoLabels = { en_proceso: 'En proceso', resuelto: 'Resuelto', pendiente: 'Pendiente' };
+      setSuccess(`Estado cambiado a "${estadoLabels[nuevoEstado] || nuevoEstado}"`);
       setTimeout(() => {
         onActionComplete();
         onClose();
@@ -211,16 +212,14 @@ const MensajeDetalleModal = ({ mensaje, onClose, onActionComplete }) => {
                   {loading ? 'Enviando...' : 'Enviar respuesta'}
                 </button>
 
-                {mensaje.estado === 'pendiente' && (
-                  <button
-                    type="button"
-                    className="btn btn-info text-dark"
-                    onClick={() => handleCambiarEstado('en_proceso')}
-                    disabled={loading}
-                  >
-                    Marcar en proceso
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="btn btn-info text-dark"
+                  onClick={() => handleCambiarEstado('resuelto')}
+                  disabled={loading}
+                >
+                  Resuelto
+                </button>
 
                 <button
                   type="button"

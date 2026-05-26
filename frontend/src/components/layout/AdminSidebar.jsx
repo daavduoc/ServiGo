@@ -6,7 +6,7 @@ import { getDisplayName, getRolLabel } from '../../utils/userDisplay';
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: 'bi-grid-1x2', label: 'Dashboard' },
   { to: '/admin/usuarios', icon: 'bi-people', label: 'Usuarios' },
-  { to: '/admin/prestadores', icon: 'bi-person-badge', label: 'Prestadores' },
+  { to: '/admin/prestadores', icon: 'bi-person-badge', label: 'Validación prestadores' },
   { to: '/admin/soporte', icon: 'bi-headset', label: 'Soporte' },
   { to: '/admin/solicitudes', icon: 'bi-clipboard-check', label: 'Solicitudes' },
   { to: '/admin/reportes', icon: 'bi-bar-chart-line', label: 'Reportes' },
