@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BLOQUES_HORARIOS,
   getFechaHoyStrings,
+  getLimitesAgenda,
+  isHoraPasada,
   validarSeleccionHorario,
 } from '../../utils/booking';
 
-export const BookingForm = ({ prestador, onSubmit, showEmojiLabels = true }) => {
+export const BookingForm = ({
+  prestador,
+  onSubmit,
+  showEmojiLabels = true,
+  submitting = false,
+  resetKey = 0,
+}) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState('');
   const [horaSeleccionada, setHoraSeleccionada] = useState('');
   const { fechaHoyString, horaActualString } = getFechaHoyStrings();
+  const { fechaMinString, fechaMaxString } = getLimitesAgenda();
+
+  useEffect(() => {
+    setFechaSeleccionada('');
+    setHoraSeleccionada('');
+  }, [resetKey]);
 
   const handleAgendar = (e) => {
     e.preventDefault();
@@ -31,7 +45,8 @@ export const BookingForm = ({ prestador, onSubmit, showEmojiLabels = true }) => 
         {showEmojiLabels ? '📅 Agendar cita' : 'Agendar cita'}
       </h4>
       <p className="text-muted small mb-4">
-        Selecciona fecha y hora para solicitar una cita con {prestador.nombre}.
+        Selecciona fecha y hora para solicitar una cita con {prestador.nombre}. Puedes agendar desde{' '}
+        <strong>2 días después de hoy</strong> hasta el <strong>fin de este mes</strong>.
       </p>
 
       <form onSubmit={handleAgendar}>
@@ -43,7 +58,8 @@ export const BookingForm = ({ prestador, onSubmit, showEmojiLabels = true }) => 
             type="date"
             id="fecha-cita"
             className="form-control border-2 servigo-booking-date"
-            min={fechaHoyString}
+            min={fechaMinString}
+            max={fechaMaxString}
             value={fechaSeleccionada}
             onChange={(e) => {
               setFechaSeleccionada(e.target.value);
@@ -59,7 +75,12 @@ export const BookingForm = ({ prestador, onSubmit, showEmojiLabels = true }) => 
           </label>
           <div className="row g-2">
             {BLOQUES_HORARIOS.map((hora) => {
-              const horaPasada = fechaSeleccionada === fechaHoyString && hora < horaActualString;
+              const horaPasada = isHoraPasada(
+                fechaSeleccionada,
+                hora,
+                fechaHoyString,
+                horaActualString
+              );
               return (
                 <div key={hora} className="col-6">
                   <button
@@ -88,10 +109,16 @@ export const BookingForm = ({ prestador, onSubmit, showEmojiLabels = true }) => 
         </div>
 
         <div className="d-grid mt-4 pt-2">
-          <button type="submit" className="btn btn-success py-2 fw-bold text-white shadow-sm">
-            {fechaSeleccionada && horaSeleccionada
-              ? `Confirmar para el ${fechaSeleccionada}`
-              : 'Selecciona fecha y hora'}
+          <button
+            type="submit"
+            className="btn btn-success py-2 fw-bold text-white shadow-sm"
+            disabled={submitting}
+          >
+            {submitting
+              ? 'Registrando reserva...'
+              : fechaSeleccionada && horaSeleccionada
+                ? `Confirmar para el ${fechaSeleccionada}`
+                : 'Selecciona fecha y hora'}
           </button>
         </div>
       </form>

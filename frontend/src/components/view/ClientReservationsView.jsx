@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cancelarReservaCliente, getMisReservasCliente } from '../../serviceFront/reservaService';
+import { mensajeEstadoReserva } from '../../utils/booking';
 
 const estadoBadgeClass = (etiqueta) => {
   if (etiqueta === 'success') return 'badge bg-success text-white';
@@ -19,6 +20,7 @@ const mapCitaDesdeApi = (item) => ({
   estado: item.estado,
   precio: item.precioTexto,
   etiqueta: item.estadoEtiqueta || 'secondary',
+  mensajeDetalle: item.mensajeDetalle || mensajeEstadoReserva(item.estado),
 });
 
 export const ClientReservationsView = () => {
@@ -27,6 +29,7 @@ export const ClientReservationsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cancelandoId, setCancelandoId] = useState(null);
+  const [citaDetalle, setCitaDetalle] = useState(null);
 
   const cargarReservas = useCallback(async () => {
     try {
@@ -122,6 +125,12 @@ export const ClientReservationsView = () => {
                         </span>
                         <h5 className="fw-bold m-0">{cita.servicio}</h5>
                         <p className="text-muted small m-0">Con: {cita.especialista}</p>
+                        {cita.mensajeDetalle && (
+                          <p className="small text-secondary mb-0 mt-1">
+                            <i className="bi bi-info-circle me-1" aria-hidden="true" />
+                            {cita.mensajeDetalle}
+                          </p>
+                        )}
                       </div>
                       <div
                         className="text-end bg-light p-2 rounded-3 text-center"
@@ -143,18 +152,13 @@ export const ClientReservationsView = () => {
                         >
                           {cancelandoId === cita.id ? 'Cancelando...' : 'Cancelar'}
                         </button>
-                        {cita.idPrestador ? (
-                          <Link
-                            to={`/servicio-detalle/${cita.idPrestador}`}
-                            className="btn btn-sm btn-success px-3 rounded-pill"
-                          >
-                            Ver Detalle
-                          </Link>
-                        ) : (
-                          <button type="button" className="btn btn-sm btn-success px-3 rounded-pill" disabled>
-                            Ver Detalle
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-success px-3 rounded-pill"
+                          onClick={() => setCitaDetalle(cita)}
+                        >
+                          Ver mi cita
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -191,9 +195,12 @@ export const ClientReservationsView = () => {
                       </div>
                       <div>
                         <h6 className="fw-bold m-0 text-dark">{cita.servicio}</h6>
-                        <small className="text-muted">
+                        <small className="text-muted d-block">
                           {cita.fecha} • {cita.especialista}
                         </small>
+                        {cita.mensajeDetalle && (
+                          <small className="text-secondary">{cita.mensajeDetalle}</small>
+                        )}
                       </div>
                     </div>
                     <div className="d-flex align-items-center gap-3">
@@ -224,6 +231,81 @@ export const ClientReservationsView = () => {
           Usa <strong>Agendar Nueva Cita</strong> para buscar especialistas disponibles en tu comuna.
         </p>
       </div>
+
+      {citaDetalle && (
+        <div
+          className="modal fade show d-block"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="detalleCitaTitulo"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow-lg rounded-4">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title fw-bold" id="detalleCitaTitulo">
+                  Detalle de tu cita
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Cerrar"
+                  onClick={() => setCitaDetalle(null)}
+                />
+              </div>
+              <div className="modal-body pt-2">
+                <p className="mb-2">
+                  <span className={`${estadoBadgeClass(citaDetalle.etiqueta)} px-2 py-1 rounded-pill`}>
+                    {citaDetalle.estado}
+                  </span>
+                </p>
+                <p className="fw-bold mb-1">{citaDetalle.servicio}</p>
+                <p className="text-muted small mb-2">Con: {citaDetalle.especialista}</p>
+                {citaDetalle.mensajeDetalle && (
+                  <p className="small alert alert-light border py-2 mb-3">
+                    {citaDetalle.mensajeDetalle}
+                  </p>
+                )}
+
+                <ul className="list-unstyled small mb-0">
+                  <li>
+                    <strong>Fecha:</strong> {citaDetalle.fecha}
+                  </li>
+                  <li>
+                    <strong>Hora:</strong> {citaDetalle.hora}
+                  </li>
+                  <li>
+                    <strong>Total:</strong> {citaDetalle.precio}
+                  </li>
+                  <li>
+                    <strong>Reserva Nº:</strong> {citaDetalle.id}
+                  </li>
+                </ul>
+              </div>
+              <div className="modal-footer border-0 pt-0 flex-wrap gap-2">
+                {citaDetalle.idPrestador ? (
+                  <Link
+                    to={`/servicio-detalle/${citaDetalle.idPrestador}`}
+                    className="btn btn-outline-success rounded-pill btn-sm"
+                    onClick={() => setCitaDetalle(null)}
+                  >
+                    Ver perfil del especialista
+                  </Link>
+                ) : (
+                  <span className="text-muted small">—</span>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-success rounded-pill btn-sm ms-auto"
+                  onClick={() => setCitaDetalle(null)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.servigo.servigo.dto.ClienteReservasResponseDTO;
+import com.servigo.servigo.dto.CrearReservaClienteDTO;
 import com.servigo.servigo.entity.Reserva;
 import com.servigo.servigo.service.ReservaService;
 
@@ -36,6 +37,23 @@ public class ReservaController {
                     authentication.getName()
             );
             return ResponseEntity.ok(data);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/cliente/agendar")
+    public ResponseEntity<?> agendarReservaCliente(
+            @RequestBody CrearReservaClienteDTO dto,
+            Authentication authentication
+    ) {
+        try {
+            Reserva reserva = reservaService.crearReservaCliente(authentication.getName(), dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "mensaje", "Reserva creada correctamente",
+                    "idReserva", reserva.getIdReserva()
+            ));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));

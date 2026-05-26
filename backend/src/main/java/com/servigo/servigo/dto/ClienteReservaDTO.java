@@ -15,4 +15,6 @@ public class ClienteReservaDTO {
     /** success | warning | secondary | danger — para badges Bootstrap */
     private String estadoEtiqueta;
     private String precioTexto;
+    /** Mensaje orientado al cliente según el estado de la reserva. */
+    private String mensajeDetalle;
 }

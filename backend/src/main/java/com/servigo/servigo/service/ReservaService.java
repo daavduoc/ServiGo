@@ -1,7 +1,10 @@
 package com.servigo.servigo.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.servigo.servigo.dto.ClienteReservaDTO;
 import com.servigo.servigo.dto.ClienteReservasResponseDTO;
+import com.servigo.servigo.dto.CrearReservaClienteDTO;
 import com.servigo.servigo.entity.Cliente;
 import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.entity.Reserva;
@@ -18,7 +22,10 @@ import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.entity.SolicitudServicio;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.repository.ClienteRepository;
+import com.servigo.servigo.repository.EspecialidadRepository;
+import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.ReservaRepository;
+import com.servigo.servigo.repository.ServicioRepository;
 import com.servigo.servigo.repository.SolicitudServicioRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 
@@ -36,17 +43,26 @@ public class ReservaService {
     private final SolicitudServicioRepository solicitudRepository;
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ServicioRepository servicioRepository;
+    private final PrestadorRepository prestadorRepository;
+    private final EspecialidadRepository especialidadRepository;
 
     public ReservaService(
             ReservaRepository reservaRepository,
             SolicitudServicioRepository solicitudRepository,
             ClienteRepository clienteRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            ServicioRepository servicioRepository,
+            PrestadorRepository prestadorRepository,
+            EspecialidadRepository especialidadRepository
     ) {
         this.reservaRepository = reservaRepository;
         this.solicitudRepository = solicitudRepository;
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
+        this.servicioRepository = servicioRepository;
+        this.prestadorRepository = prestadorRepository;
+        this.especialidadRepository = especialidadRepository;
     }
 
     public List<Reserva> listarReservas() {
@@ -72,6 +88,47 @@ public class ReservaService {
         }
 
         return response;
+    }
+
+    /**
+     * Flujo principal para que un cliente autenticado agende una cita con un prestador.
+     */
+    public Reserva crearReservaCliente(String correoCliente, CrearReservaClienteDTO dto) {
+        if (dto.getIdPrestador() == null) {
+            throw new RuntimeException("Debe enviar idPrestador");
+        }
+        if (dto.getFecha() == null || dto.getHora() == null) {
+            throw new RuntimeException("Debe enviar fecha y hora de la reserva");
+        }
+
+        Cliente cliente = resolverClientePorCorreo(correoCliente);
+
+        Servicio servicio = resolverServicioParaReserva(dto.getIdServicio(), dto.getIdPrestador());
+
+        LocalDateTime fechaHora = parseFechaHora(dto.getFecha(), dto.getHora());
+        validarReglasAgenda(fechaHora);
+
+        Prestador prestador = servicio.getPrestador();
+        if (prestador == null || !dto.getIdPrestador().equals(prestador.getIdPrestador())) {
+            throw new RuntimeException("El servicio no pertenece al prestador indicado.");
+        }
+
+        SolicitudServicio solicitud = new SolicitudServicio();
+        solicitud.setCliente(cliente);
+        solicitud.setServicio(servicio);
+        solicitud.setFechaHoraSolicitud(LocalDateTime.now());
+        solicitud.setFechaHoraPreferida(fechaHora);
+        solicitud.setEstado("pendiente");
+        solicitud.setDireccionAtencion("Por confirmar");
+        solicitud = solicitudRepository.save(solicitud);
+
+        Reserva reserva = new Reserva();
+        reserva.setSolicitud(solicitud);
+        reserva.setFechaHoraReserva(fechaHora);
+        reserva.setFechaCreacionReserva(LocalDateTime.now());
+        reserva.setEstado("pendiente");
+
+        return reservaRepository.save(reserva);
     }
 
     public void cancelarReservaCliente(Long idReserva, String correo) {
@@ -149,6 +206,73 @@ public class ReservaService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado para este usuario"));
     }
 
+    private Servicio resolverServicioParaReserva(Long idServicio, Long idPrestador) {
+        if (idServicio != null) {
+            Servicio servicio = servicioRepository.findById(idServicio)
+                    .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+            if (servicio.getPrestador() == null
+                    || !idPrestador.equals(servicio.getPrestador().getIdPrestador())) {
+                throw new RuntimeException("El servicio no pertenece al prestador indicado");
+            }
+            return servicio;
+        }
+
+        Prestador prestador = prestadorRepository.findById(idPrestador)
+                .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
+
+        List<Servicio> servicios = servicioRepository.findByPrestadorIdPrestador(idPrestador);
+        if (servicios != null && !servicios.isEmpty()) {
+            return servicios.get(0);
+        }
+
+        // Fallback: si el prestador fue creado sin servicios, creamos uno por defecto.
+        if (especialidadRepository.count() == 0) {
+            throw new RuntimeException("No hay especialidades disponibles para crear un servicio.");
+        }
+
+        Servicio servicio = new Servicio();
+        servicio.setPrestador(prestador);
+        servicio.setEstado("activo");
+        servicio.setModalidad("domicilio");
+        servicio.setPrecioReferencial(0.0);
+        servicio.setNombre(prestador.getCategoriaPrestador() != null
+                ? prestador.getCategoriaPrestador().getNombre()
+                : "Servicio");
+        servicio.setDescripcion("Servicio creado automáticamente para permitir agendamiento.");
+        servicio.setEspecialidad(especialidadRepository.findAll().get(0));
+
+        return servicioRepository.save(servicio);
+    }
+
+    private LocalDateTime parseFechaHora(String fecha, String hora) {
+        if (fecha == null || hora == null) {
+            throw new RuntimeException("Debe enviar fecha y hora para la reserva.");
+        }
+        String horaNormalizada = hora.length() > 5 ? hora.substring(0, 5) : hora;
+        DateTimeParseException last = null;
+
+        // Intentar primero formato estándar HTML5 yyyy-MM-dd
+        try {
+            LocalDate d = LocalDate.parse(fecha);
+            LocalTime t = LocalTime.parse(horaNormalizada);
+            return LocalDateTime.of(d, t);
+        } catch (DateTimeParseException e) {
+            last = e;
+        }
+
+        // Intentar formato alternativo dd-MM-yyyy (por si el navegador lo envía así)
+        try {
+            DateTimeFormatter alt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            LocalDate d = LocalDate.parse(fecha, alt);
+            LocalTime t = LocalTime.parse(horaNormalizada);
+            return LocalDateTime.of(d, t);
+        } catch (DateTimeParseException ignored) {
+            // fall through
+        }
+
+        throw new RuntimeException("Formato de fecha u hora inválido. Usa una fecha válida del selector.", last);
+    }
+
     private boolean esHistorial(Reserva reserva, LocalDateTime ahora) {
         String estado = reserva.getEstado() != null ? reserva.getEstado().toLowerCase(Locale.ROOT) : "";
         if (estado.contains("cancel") || estado.contains("finaliz") || estado.contains("rechaz")) {
@@ -211,6 +335,7 @@ public class ReservaService {
         String estadoRaw = reserva.getEstado() != null ? reserva.getEstado() : "pendiente";
         dto.setEstado(formatearEstado(estadoRaw));
         dto.setEstadoEtiqueta(etiquetaEstado(estadoRaw));
+        dto.setMensajeDetalle(mensajeDetalleEstado(estadoRaw));
 
         return dto;
     }
@@ -288,5 +413,44 @@ public class ReservaService {
             return "danger";
         }
         return "secondary";
+    }
+
+    private void validarReglasAgenda(LocalDateTime fechaHora) {
+        LocalDate hoy = LocalDate.now();
+        LocalDate min = hoy.plusDays(2);
+        LocalDate max = hoy.withDayOfMonth(hoy.lengthOfMonth());
+
+        LocalDate fecha = fechaHora.toLocalDate();
+        if (fecha.isBefore(min) || fecha.isAfter(max)) {
+            throw new RuntimeException(
+                    "La fecha debe estar entre hoy + 2 días y el fin del mes actual."
+            );
+        }
+        if (fechaHora.isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("La fecha y hora seleccionadas ya han pasado.");
+        }
+    }
+
+    private String mensajeDetalleEstado(String estado) {
+        if (estado == null) {
+            return "Esperando confirmación del especialista.";
+        }
+        String e = estado.toLowerCase(Locale.ROOT);
+        if (e.contains("pendiente")) {
+            return "Esperando confirmación del especialista.";
+        }
+        if (e.contains("confirm")) {
+            return "El especialista confirmó tu cita.";
+        }
+        if (e.contains("finaliz")) {
+            return "Atención completada. ¡Gracias por usar ServiGo!";
+        }
+        if (e.contains("cancel")) {
+            return "Esta cita fue cancelada.";
+        }
+        if (e.contains("rechaz")) {
+            return "El especialista no pudo aceptar esta solicitud.";
+        }
+        return null;
     }
 }

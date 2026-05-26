@@ -46,3 +46,14 @@ export const cancelarReservaCliente = async (idReserva) => {
     body: JSON.stringify({}),
   });
 };
+
+export const crearReservaCliente = async ({ idPrestador, idServicio, fecha, hora }) => {
+  const payload = { idPrestador, fecha, hora };
+  if (idServicio != null) {
+    payload.idServicio = idServicio;
+  }
+  return fetchAutenticado(`${API_URL_RESERVAS}/cliente/agendar`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+};

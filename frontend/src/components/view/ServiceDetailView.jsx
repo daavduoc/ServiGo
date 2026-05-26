@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { obtenerPrestadorPublico } from '../../serviceFront/prestadorService';
+import { crearReservaCliente } from '../../serviceFront/reservaService';
+import { formatFechaCitaLegible } from '../../utils/booking';
 import { formatearPrecio } from '../../utils/formatPrice';
 import { LoginModal } from '../ui/LoginModal';
 import { BookingForm } from './BookingForm';
@@ -25,6 +27,11 @@ export const ServiceDetailView = () => {
   const [error, setError] = useState(null);
 
   const [mensajeExito, setMensajeExito] = useState('');
+  const [reservando, setReservando] = useState(false);
+  const [errorReserva, setErrorReserva] = useState(null);
+  const [showReservaExitoModal, setShowReservaExitoModal] = useState(false);
+  const [reservaExito, setReservaExito] = useState(null);
+  const [bookingResetKey, setBookingResetKey] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -48,16 +55,48 @@ export const ServiceDetailView = () => {
     }
   }, [id]);
 
-  const handleBookingSubmit = (fecha, hora) => {
+  const handleBookingSubmit = async (fecha, hora) => {
     const tieneSesion = isAuthenticated && Boolean(localStorage.getItem('token'));
     if (!tieneSesion) {
       setShowAuthModal(true);
       return;
     }
 
-    setMensajeExito(
-      `¡Excelente! Tu solicitud con ${prestador.nombre} ha sido registrada para el ${fecha} a las ${hora} hrs. (Próximamente conectaremos la reserva al sistema).`
-    );
+    if (!prestador) return;
+
+    const servicioPrincipal = prestador.servicios?.[0];
+
+    setReservando(true);
+    setErrorReserva(null);
+
+    try {
+      await crearReservaCliente({
+        idPrestador: prestador.idPrestador,
+        idServicio: servicioPrincipal?.idServicio ?? null,
+        fecha,
+        hora,
+      });
+
+      setMensajeExito(
+        `Tu cita con ${prestador.nombre} quedó registrada para el ${fecha} a las ${hora} hrs. Puedes revisarla en Mis Horas y Reservas.`
+      );
+      setReservaExito({
+        nombre: prestador.nombre,
+        fecha,
+        hora,
+        fechaLegible: formatFechaCitaLegible(fecha),
+      });
+      setShowReservaExitoModal(true);
+    } catch (err) {
+      setErrorReserva(err.message || 'No se pudo registrar la reserva. Intenta nuevamente.');
+    } finally {
+      setReservando(false);
+    }
+  };
+
+  const cerrarModalReservaExito = () => {
+    setShowReservaExitoModal(false);
+    setBookingResetKey((k) => k + 1);
   };
 
   if (loading) {
@@ -192,7 +231,69 @@ export const ServiceDetailView = () => {
           </div>
 
           <div className="col-lg-5">
-            <BookingForm prestador={prestador} onSubmit={handleBookingSubmit} />
+            {errorReserva && (
+              <div className="alert alert-danger small mb-3">{errorReserva}</div>
+            )}
+            <BookingForm
+              prestador={prestador}
+              onSubmit={handleBookingSubmit}
+              submitting={reservando}
+              resetKey={bookingResetKey}
+            />
+          </div>
+        </div>
+      )}
+
+      {showReservaExitoModal && reservaExito && (
+        <div
+          className="modal show d-block custom-modal-backdrop"
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reservaExitoTitulo"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 rounded-4 shadow-lg">
+              <div className="modal-header border-0 pb-0">
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Cerrar"
+                  onClick={cerrarModalReservaExito}
+                />
+              </div>
+              <div className="modal-body text-center px-4 pt-0 pb-4">
+                <h2 className="fw-bold text-success display-6 mb-3">ServiGo</h2>
+                <h4 className="fw-bold text-dark mb-2" id="reservaExitoTitulo">
+                  ¡Tu cita quedó agendada!
+                </h4>
+                <p className="text-muted mb-3">
+                  Solicitaste una cita con <strong>{reservaExito.nombre}</strong> para el{' '}
+                  <strong>{reservaExito.fechaLegible}</strong> a las <strong>{reservaExito.hora} hrs</strong>.
+                </p>
+                <p className="small text-warning-emphasis bg-warning bg-opacity-10 rounded-3 px-3 py-2 mb-0">
+                  <i className="bi bi-hourglass-split me-1" aria-hidden="true" />
+                  El especialista debe confirmar tu solicitud. Te avisaremos en{' '}
+                  <strong>Mis Horas y Reservas</strong>.
+                </p>
+              </div>
+              <div className="modal-footer border-0 pt-0 flex-column flex-sm-row gap-2 justify-content-center px-4 pb-4">
+                <Link
+                  to="/mis-reservas"
+                  className="btn btn-success rounded-pill px-4 fw-bold w-100 w-sm-auto"
+                  onClick={cerrarModalReservaExito}
+                >
+                  Ver mis reservas
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-outline-success rounded-pill px-4 w-100 w-sm-auto"
+                  onClick={cerrarModalReservaExito}
+                >
+                  Seguir en este perfil
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
