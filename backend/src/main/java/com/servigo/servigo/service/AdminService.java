@@ -7,6 +7,7 @@ import com.servigo.servigo.util.CloudinaryUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -245,21 +246,68 @@ public class AdminService {
         reporte.setFechaInicio(fechaInicio.toLocalDate());
         reporte.setFechaFin(fechaFin.toLocalDate());
 
+        // ========================
+        // SOLICITUDES DE SERVICIO
+        // ========================
         List<SolicitudServicio> solicitudesPeriodo =
                 solicitudServicioRepository.findByFechaHoraSolicitudBetween(fechaInicio, fechaFin);
 
         reporte.setTotalSolicitudes((long) solicitudesPeriodo.size());
-        reporte.setSolicitudesAprobadas(solicitudesPeriodo.stream().filter(s -> "aprobada".equals(s.getEstado())).count());
-        reporte.setSolicitudesRechazadas(solicitudesPeriodo.stream().filter(s -> "rechazada".equals(s.getEstado())).count());
-        reporte.setSolicitudesCanceladas(solicitudesPeriodo.stream().filter(s -> "cancelada".equals(s.getEstado())).count());
+        reporte.setSolicitudesAprobadas(solicitudesPeriodo.stream()
+                .filter(s -> "aprobada".equals(s.getEstado())).count());
+        reporte.setSolicitudesRechazadas(solicitudesPeriodo.stream()
+                .filter(s -> "rechazada".equals(s.getEstado())).count());
+        reporte.setSolicitudesCanceladas(solicitudesPeriodo.stream()
+                .filter(s -> "cancelada".equals(s.getEstado())).count());
 
+        // ========================
+        // ESPECIALIDAD MAS UTILIZADA
+        // ========================
+        Map<String, Long> especialidades = solicitudesPeriodo.stream()
+                .filter(s -> s.getServicio() != null && s.getServicio().getEspecialidad() != null)
+                .collect(Collectors.groupingBy(
+                        s -> s.getServicio().getEspecialidad().getNombre(),
+                        Collectors.counting()
+                ));
+
+        Optional<Map.Entry<String, Long>> topEspecialidad = especialidades.entrySet().stream()
+                .max(Map.Entry.comparingByValue());
+
+        if (topEspecialidad.isPresent()) {
+            reporte.setEspecialidadMasUtilizada(topEspecialidad.get().getKey());
+            reporte.setSolicitudesPorEspecialidad(topEspecialidad.get().getValue().intValue());
+        }
+
+        // ========================
+        // RESERVAS
+        // ========================
         List<Reserva> reservasPeriodo =
                 reservaRepository.findByFechaCreacionReservaBetween(fechaInicio, fechaFin);
 
         reporte.setTotalReservas((long) reservasPeriodo.size());
-        reporte.setReservasFinalizadas(reservasPeriodo.stream().filter(r -> "finalizada".equals(r.getEstado())).count());
-        reporte.setReservasCanceladas(reservasPeriodo.stream().filter(r -> "cancelada".equals(r.getEstado())).count());
+        reporte.setReservasFinalizadas(reservasPeriodo.stream()
+                .filter(r -> "finalizada".equals(r.getEstado())).count());
+        reporte.setReservasCanceladas(reservasPeriodo.stream()
+                .filter(r -> "cancelada".equals(r.getEstado())).count());
 
+        // ========================
+        // INGRESO ESTIMADO (suma de precioReferencial de reservas finalizadas)
+        // ========================
+        BigDecimal ingreso = reservasPeriodo.stream()
+                .filter(r -> "finalizada".equals(r.getEstado()))
+                .filter(r -> r.getSolicitud() != null
+                        && r.getSolicitud().getServicio() != null)
+                .map(r -> BigDecimal.valueOf(
+                        r.getSolicitud().getServicio().getPrecioReferencial() != null
+                                ? r.getSolicitud().getServicio().getPrecioReferencial()
+                                : 0.0))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        reporte.setIngresoEstimado(ingreso);
+
+        // ========================
+        // USUARIOS NUEVOS (por periodo y por rol)
+        // ========================
         List<Usuario> usuariosPeriodo = usuarioRepository.findAll()
                 .stream()
                 .filter(u -> u.getFechaRegistro() != null
@@ -269,6 +317,40 @@ public class AdminService {
 
         reporte.setNuevosUsuarios((long) usuariosPeriodo.size());
 
+        reporte.setNuevosPrestadores(usuariosPeriodo.stream()
+                .filter(u -> u.getRol() != null && "PRESTADOR".equals(u.getRol().getNombre()))
+                .count());
+
+        reporte.setNuevosClientes(usuariosPeriodo.stream()
+                .filter(u -> u.getRol() != null && "CLIENTE".equals(u.getRol().getNombre()))
+                .count());
+
+        // ========================
+        // VALIDACION DE PRESTADORES (por periodo de registro)
+        // ========================
+        List<Prestador> prestadoresPeriodo = prestadorRepository.findAll()
+                .stream()
+                .filter(p -> p.getUsuario() != null
+                        && p.getUsuario().getFechaRegistro() != null
+                        && p.getUsuario().getFechaRegistro().isAfter(fechaInicio)
+                        && p.getUsuario().getFechaRegistro().isBefore(fechaFin))
+                .collect(Collectors.toList());
+
+        reporte.setPrestadoresValidados(prestadoresPeriodo.stream()
+                .filter(p -> "validado".equals(p.getEstadoValidacion()))
+                .count());
+
+        reporte.setPrestadoresPendientes(prestadoresPeriodo.stream()
+                .filter(p -> "pendiente".equals(p.getEstadoValidacion()))
+                .count());
+
+        reporte.setPrestadoresRechazados(prestadoresPeriodo.stream()
+                .filter(p -> "rechazado".equals(p.getEstadoValidacion()))
+                .count());
+
+        // ========================
+        // RESENAS
+        // ========================
         List<Resena> resenasPeriodo = resenaRepository.findAll()
                 .stream()
                 .filter(r -> r.getFechaResena().isAfter(fechaInicio)

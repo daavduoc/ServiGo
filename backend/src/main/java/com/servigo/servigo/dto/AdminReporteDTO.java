@@ -27,4 +27,7 @@ public class AdminReporteDTO {
     private Long totalReseñas;
     private String especialidadMasUtilizada;
     private Integer solicitudesPorEspecialidad;
+    private Long prestadoresValidados;
+    private Long prestadoresPendientes;
+    private Long prestadoresRechazados;
 }
