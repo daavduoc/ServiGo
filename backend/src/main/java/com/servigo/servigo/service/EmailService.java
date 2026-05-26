@@ -82,4 +82,104 @@ public class EmailService {
             log.error("Fallo envío async de verificación a {}: {}", destinatario, e.getMessage());
         }
     }
+
+    public void enviarCitaConfirmadaCliente(
+            String destinatario,
+            String nombreCliente,
+            String nombreEspecialista,
+            String servicio,
+            String fechaHora,
+            String direccion
+    ) {
+        String saludo = (nombreCliente != null && !nombreCliente.isBlank())
+                ? "Hola " + nombreCliente.trim() + ","
+                : "Hola,";
+        String asunto = "ServiGo - Tu cita fue confirmada";
+        String cuerpo = """
+                %s
+
+                ¡Buenas noticias! %s confirmó tu cita en ServiGo.
+
+                Servicio: %s
+                Fecha y hora: %s
+                Dirección de atención: %s
+
+                Puedes revisar el detalle en la app, sección "Mis Horas y Reservas".
+
+                Gracias por confiar en ServiGo.
+                """.formatted(
+                saludo,
+                nombreEspecialista,
+                servicio,
+                fechaHora,
+                direccion
+        );
+        enviarCorreo(destinatario, asunto, cuerpo);
+    }
+
+    public void enviarCitaRechazadaCliente(
+            String destinatario,
+            String nombreCliente,
+            String nombreEspecialista,
+            String servicio,
+            String fechaHora
+    ) {
+        String saludo = (nombreCliente != null && !nombreCliente.isBlank())
+                ? "Hola " + nombreCliente.trim() + ","
+                : "Hola,";
+        String asunto = "ServiGo - Actualización de tu solicitud de cita";
+        String cuerpo = """
+                %s
+
+                Lamentamos informarte que %s no pudo aceptar tu solicitud de cita.
+
+                Servicio: %s
+                Fecha solicitada: %s
+
+                Puedes buscar otro especialista o elegir otra fecha en ServiGo.
+
+                Gracias por tu comprensión.
+                """.formatted(
+                saludo,
+                nombreEspecialista,
+                servicio,
+                fechaHora
+        );
+        enviarCorreo(destinatario, asunto, cuerpo);
+    }
+
+    @Async
+    public void enviarCitaConfirmadaClienteAsync(
+            String destinatario,
+            String nombreCliente,
+            String nombreEspecialista,
+            String servicio,
+            String fechaHora,
+            String direccion
+    ) {
+        try {
+            enviarCitaConfirmadaCliente(
+                    destinatario, nombreCliente, nombreEspecialista, servicio, fechaHora, direccion
+            );
+        } catch (RuntimeException e) {
+            log.error("Fallo envío async de cita confirmada a {}: {}", destinatario, e.getMessage());
+        }
+    }
+
+    @Async
+    public void enviarCitaRechazadaClienteAsync(
+            String destinatario,
+            String nombreCliente,
+            String nombreEspecialista,
+            String servicio,
+            String fechaHora
+    ) {
+        try {
+            enviarCitaRechazadaCliente(
+                    destinatario, nombreCliente, nombreEspecialista, servicio, fechaHora
+            );
+        } catch (RuntimeException e) {
+            log.error("Fallo envío async de cita rechazada a {}: {}", destinatario, e.getMessage());
+        }
+    }
 }

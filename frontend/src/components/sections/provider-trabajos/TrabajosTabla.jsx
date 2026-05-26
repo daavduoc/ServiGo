@@ -2,7 +2,7 @@
 import React from 'react';
 
 // Inicio seccion de tabla de trabajos aceptados
-export const TrabajosTabla = ({ loading, backendOffline, trabajos }) => {
+export const TrabajosTabla = ({ loading, backendOffline, trabajos, hayPendientes = false }) => {
 
   // Inicio seccion de estado de carga
   if (loading) {
@@ -57,7 +57,17 @@ export const TrabajosTabla = ({ loading, backendOffline, trabajos }) => {
                   </td>
                   <td>{t.direccionAtencion || '—'}</td>
                   <td>{t.fechaPreferida || '—'}</td>
-                  <td><span className="badge bg-success">{t.estado || '—'}</span></td>
+                  <td>
+                    <span
+                      className={`badge ${
+                        (t.estado || '').toLowerCase().includes('confirm')
+                          ? 'bg-success'
+                          : 'bg-secondary'
+                      }`}
+                    >
+                      {t.estado || '—'}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -65,8 +75,9 @@ export const TrabajosTabla = ({ loading, backendOffline, trabajos }) => {
         </div>
       ) : (
         <div className="alert alert-info border-0 shadow-sm mb-0">
-          Aún no tienes trabajos confirmados. Cuando un cliente solicite uno de tus servicios,
-          aparecerá aquí :D.
+          {hayPendientes
+            ? 'Confirma las citas de la sección superior para que aparezcan aquí.'
+            : 'Aún no tienes trabajos confirmados. Cuando aceptes una solicitud, aparecerá en esta agenda.'}
         </div>
       )}
     </div>

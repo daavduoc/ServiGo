@@ -143,6 +143,7 @@ function App() {
               <Route path="/prestador/mis-servicios" element={<ProviderTrabajosPage />} />
               <Route path="/prestador/perfil" element={<ProviderPerfilPage />} />
               <Route path="/prestador/soporte" element={<SupportView />} />
+              <Route path="/prestador/notificaciones" element={<NotificationsView />} />
             </Route>
             {/*fin rutas del prestador de servicio */}
 

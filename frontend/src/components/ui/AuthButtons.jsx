@@ -30,7 +30,7 @@ export const AuthButtons = () => {
         ) : (
           <>
             <Link
-              to="/notificaciones"
+              to={esPrestador ? '/prestador/notificaciones' : '/notificaciones'}
               className="text-dark position-relative hover-success"
               title="Notificaciones"
               onClick={() => setHayNotificacionesNuevas(false)}

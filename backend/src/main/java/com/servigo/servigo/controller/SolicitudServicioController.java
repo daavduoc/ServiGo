@@ -1,12 +1,24 @@
 package com.servigo.servigo.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.servigo.servigo.dto.AceptarSolicitudPrestadorDTO;
 import com.servigo.servigo.dto.PrestadorTrabajoDTO;
 import com.servigo.servigo.entity.SolicitudServicio;
 import com.servigo.servigo.service.SolicitudServicioService;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/solicitudes")
@@ -23,9 +35,64 @@ public class SolicitudServicioController {
         return solicitudService.listarSolicitudes();
     }
 
+    @GetMapping("/prestador/nuevas")
+    public ResponseEntity<?> nuevasSolicitudesPrestador(Authentication authentication) {
+        try {
+            List<PrestadorTrabajoDTO> data = solicitudService.listarSolicitudesPendientesPrestador(
+                    authentication.getName()
+            );
+            return ResponseEntity.ok(data);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/prestador/mis-trabajos")
-    public List<PrestadorTrabajoDTO> misTrabajosPrestador(Authentication authentication) {
-        return solicitudService.listarTrabajosPrestadorAutenticado(authentication.getName());
+    public ResponseEntity<?> misTrabajosPrestador(Authentication authentication) {
+        try {
+            List<PrestadorTrabajoDTO> data = solicitudService.listarTrabajosPrestadorAutenticado(
+                    authentication.getName()
+            );
+            return ResponseEntity.ok(data);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/prestador/{id}/aceptar")
+    public ResponseEntity<?> aceptarSolicitudPrestador(
+            @PathVariable Long id,
+            @RequestBody(required = false) AceptarSolicitudPrestadorDTO dto,
+            Authentication authentication
+    ) {
+        try {
+            PrestadorTrabajoDTO trabajo = solicitudService.aceptarSolicitudPrestador(
+                    id, authentication.getName(), dto != null ? dto : new AceptarSolicitudPrestadorDTO()
+            );
+            return ResponseEntity.ok(Map.of(
+                    "mensaje", "Solicitud confirmada correctamente",
+                    "trabajo", trabajo
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/prestador/{id}/rechazar")
+    public ResponseEntity<?> rechazarSolicitudPrestador(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        try {
+            solicitudService.rechazarSolicitudPrestador(id, authentication.getName());
+            return ResponseEntity.ok(Map.of("mensaje", "Solicitud rechazada correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")
