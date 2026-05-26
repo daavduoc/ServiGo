@@ -5,6 +5,7 @@ export const API_URL_USUARIOS = `${API_BASE_URL}/usuarios`;
 export const API_URL_CLOUDINARY = `${API_BASE_URL}/cloudinary`;
 export const API_URL_SOLICITUDES = `${API_BASE_URL}/solicitudes`;
 export const API_URL_RESERVAS = `${API_BASE_URL}/reservas`;
+export const API_URL_SOPORTE = `${API_BASE_URL}/soporte`;
 
 export const isNetworkError = (error) =>
   error instanceof TypeError && error.message === 'Failed to fetch';

@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/especialidades/**").permitAll()
                 // Admin only
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Authenticated users (soporte)
+                .requestMatchers("/soporte/**").authenticated()
                 // Everything else requires authentication
                 .anyRequest().authenticated()
             )

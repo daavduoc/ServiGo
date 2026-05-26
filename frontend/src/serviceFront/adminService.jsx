@@ -127,3 +127,40 @@ export const obtenerAuditoria = async (page = 0, size = 10, accion = '', tabla =
     method: 'GET'
   });
 };
+
+// ========================
+// SOPORTE / MENSAJES (ADMIN)
+// ========================
+
+export const listarMensajesSoporteAdmin = async ({ estado, rol } = {}) => {
+  const params = new URLSearchParams();
+  if (estado) params.set('estado', estado);
+  if (rol) params.set('rol', rol);
+
+  const query = params.toString();
+  const url = query
+    ? `${API_BASE_URL}/admin/soporte/mensajes?${query}`
+    : `${API_BASE_URL}/admin/soporte/mensajes`;
+
+  return fetchRequest(url, { method: 'GET' });
+};
+
+export const actualizarEstadoMensajeAdmin = async (id, estado) => {
+  return fetchRequest(`${API_BASE_URL}/admin/soporte/mensajes/${id}/estado`, {
+    method: 'PUT',
+    body: JSON.stringify({ estado }),
+  });
+};
+
+export const responderMensajeAdmin = async (id, respuesta) => {
+  return fetchRequest(`${API_BASE_URL}/admin/soporte/mensajes/${id}/respuesta`, {
+    method: 'POST',
+    body: JSON.stringify({ respuesta }),
+  });
+};
+
+export const eliminarMensajeAdmin = async (id) => {
+  return fetchRequest(`${API_BASE_URL}/admin/soporte/mensajes/${id}`, {
+    method: 'DELETE',
+  });
+};

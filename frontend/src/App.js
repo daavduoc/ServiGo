@@ -51,7 +51,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './components/view/AdminDashboard';
 import AdminUsuariosView from './components/view/AdminUsuariosView';
 import AdminPrestadoresView from './components/view/AdminPrestadoresView';
-import AdminServiciosView from './components/view/AdminServiciosView';
+import AdminSoporteView from './components/view/AdminSoporteView';
 import AdminSolicitudesView from './components/view/AdminSolicitudesView';
 import AdminReportesView from './components/view/AdminReportesView';
 import AdminAuditoriaView from './components/view/AdminAuditoriaView';
@@ -152,7 +152,7 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/usuarios" element={<AdminUsuariosView />} />
               <Route path="/admin/prestadores" element={<AdminPrestadoresView />} />
-              <Route path="/admin/servicios" element={<AdminServiciosView />} />
+              <Route path="/admin/soporte" element={<AdminSoporteView />} />
               <Route path="/admin/solicitudes" element={<AdminSolicitudesView />} />
               <Route path="/admin/reportes" element={<AdminReportesView />} />
               <Route path="/admin/auditoria" element={<AdminAuditoriaView />} />

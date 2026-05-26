@@ -4,6 +4,7 @@ import com.servigo.servigo.dto.AdminDashboardStatsDTO;
 import com.servigo.servigo.dto.AdminPrestadorValidacionDTO;
 import com.servigo.servigo.dto.AdminAuditoriaDTO;
 import com.servigo.servigo.dto.AdminUsuarioDTO;
+import com.servigo.servigo.dto.AdminMensajeSoporteDTO;
 import com.servigo.servigo.entity.Certificacion;
 import com.servigo.servigo.service.AdminService;
 import lombok.extern.slf4j.Slf4j;
@@ -277,6 +278,96 @@ public class AdminController {
             return ResponseEntity.ok(auditoria);
         } catch (Exception e) {
             log.error("Error al obtener auditoría", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ========================
+    // SOPORTE / MENSAJES (ADMIN)
+    // ========================
+
+    @GetMapping("/soporte/mensajes")
+    public ResponseEntity<?> listarMensajesSoporte(
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String rol,
+            Authentication authentication) {
+        log.info("Admin {} consultó mensajes de soporte - estado: {}, rol: {}",
+                 authentication.getName(), estado, rol);
+        try {
+            List<AdminMensajeSoporteDTO> mensajes = adminService.listarMensajesSoporte(estado, rol);
+            return ResponseEntity.ok(mensajes);
+        } catch (Exception e) {
+            log.error("Error al listar mensajes de soporte", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/soporte/mensajes/{id}/estado")
+    public ResponseEntity<?> actualizarEstadoMensaje(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        log.info("Admin {} actualizó estado del mensaje {}", authentication.getName(), id);
+        try {
+            Long idAdmin = obtenerIdAdminDelToken(authentication);
+            String nuevoEstado = request.getOrDefault("estado", "en_proceso");
+            adminService.actualizarEstadoMensaje(id, nuevoEstado, idAdmin);
+            return ResponseEntity.ok(Map.of(
+                    "mensaje", "Estado actualizado exitosamente",
+                    "idMensaje", id.toString()
+            ));
+        } catch (RuntimeException e) {
+            log.warn("Error al actualizar estado del mensaje: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al actualizar estado del mensaje", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/soporte/mensajes/{id}/respuesta")
+    public ResponseEntity<?> responderMensaje(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        log.info("Admin {} respondió mensaje {}", authentication.getName(), id);
+        try {
+            Long idAdmin = obtenerIdAdminDelToken(authentication);
+            String respuesta = request.getOrDefault("respuesta", "");
+            if (respuesta.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "La respuesta no puede estar vacía"));
+            }
+            adminService.responderMensajeSoporte(id, respuesta, idAdmin);
+            return ResponseEntity.ok(Map.of(
+                    "mensaje", "Respuesta enviada exitosamente",
+                    "idMensaje", id.toString()
+            ));
+        } catch (RuntimeException e) {
+            log.warn("Error al responder mensaje: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al responder mensaje de soporte", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/soporte/mensajes/{id}")
+    public ResponseEntity<?> eliminarMensaje(
+            @PathVariable Long id,
+            Authentication authentication) {
+        log.info("Admin {} eliminó mensaje de soporte {}", authentication.getName(), id);
+        try {
+            Long idAdmin = obtenerIdAdminDelToken(authentication);
+            adminService.eliminarMensajeSoporte(id, idAdmin);
+            return ResponseEntity.ok(Map.of(
+                    "mensaje", "Mensaje eliminado exitosamente",
+                    "idMensaje", id.toString()
+            ));
+        } catch (RuntimeException e) {
+            log.warn("Error al eliminar mensaje: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al eliminar mensaje de soporte", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
