@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import ReporteDatePicker from '../ui/ReporteDatePicker';
+import ReportesFiltros from '../sections/admin-reportes/ReportesFiltros';
+import ReportesStatsGrid from '../sections/admin-reportes/ReportesStatsGrid';
+import ReportesAcciones from '../sections/admin-reportes/ReportesAcciones';
 import { generarReportePeriodo } from '../../serviceFront/adminService';
 import { generarReporteCSV } from '../../utils/ExportCSV';
 
@@ -13,10 +15,8 @@ const AdminReportesView = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const inicio = new Date(fechaInicio).toISOString();
-      const fin = new Date(fechaFin).toISOString();
-
+      const inicio = `${fechaInicio}T00:00:00`;
+      const fin = `${fechaFin}T23:59:59`;
       const data = await generarReportePeriodo(inicio, fin);
       setReporte(data);
       setPeriodo({ inicio: fechaInicio, fin: fechaFin });
@@ -28,7 +28,7 @@ const AdminReportesView = () => {
   };
 
   const handleExportarCSV = () => {
-    if (!reporte) return;
+    if (!reporte || !periodo) return;
     generarReporteCSV(reporte, periodo);
   };
 
@@ -38,64 +38,12 @@ const AdminReportesView = () => {
         <i className="bi bi-bar-chart-line" aria-hidden="true" />
         Generador de Reportes
       </h2>
-
-      <div className="reportes-section">
-        <h2>Seleccionar Período</h2>
-        <ReporteDatePicker onApply={handleGenerarReporte} />
-      </div>
-
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      {loading && <p>Generando reporte...</p>}
-
+      <ReportesFiltros onApply={handleGenerarReporte} loading={loading} error={error} />
       {reporte && (
-        <div className="reportes-results">
-          <h2>Resultados del Período: {periodo.inicio} - {periodo.fin}</h2>
-
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3>Usuarios Nuevos</h3>
-              <p className="stat-value">{reporte.totalUsuariosNuevos || 0}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Prestadores Nuevos</h3>
-              <p className="stat-value">{reporte.totalPrestadoresNuevos || 0}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Total Solicitudes</h3>
-              <p className="stat-value">{reporte.totalSolicitudes || 0}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Solicitudes Completadas</h3>
-              <p className="stat-value">{reporte.solicitudesCompletadas || 0}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Ingresos Totales</h3>
-              <p className="stat-value">💰 ${reporte.ingresosTotales || 0}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Comisión</h3>
-              <p className="stat-value">💰 ${reporte.comisionTotales || 0}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Calificación Promedio</h3>
-              <p className="stat-value">⭐ {(reporte.calificacionPromedio || 0).toFixed(2)}</p>
-            </div>
-          </div>
-
-          <div className="reportes-actions">
-            <button type="button" className="btn btn-success rounded-pill px-4 fw-semibold" onClick={handleExportarCSV}>
-              <i className="bi bi-download me-2" aria-hidden="true" />
-              Descargar CSV
-            </button>
-          </div>
-        </div>
+        <>
+          <ReportesStatsGrid reporte={reporte} />
+          <ReportesAcciones onExport={handleExportarCSV} periodo={periodo} />
+        </>
       )}
     </div>
   );

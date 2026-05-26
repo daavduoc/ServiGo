@@ -961,3 +961,91 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================
+   REPORTES MEJORADOS
+   ======================== */
+
+.admin-reportes .reportes-section-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.reportes-category {
+  margin-bottom: 1.5rem;
+}
+
+.reportes-category:last-child {
+  margin-bottom: 0;
+}
+
+.category-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--servigo-green, #198754);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card-header i {
+  color: var(--servigo-green, #198754);
+  font-size: 1rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.nd-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: help;
+}
+
+.reportes-loading {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.reportes-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.periodo-info {
+  font-size: 0.9rem;
+  color: #495057;
+}
