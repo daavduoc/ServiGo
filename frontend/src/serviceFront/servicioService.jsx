@@ -56,3 +56,54 @@ export const subirFotoVerificacionServicio = async (userId, fileBase64) => {
 
   return response.json();
 };
+
+// Función para obtener todos los servicios (sin autenticación de momento)
+
+export const getTodosLosServicios = async () => {
+  const response = await fetch(API_URL_SERVICIOS, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al obtener los servicios desde el servidor');
+  }
+
+  return response.json();
+};
+
+export const actualizarServicioCompleto = async (idServicio, servicioData) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión vencida. Inicia sesión nuevamente.');
+  }
+
+  const response = await fetch(`${API_URL_SERVICIOS}/${idServicio}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(false),
+    body: JSON.stringify(servicioData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al actualizar el servicio en el servidor');
+  }
+
+  return response.json();
+};
+
+export const eliminarServicio = async (idServicio) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión vencida. Inicia sesión nuevamente.');
+  }
+
+  const response = await fetch(`${API_URL_SERVICIOS}/${idServicio}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(false),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al eliminar el servicio');
+  }
+
+  return true;
+};
