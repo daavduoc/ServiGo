@@ -35,13 +35,13 @@ public class DisponibilidadService {
     // POST: crear
     public Disponibilidad crearDisponibilidad(Disponibilidad disponibilidad) {
 
-        // 🔥 VALIDACIÓN
+        //  VALIDACIÓN
         if (disponibilidad.getPrestador() == null ||
             disponibilidad.getPrestador().getIdPrestador() == null) {
             throw new RuntimeException("Debe enviar idPrestador");
         }
 
-        // 🔥 BUSCAR prestador real en BD
+        //  BUSCAR prestador real en BD
         Prestador prestador = prestadorRepository
                 .findById(disponibilidad.getPrestador().getIdPrestador())
                 .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
@@ -82,5 +82,30 @@ public class DisponibilidadService {
             throw new RuntimeException("Disponibilidad no encontrada");
         }
         disponibilidadRepository.deleteById(id);
+    }
+
+
+
+    public List<Disponibilidad> crearDisponibilidades(List<Disponibilidad> disponibilidades) {
+
+    for (Disponibilidad disponibilidad : disponibilidades) {
+
+        if (disponibilidad.getPrestador() == null ||
+            disponibilidad.getPrestador().getIdPrestador() == null) {
+            throw new RuntimeException("Debe enviar idPrestador");
+        }
+
+        Prestador prestador = prestadorRepository
+                .findById(disponibilidad.getPrestador().getIdPrestador())
+                .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
+
+        disponibilidad.setPrestador(prestador);
+
+        if (disponibilidad.getEstado() == null || disponibilidad.getEstado().isBlank()) {
+            disponibilidad.setEstado("activo");
+        }
+    }
+
+    return disponibilidadRepository.saveAll(disponibilidades);
     }
 }
