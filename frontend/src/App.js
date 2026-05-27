@@ -43,9 +43,12 @@ import { ProviderTrabajosPage }         from './components/view/provider/Provide
 import { ProviderPerfilPage }           from './components/view/provider/ProviderPerfilPage';
 // Importamos la vista para ingresar servicios del prestador
 import { ProviderIngresarServicioPage } from './components/view/provider/ProviderIngresarServicioPage';
+// Importamos la vista para gestionar servicios del prestador
+import { ProviderGestionarServiciosPage } from './components/view/provider/ProviderGestionarServiciosPage';
 
 import { ClientLayout } from './components/ui/ClientLayout';
 import { ProviderLayout } from './components/ui/ProviderLayout';
+
 // Importamos el layout y vistas del admin
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './components/view/AdminDashboard';
@@ -139,6 +142,9 @@ function App() {
               
               {/*  formulario para ingresar servicio */}
               <Route path="/prestador/ingresar-servicio" element={<ProviderIngresarServicioPage />} />
+              
+              {/*  gestión de servicios del prestador */}
+              <Route path="/prestador/gestionar-servicios" element={<ProviderGestionarServiciosPage />} />
               
               <Route path="/prestador/mis-servicios" element={<ProviderTrabajosPage />} />
               <Route path="/prestador/perfil" element={<ProviderPerfilPage />} />

@@ -22,6 +22,7 @@ public class PerfilUsuarioDTO {
     private String estado;
     private String rol;
 
+    private Long idPrestador;
     private String tipoPrestador;
     private String categoriaPrestador;
     private String nombreEmpresa;

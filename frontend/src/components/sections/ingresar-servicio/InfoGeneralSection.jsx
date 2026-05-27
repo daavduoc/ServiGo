@@ -1,12 +1,11 @@
-// section para ingresar la informacion general del servicio, como el nombre, area, precio, modalidad y descripcion
 import React from 'react';
 
 export const InfoGeneralSection = ({
   nombre, setNombre,
-  area, setArea,
+  area,
   precio, setPrecio,
   modalidad, setModalidad,
-  descripcion, setDescripcion
+  descripcion, setDescripcion,
 }) => {
   return (
     <div className="card border-0 shadow-sm p-4 mb-4 bg-white animate__animated animate__fadeIn">
@@ -29,14 +28,14 @@ export const InfoGeneralSection = ({
         </div>
 
         <div className="col-md-6">
-          <label className="form-label fw-bold">Área de Servicio</label>
+          <label className="form-label fw-bold">Área / Especialidad</label>
           <input
             type="text"
-            className="form-control"
-            placeholder="Ej: Tecnología"
+            className="form-control bg-light text-secondary fw-semibold"
             value={area}
-            onChange={(e) => setArea(e.target.value)}
-            required
+            disabled
+            readOnly
+            placeholder="Sin especialidad asignada"
           />
         </div>
 

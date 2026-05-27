@@ -93,6 +93,20 @@ export const ProfileDetails = ({ profileData, setProfileData, isEditing, esEmpre
         </div>
       </div>
 
+      {/* ESPECIALIDAD (solo lectura) */}
+      {profileData?.especialidad && (
+        <div className="col-12">
+          <label className="form-label text-muted small fw-bold text-uppercase">Especialidad</label>
+          <input
+            type="text"
+            className="form-control bg-light text-secondary fw-semibold border-0"
+            value={profileData.especialidad}
+            disabled
+            readOnly
+          />
+        </div>
+      )}
+
       <h5 className="text-success fw-bold mb-4 mt-2 text-uppercase border-bottom pb-2">
         <i className="bi bi-geo-alt me-2"></i>Ubicación de Operaciones
       </h5>

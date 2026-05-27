@@ -37,9 +37,12 @@ export const VerificacionSection = ({ fotoCapturada, setFotoCapturada }) => {
         </div>
 
         <div className="flex-grow-1">
-          <h5 className="fw-bold mb-1 text-dark">Foto de Verificación Requerida</h5>
+          <h5 className="fw-bold mb-1 text-dark">
+            Foto de Verificación
+            {!fotoCapturada && <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.7rem' }}>Opcional</span>}
+          </h5>
           <p className="text-secondary small mb-3">
-            Para generar el servicio necesita una foto actual de verificación biométrica para su seguridad y la de sus clientes.
+            Tomarse una foto de verificación biométrica refuerza la confianza de sus clientes. Puede omitirla por ahora si lo desea.
           </p>
           <button
             type="button"

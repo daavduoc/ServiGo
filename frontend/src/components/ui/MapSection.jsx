@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -15,7 +14,9 @@ const DefaultIcon = L.icon({
 
 function ChangeView({ center }) {
   const map = useMap();
-  map.setView(center, 15, { animate: true, duration: 1.5 });
+  useEffect(() => {
+    map.setView(center, 15, { animate: true, duration: 1.5 });
+  }, [map, center]);
   return null;
 }
 
@@ -38,6 +39,8 @@ function MapFocusGuard() {
   return null;
 }
 
+const DEFAULT_POSITION = [-33.4489, -70.6693];
+
 export const MapSection = ({
   label,
   fullAddress,
@@ -45,12 +48,24 @@ export const MapSection = ({
   mapHint,
   mapClassName = '',
   allowMarkerDrag = false,
+  initialPosition,
 }) => {
-  const [position, setPosition] = useState([-33.4489, -70.6693]);
+  const startingPos = initialPosition
+    ? [initialPosition.lat, initialPosition.lng]
+    : DEFAULT_POSITION;
+
+  const [position, setPosition] = useState(startingPos);
   const [isSearching, setIsSearching] = useState(false);
 
+  const notifyCoords = useCallback((lat, lng) => {
+    onCoordsChange({ lat, lng });
+  }, [onCoordsChange]);
+
   useEffect(() => {
-    const direccionLimpia = fullAddress.replace(/,\s*,/g, ',').trim();
+    const direccionLimpia = fullAddress
+      .replace(/,\s*,/g, ',')
+      .replace(/^[\s,]+/, '')
+      .trim();
 
     if (direccionLimpia.length < 10) return;
 
@@ -64,9 +79,11 @@ export const MapSection = ({
         const data = await response.json();
 
         if (data && data[0]) {
-          const newPos = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          const newPos = [lat, lng];
           setPosition(newPos);
-          onCoordsChange({ lat: newPos[0], lng: newPos[1] });
+          notifyCoords(lat, lng);
         }
       } catch (error) {
         console.error('Error al buscar dirección:', error);
@@ -76,13 +93,13 @@ export const MapSection = ({
     }, 1500);
 
     return () => clearTimeout(temporizador);
-  }, [fullAddress, onCoordsChange]);
+  }, [fullAddress, notifyCoords]);
 
   const handleMarkerDragEnd = (e) => {
     const { lat, lng } = e.target.getLatLng();
     const newPos = [lat, lng];
     setPosition(newPos);
-    onCoordsChange({ lat, lng });
+    notifyCoords(lat, lng);
   };
 
   return (
