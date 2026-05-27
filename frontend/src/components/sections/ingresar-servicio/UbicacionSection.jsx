@@ -5,7 +5,8 @@ import { MapSection } from '../../ui/MapSection';
 export const UbicacionSection = ({ user, coordenadas, setCoordenadas }) => {
   const region = user?.region || '';
   const comuna = user?.comuna || '';
-  const direccion = user?.direccion || '';
+  // Ajuste: usar direccionLocal que es el campo real del perfil del prestador
+  const direccion = user?.direccionLocal || user?.direccion || '';
 
   return (
     <div className="card border-0 shadow-sm p-4 mb-4 bg-white animate__animated animate__fadeIn">
@@ -47,11 +48,13 @@ export const UbicacionSection = ({ user, coordenadas, setCoordenadas }) => {
         </div>
       </div>
 
+      {/* Enviamos manualLoad={true} para que este mapa requiera confirmación manual */}
       <MapSection
         label="Ubicación Prestador Aproximada"
         fullAddress={`${direccion}, ${comuna}, ${region}, Chile`}
         onCoordsChange={(coords) => setCoordenadas(coords)}
         allowMarkerDrag={true}
+        manualLoad={true}
         mapHint="El marcador del mapa se genera en base a tu dirección de perfil registrada"
       />
     </div>
