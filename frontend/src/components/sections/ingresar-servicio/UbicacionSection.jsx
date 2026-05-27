@@ -1,4 +1,3 @@
-// section para ingresar la ubicación del servicio, mostrando la región, comuna y dirección del perfil del usuario, con un mapa para ajustar la ubicación aproximada
 import React from 'react';
 import { MapSection } from '../../ui/MapSection';
 
@@ -7,8 +6,12 @@ export const UbicacionSection = ({ user, coordenadas, setCoordenadas }) => {
   const comuna = user?.comuna || '';
   const direccion = user?.direccion || '';
 
+  const initialPosition = (user?.latitud != null && user?.longitud != null)
+    ? { lat: user.latitud, lng: user.longitud }
+    : null;
+
   return (
-    <div className="card border-0 shadow-sm p-4 mb-4 bg-white animate__animated animate__fadeIn">
+    <div className="card border-0 shadow-sm p-4 mb-4 bg-white">
       <h4 className="profile-panel-title mb-4">
         <i className="bi bi-geo-alt" />
         Ubicación del Servicio
@@ -50,9 +53,10 @@ export const UbicacionSection = ({ user, coordenadas, setCoordenadas }) => {
       <MapSection
         label="Ubicación Prestador Aproximada"
         fullAddress={`${direccion}, ${comuna}, ${region}, Chile`}
-        onCoordsChange={(coords) => setCoordenadas(coords)}
+        onCoordsChange={setCoordenadas}
         allowMarkerDrag={true}
         mapHint="El marcador del mapa se genera en base a tu dirección de perfil registrada"
+        initialPosition={initialPosition}
       />
     </div>
   );

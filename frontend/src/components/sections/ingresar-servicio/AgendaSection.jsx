@@ -171,6 +171,8 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
         fecha:      null,
         horaInicio,
         horaFin,
+        mes:        mesVista,
+        anio:       anioVista,
       });
     });
 
@@ -270,7 +272,8 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                   </span>
                 ) : (
                   <span className="badge bg-success me-2" style={{ fontSize: '0.78rem' }}>
-                    {DIAS_SEMANA.find((d) => d.value === regla.diaSemana)?.label ?? regla.diaSemana}
+                    Cada {DIAS_SEMANA.find((d) => d.value === regla.diaSemana)?.label ?? regla.diaSemana}
+                    {regla.mes != null && regla.anio != null && ` de ${MESES[regla.mes]}`}
                   </span>
                 )}
                 <span className="small fw-semibold text-dark" style={{ textDecoration: regla.excluido ? 'line-through' : 'none' }}>

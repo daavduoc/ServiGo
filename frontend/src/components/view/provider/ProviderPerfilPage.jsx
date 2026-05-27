@@ -19,15 +19,17 @@ import '../../../assets/css/provider-views.css';
 
 // invoca losd atos del perfil del prestador y llos datos de formulario, asegurando que no haya campos undefined
 const mapPerfilToForm = (datos) => ({
-  rut:          datos.rut           || '',
-  nombre:       datos.nombre        || '',
-  apellido:     datos.apellido      || '',
-  correo:       datos.correo        || '',
-  telefono:     datos.telefono      || '',
-  region:       datos.region        || '',
-  comuna:       datos.comuna        || '',
-  direccion:    datos.direccionLocal || datos.direccion || '',
-  tipoPrestador:(datos.tipoPrestador || 'particular').toLowerCase(),
+  rut:              datos.rut              || '',
+  nombre:           datos.nombre           || '',
+  apellido:         datos.apellido         || '',
+  correo:           datos.correo           || '',
+  telefono:         datos.telefono         || '',
+  region:           datos.region           || '',
+  comuna:           datos.comuna           || '',
+  direccion:        datos.direccionLocal   || datos.direccion || '',
+  tipoPrestador:   (datos.tipoPrestador   || 'particular').toLowerCase(),
+  especialidad:     datos.especialidad     || '',
+  categoriaPrestador: datos.categoriaPrestador || '',
 });
 
 export const ProviderPerfilPage = () => {
@@ -45,6 +47,7 @@ export const ProviderPerfilPage = () => {
   const [formData,       setFormData]       = useState({
     rut: '', nombre: '', apellido: '', correo: '',
     telefono: '', region: '', comuna: '', direccion: '', tipoPrestador: 'particular',
+    especialidad: '', categoriaPrestador: '',
   });
   const [savedSnapshot, setSavedSnapshot] = useState(null);
   // Fin seccion de estado del perfil
