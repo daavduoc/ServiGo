@@ -4,6 +4,7 @@ import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
 import { authValidations } from '../../../utils/authValidations';
 import { registrarUsuario, registrarUsuarioConFoto } from '../../../serviceFront/authService';
+import { BiometricCaptureModal } from '../../camera/BiometricCaptureModal';
 import '../../../assets/css/registro-cliente.css';
 
 export const ClientRegisterView = () => {
@@ -29,6 +30,9 @@ export const ClientRegisterView = () => {
   const [confirmContrasena, setConfirmContrasena] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fotoBiometrica, setFotoBiometrica] = useState(null);
+  const [isBiometricModalOpen, setIsBiometricModalOpen] = useState(false);
+  const [biometricRejected, setBiometricRejected] = useState(false);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
@@ -56,6 +60,10 @@ export const ClientRegisterView = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!fotoBiometrica) {
+      return setError('Debes tomar tu foto biométrica antes de continuar.');
+    }
+
     if (formData.contrasena !== confirmContrasena) {
       return setError('Las contraseñas no coinciden.');
     }
@@ -81,6 +89,7 @@ export const ClientRegisterView = () => {
         latitud: formData.latitud ? Number(formData.latitud) : null,
         longitud: formData.longitud ? Number(formData.longitud) : null,
         tipoUsuario: 'CLIENTE',
+        fotoBiometrica,
       };
 
       let registroResponse;
@@ -131,6 +140,54 @@ export const ClientRegisterView = () => {
               confirmContrasena={confirmContrasena}
               onConfirmPasswordChange={handleConfirmPasswordChange}
             />
+
+            <div className="card shadow-sm rounded-4 border-0 mb-4 p-4">
+              <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                  <p className="text-uppercase small text-secondary fw-semibold mb-2">Foto biométrica obligatoria</p>
+                  <p className="mb-0 small text-muted">
+                    Esta foto se usará únicamente para validar tu identidad en el futuro. No es la misma que tu foto de perfil y nadie más la verá.
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-success btn-sm"
+                    onClick={() => {
+                      setIsBiometricModalOpen(true);
+                      setBiometricRejected(false);
+                      if (error) setError(null);
+                    }}
+                    style={{ minWidth: '120px' }}
+                  >
+                    {fotoBiometrica ? 'Repetir foto' : 'Tomar foto'}
+                  </button>
+                </div>
+              </div>
+              {fotoBiometrica ? (
+                <div className="d-flex align-items-center gap-3">
+                  <img
+                    src={fotoBiometrica}
+                    alt="Foto biométrica tomada"
+                    className="rounded-4 shadow-sm"
+                    style={{ width: '110px', height: '110px', objectFit: 'cover', transform: 'scaleX(-1)' }}
+                  />
+                  <div>
+                    <p className="mb-1 fw-semibold">Foto biométrica lista</p>
+                    <p className="mb-0 small text-success">Puedes continuar con el registro.</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="mb-0 small text-muted">
+                  Presiona "Tomar foto" y sigue las instrucciones en la cámara.
+                </p>
+              )}
+              {biometricRejected && (
+                <div className="alert alert-warning mt-3 mb-0" role="alert">
+                  Si rechazas la foto no podrás registrarte.
+                </div>
+              )}
+            </div>
 
             <h5 className="registro-section-title">Verificación de geolocalización</h5>
             <div className="registro-cliente-geo-search mb-2">
@@ -186,6 +243,22 @@ export const ClientRegisterView = () => {
           <i className="bi bi-lock-fill" aria-hidden="true" />
           Tus datos están protegidos y se usan solo para mejorar tu experiencia en ServiGo.
         </p>
+
+        <BiometricCaptureModal
+          isOpen={isBiometricModalOpen}
+          onClose={() => setIsBiometricModalOpen(false)}
+          onConfirm={(foto) => {
+            setFotoBiometrica(foto);
+            setIsBiometricModalOpen(false);
+            if (error) setError(null);
+          }}
+          onReject={() => {
+            setBiometricRejected(true);
+            setFotoBiometrica(null);
+            setIsBiometricModalOpen(false);
+            if (error) setError(null);
+          }}
+        />
       </form>
     </CardContainer>
   );
