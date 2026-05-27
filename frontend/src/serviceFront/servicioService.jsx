@@ -146,3 +146,22 @@ export const eliminarServicio = async (idServicio) => {
 
   return true;
 };
+
+// Función para obtener todas las disponibilidades (sin autenticación de momento) que genera le prestador de servicio
+export const getTodasLasDisponibilidades = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión vencida. Inicia sesión nuevamente.');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/disponibilidad`, {
+    method: 'GET',
+    headers: getAuthHeaders(false),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al cargar las disponibilidades');
+  }
+
+  return response.json();
+};

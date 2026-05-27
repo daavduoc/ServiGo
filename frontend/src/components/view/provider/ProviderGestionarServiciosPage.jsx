@@ -1,4 +1,4 @@
-//pagina para que el prestador de servicio controle sus servicios generados
+// Página para que el prestador de servicio controle sus servicios generados
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -6,15 +6,50 @@ import { CardContainer } from '../../ui/CardContainer';
 import {
   getTodosLosServicios,
   actualizarServicioCompleto,
-  eliminarServicio
+  eliminarServicio,
+  getTodasLasDisponibilidades // <-- Importamos para cargar horarios
 } from '../../../serviceFront/servicioService';
 import '../../../assets/css/provider-views.css';
+
+// Función auxiliar para obtener el día del mes y mes correspondientes en la semana actual
+const obtenerFechaDiaSemana = (diaSemana) => {
+  const hoy = new Date();
+  const diaHoy = hoy.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+  
+  const mapaDias = {
+    'DOMINGO': 0,
+    'LUNES': 1,
+    'MARTES': 2,
+    'MIERCOLES': 3,
+    'JUEVES': 4,
+    'VIERNES': 5,
+    'SABADO': 6
+  };
+  
+  const diaObjetivo = mapaDias[diaSemana?.toUpperCase()];
+  if (diaObjetivo === undefined) return '';
+
+  // Ajustamos el día actual de la semana de modo que Lunes sea 1 y Domingo sea 7
+  const diaActualAjustado = diaHoy === 0 ? 7 : diaHoy;
+  const diaObjetivoAjustado = diaObjetivo === 0 ? 7 : diaObjetivo;
+  
+  const diferencia = diaObjetivoAjustado - diaActualAjustado;
+  
+  const fechaRes = new Date(hoy);
+  fechaRes.setDate(hoy.getDate() + diferencia);
+  
+  const dia = String(fechaRes.getDate()).padStart(2, '0');
+  const mes = String(fechaRes.getMonth() + 1).padStart(2, '0');
+  
+  return `(${dia}/${mes})`;
+};
 
 export const ProviderGestionarServiciosPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [servicios, setServicios] = useState([]);
+  const [disponibilidades, setDisponibilidades] = useState([]); //guardar los días y horas
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -39,8 +74,19 @@ export const ProviderGestionarServiciosPage = () => {
       const misServicios = todos.filter(
         (srv) => srv.prestador?.usuario?.idUsuario === user.idUsuario
       );
-      
       setServicios(misServicios);
+
+      // Carga y filtra la disponibilidad (días y horas) de este prestador
+      try {
+        const todasDisp = await getTodasLasDisponibilidades();
+        const misDisp = todasDisp.filter(
+          (d) => d.prestador?.usuario?.idUsuario === user.idUsuario && d.estado === 'activo'
+        );
+        setDisponibilidades(misDisp);
+      } catch (err) {
+        console.warn('No se pudieron obtener las disponibilidades:', err);
+      }
+
     } catch (err) {
       setErrorMsg(err.message || 'Error al obtener tus servicios.');
     } finally {
@@ -92,7 +138,6 @@ export const ProviderGestionarServiciosPage = () => {
       setErrorMsg('');
       setSuccessMsg('');
 
-      // Construimos el payload manteniendo el objeto completo de especialidad y prestador que venía de base de datos
       const payload = {
         ...editingServicio,
         nombre: editNombre.trim(),
@@ -176,6 +221,9 @@ export const ProviderGestionarServiciosPage = () => {
         <div className="row g-4 animate__animated animate__fadeIn">
           {servicios.map((srv) => {
             const esActivo = srv.estado === 'activo';
+            const esEmpresa = srv.prestador?.tipoPrestador?.toLowerCase() === 'empresa';
+            const esEstablecido = srv.modalidad === 'Establecido';
+            
             return (
               <div key={srv.idServicio} className="col-md-6 col-lg-4">
                 <div className="card h-100 border-0 shadow-sm rounded-4 bg-white overflow-hidden">
@@ -200,6 +248,48 @@ export const ProviderGestionarServiciosPage = () => {
                         {srv.modalidad || 'Domicilio'}
                       </span>
                     </div>
+
+                    {/* Bloque para mostrar Dirección si es Empresa o Local Establecido */}
+                    {(esEmpresa || esEstablecido) && (
+                      <div className="small text-muted mb-3 bg-light p-2.5 rounded-3 border-start border-primary border-3">
+                        <i className="bi bi-map-fill text-primary me-1" />
+                        <strong>Dirección:</strong> {srv.prestador?.direccionLocal || srv.prestador?.usuario?.direccion || 'No especificada'}
+                      </div>
+                    )}
+
+                    {/* Horarios de Atención Asignados mostrando la fecha correspondiente */}
+                    {disponibilidades.length > 0 && (
+                      <div className="mt-2 mb-3 bg-light p-3 rounded-3 border-start border-success border-3">
+                        <div className="small fw-bold text-dark mb-2">
+                          <i className="bi bi-calendar3 text-success me-2" />
+                          Horario de Atención
+                        </div>
+                        <div className="d-flex flex-column gap-1" style={{ fontSize: '12.5px' }}>
+                          {[...disponibilidades]
+                            .sort((a, b) => {
+                              const orden = {
+                                'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'JUEVES': 4,
+                                'VIERNES': 5, 'SABADO': 6, 'DOMINGO': 7
+                              };
+                              const ordenA = orden[a.diaSemana?.toUpperCase()] || 99;
+                              const ordenB = orden[b.diaSemana?.toUpperCase()] || 99;
+                              if (ordenA !== ordenB) return ordenA - ordenB;
+                              return (a.horaInicio || '').localeCompare(b.horaInicio || '');
+                            })
+                            .map((disp) => (
+                              <div key={disp.idDisponibilidad} className="d-flex justify-content-between border-bottom border-light pb-1">
+                                <span className="text-capitalize fw-semibold text-secondary">
+                                  {disp.diaSemana?.toLowerCase()} <span className="small text-muted fw-normal">{obtenerFechaDiaSemana(disp.diaSemana)}</span>:
+                                </span>
+                                <span className="text-dark fw-medium">
+                                  {disp.horaInicio?.substring(0, 5)} - {disp.horaFin?.substring(0, 5)}
+                                </span>
+                              </div>
+                            ))
+                          }
+                        </div>
+                      </div>
+                    )}
 
                     <p className="text-muted small flex-grow-1 mb-4" style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {srv.descripcion}
