@@ -40,6 +40,27 @@ const extraerUrlCloudinary = (data) => {
     return data.secure_url || data.secureUrl || data.url || null;
 };
 
+/** Convierte una cadena base64 (data URL) en un File */
+const base64ToFile = (base64Data, filename = 'foto_biometrica.jpg') => {
+    if (!base64Data || typeof base64Data !== 'string') return null;
+    const arr = base64Data.split(',');
+    if (arr.length !== 2) return null;
+    const mimeMatch = arr[0].match(/data:(.*?);base64/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    try {
+        return new File([u8arr], filename, { type: mime });
+    } catch (e) {
+        // En entornos que no soportan File, caer a Blob
+        return new Blob([u8arr], { type: mime });
+    }
+};
+
 /** Sube imagen vía Spring → Cloudinary; devuelve la URL segura. */
 export const subirFotoCloudinary = async (file) => {
     try {
@@ -151,6 +172,19 @@ export const registrarUsuarioConFoto = async (userData, file) => {
         const datos = prepararDatosRegistro(userData);
         const formData = new FormData();
         appendRegistroFields(formData, datos);
+        if (datos.fotoBiometrica) {
+            const fb = datos.fotoBiometrica;
+            if (typeof fb === 'string' && fb.startsWith('data:')) {
+                const fileBiometrica = base64ToFile(fb, 'foto_biometrica.jpg');
+                if (fileBiometrica) formData.append('fotoBiometrica', fileBiometrica);
+            } else if (fb instanceof File || fb instanceof Blob) {
+                // File or Blob already
+                formData.append('fotoBiometrica', fb, fb.name || 'foto_biometrica.jpg');
+            } else {
+                // fallback: append raw string (server may accept base64)
+                formData.append('fotoBiometrica', fb);
+            }
+        }
         formData.append('file', file);
 
         const response = await fetchRegistroPublico(`${API_URL_USUARIOS}/registro-con-foto`, {
@@ -283,11 +317,11 @@ export const cambiarPasswordRecuperacion = async ({ correo, codigo, nuevaContras
 export const registrarUsuario = async (dataUsuario) => {
     try {
         const datos = prepararDatosRegistro(dataUsuario);
-        const { fotoUrl, ...resto } = datos;
+        const { fotoUrl, fotoBiometrica, ...resto } = datos;
         const response = await fetchRegistroPublico(`${API_URL_USUARIOS}/registro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...resto, fotoUrl }),
+            body: JSON.stringify({ ...resto, fotoUrl, fotoBiometrica }),
         });
 
         if (!response.ok) {

@@ -25,6 +25,7 @@ import {
   subirCertificacionesRegistro,
   subirFotoRegistro,
 } from '../../../serviceFront/authService';
+import { BiometricCaptureModal } from '../../camera/BiometricCaptureModal';
 // fin de las importacones para las conecciones con el backendS para registro
 
 import '../../../assets/css/registro-prestador.css';
@@ -44,7 +45,10 @@ export const ProviderRegisterView = () => {
   const [formData, setFormData]                     = useState(FORM_INICIAL);
   const [confirmContrasena, setConfirmContrasena]   = useState('');
   const [certificaciones, setCertificaciones]       = useState([]);
+  const [fotoBiometrica, setFotoBiometrica]         = useState(null);
+  const [isBiometricModalOpen, setIsBiometricModalOpen] = useState(false);
   const [error, setError]                           = useState(null);
+  const [biometricRejected, setBiometricRejected]   = useState(false);
   const [isLoading, setIsLoading]                   = useState(false);
   const [loadingMessage, setLoadingMessage]         = useState('');
   // Fin seccion de estado del formulario
@@ -76,6 +80,9 @@ export const ProviderRegisterView = () => {
   // inicio coneccion con el backend para registro
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!fotoBiometrica)
+      return setError('Debes tomar tu foto biométrica antes de continuar.');
 
     if (formData.contrasena !== confirmContrasena)
       return setError('Las contraseñas no coinciden.');
@@ -119,6 +126,7 @@ export const ProviderRegisterView = () => {
         idCategoria:    formData.tipoServicio === 'profesional' ? 2 : 1,
         direccionLocal: formData.direccion,
         especialidad:   formData.especialidad,
+        fotoBiometrica,
         ...(esEmpresa && {
           razonSocial:    formData.nombre,
           nombreFantasia: formData.nombreFantasia,
@@ -256,6 +264,13 @@ export const ProviderRegisterView = () => {
             onCoordsChange={(coords) =>
               setFormData((prev) => ({ ...prev, latitud: coords.lat, longitud: coords.lng }))
             }
+            fotoBiometrica={fotoBiometrica}
+            onOpenBiometricModal={() => {
+              setIsBiometricModalOpen(true);
+              setBiometricRejected(false);
+              if (error) setError(null);
+            }}
+            biometricRejected={biometricRejected}
           />
           {/* Fin seccion de columna derecha */}
         </div>
@@ -282,6 +297,22 @@ export const ProviderRegisterView = () => {
           Tus datos están protegidos y se usan solo para mejorar tu experiencia en ServiGo.
         </p>
         {/* Fin seccion de mensajes y acciones */}
+
+        <BiometricCaptureModal
+          isOpen={isBiometricModalOpen}
+          onClose={() => setIsBiometricModalOpen(false)}
+          onConfirm={(foto) => {
+            setFotoBiometrica(foto);
+            setIsBiometricModalOpen(false);
+            if (error) setError(null);
+          }}
+          onReject={() => {
+            setBiometricRejected(true);
+            setFotoBiometrica(null);
+            setIsBiometricModalOpen(false);
+            if (error) setError(null);
+          }}
+        />
 
       </form>
     </CardContainer>
