@@ -1,7 +1,9 @@
 import { API_BASE_URL, getAuthHeaders, parseApiError } from './apiConfig';
 
-const API_URL_SERVICIOS = `${API_BASE_URL}/servicios`;
-const API_URL_FOTOS = `${API_BASE_URL}/fotos-perfil`;
+const API_URL_SERVICIOS      = `${API_BASE_URL}/servicios`;
+const API_URL_FOTOS          = `${API_BASE_URL}/fotos-perfil`;
+const API_URL_DISPONIBILIDAD = `${API_BASE_URL}/disponibilidad`;
+const API_URL_ESPECIALIDADES = `${API_BASE_URL}/especialidades`;
 
 export const crearNuevoServicio = async (servicioData) => {
   const token = localStorage.getItem('token');
@@ -17,6 +19,43 @@ export const crearNuevoServicio = async (servicioData) => {
 
   if (!response.ok) {
     throw new Error(await parseApiError(response, 'Error al guardar el servicio en el servidor'));
+  }
+
+  return response.json();
+};
+
+export const crearDisponibilidades = async (disponibilidades) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión vencida. Inicia sesión nuevamente.');
+  }
+
+  const response = await fetch(`${API_URL_DISPONIBILIDAD}/lote`, {
+    method: 'POST',
+    headers: getAuthHeaders(false),
+    body: JSON.stringify(disponibilidades),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al guardar la disponibilidad'));
+  }
+
+  return response.json();
+};
+
+export const getEspecialidades = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión vencida. Inicia sesión nuevamente.');
+  }
+
+  const response = await fetch(API_URL_ESPECIALIDADES, {
+    method: 'GET',
+    headers: getAuthHeaders(false),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al cargar especialidades'));
   }
 
   return response.json();

@@ -281,6 +281,7 @@ public class UsuarioController {
         prestadorRepository.findByUsuario_IdUsuario(usuario.getIdUsuario())
                 .ifPresent(prestador -> {
 
+                    dto.setIdPrestador(prestador.getIdPrestador());
                     dto.setTipoPrestador(prestador.getTipoPrestador());
 
                     if (prestador.getCategoriaPrestador() != null) {
