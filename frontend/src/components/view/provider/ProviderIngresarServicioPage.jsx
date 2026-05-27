@@ -1,6 +1,8 @@
-// Avista de control de servicios generados por el prestador
+// D:/Proyectos/servigo91/ServiGo/frontend/src/components/view/provider/ProviderIngresarServicioPage.jsx
+
+// Vista de control de servicios generados por el prestador
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom'; // Importamos useNavigate para la redirección
 import { useAuth } from '../../../context/AuthContext';
 import { CardContainer } from '../../ui/CardContainer';
 
@@ -106,7 +108,7 @@ export const ProviderIngresarServicioPage = () => {
       }
     }
 
-    //Función para normalizar texto quitando acentos y mayúsculas
+    // Función para normalizar texto quitando acentos y mayúsculas
     const normalizarTexto = (texto) => {
       return texto
         ? texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
@@ -185,7 +187,55 @@ export const ProviderIngresarServicioPage = () => {
 
   return (
     <CardContainer maxwidth="1000px">
-      {/**/}
+
+      <div className="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4 flex-wrap gap-3">
+        <div>
+          <h2 className="fw-bold text-dark mb-1">
+            <i className="bi bi-file-earmark-plus-fill text-success me-2" aria-hidden="true" />
+            Registro de servicio
+          </h2>
+          <span className="text-muted small">
+            Formulario para: <strong>{user?.nombre} {user?.apellido}</strong>
+          </span>
+        </div>
+      </div>
+
+      {mensajeExito && <div className="alert alert-success text-center fw-bold shadow-sm mb-4">{mensajeExito}</div>}
+      {mensajeError && <div className="alert alert-danger  text-center fw-bold shadow-sm mb-4">{mensajeError}</div>}
+
+      <form onSubmit={handleSubmit}>
+
+        <InfoGeneralSection
+          nombre={nombre}       setNombre={setNombre}
+          area={area}
+          precio={precio}       setPrecio={setPrecio}
+          modalidad={modalidad} setModalidad={setModalidad}
+          descripcion={descripcion} setDescripcion={setDescripcion}
+        />
+
+        <AgendaSection agenda={agenda} setAgenda={setAgenda} />
+
+        <UbicacionSection
+          user={user} coordenadas={coordenadas} setCoordenadas={setCoordenadas}
+        />
+
+        <VerificacionSection fotoCapturada={fotoCapturada} setFotoCapturada={setFotoCapturada} />
+
+        <div className="d-flex justify-content-end gap-3 mt-4 pt-4 border-top">
+          <button type="button" className="btn btn-outline-secondary px-4 fw-bold"
+            onClick={handleClear} disabled={cargando}>
+            Limpiar Formulario
+          </button>
+          <button type="submit" className="btn btn-success px-5 fw-bold text-white shadow-sm"
+            disabled={cargando}>
+            {cargando
+              ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
+              : <><i className="bi bi-check-lg me-2" />Guardar Servicio</>
+            }
+          </button>
+        </div>
+
+      </form>
     </CardContainer>
   );
 };
