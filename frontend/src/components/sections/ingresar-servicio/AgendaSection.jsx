@@ -113,7 +113,7 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
     setDiasSeleccionados((prev) => {
       const nuevo = prev.includes(valor) ? prev.filter((d) => d !== valor) : [...prev, valor];
       
-      // [AGREGADO] Resetear excepciones para este día de la semana
+      // Resetea excepciones para este día de la semana
       const columnaIndex = DIAS_SEMANA.findIndex(d => d.value === valor);
       setFechasDesactivadas(current => current.filter(fecha => {
         const date = new Date(fecha + 'T00:00:00');
@@ -250,7 +250,7 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                     Excluido: {(() => {
                       const parts = regla.fecha.split('-');
                       if (parts.length === 3) {
-                        const [aaaa, mm, dd] = parts;
+                        const [, mm, dd] = parts;
                         const mesIndex = parseInt(mm, 10) - 1;
                         return `${parseInt(dd, 10)} de ${MESES[mesIndex]}`;
                       }
@@ -263,7 +263,8 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                     {(() => {
                       const parts = regla.fecha.split('-');
                       if (parts.length === 3) {
-                        const [aaaa, mm, dd] = parts;
+                        // MODIFICACIÓN LÍNEA 266: Se omite 'aaaa' para evitar el warning
+                        const [, mm, dd] = parts;
                         const mesIndex = parseInt(mm, 10) - 1;
                         return `${parseInt(dd, 10)} de ${MESES[mesIndex]}`;
                       }
@@ -312,7 +313,7 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
           style={{ backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 1055 }}
           tabIndex="-1"
         >
-          <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div className="modal-content rounded-4 shadow-lg border-0 overflow-hidden">
 
               {/* Cabecera del modal */}
@@ -330,7 +331,7 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
 
               <div className="modal-body p-4">
 
-                {/* parte: Días de la semana */}
+                {/* Días de la semana */}
                 <p className="fw-semibold mb-2">1. Selecciona los días de la semana:</p>
                 <div className="d-flex flex-wrap gap-2 mb-4">
                   {DIAS_SEMANA.map((dia) => {
@@ -381,13 +382,13 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                   </div>
                 </div>
 
-                {/* Mini-calendario de referencia */}
+                {/* calendario de referencia */}
                 <p className="fw-semibold small text-muted mb-1">
                   <i className="bi bi-calendar3 me-1" />
                   Vista del mes — los días seleccionados se resaltan:
                 </p>
 
-                {/* [AGREGADO] Mensaje explicativo para marcar y desmarcar celdas */}
+                {/* Mensaje explicativo para marcar y desmarcar celdas */}
                 <p className="small text-success fw-semibold mb-2">
                   * Al hacer clic en el calendario puedes marcar o desmarcar fechas.
                 </p>
@@ -493,7 +494,7 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                   className="btn btn-success px-5 fw-bold text-white"
                   onClick={confirmarRegla}
                 >
-                  Añadir Regla
+                  Aceptar
                 </button>
               </div>
 
