@@ -108,29 +108,33 @@ export const BookingForm = ({
       </p>
 
       {disponibilidades.length > 0 && (
-        <section className="mb-4">
-          <h6 className="servigo-booking-subtitle small fw-bold text-secondary mb-3">
-            <i className="bi bi-arrow-repeat me-1 text-success" aria-hidden="true" />
-            Días disponibles recurrentes
+        <section className="mb-4 p-3 rounded-3 bg-light border">
+          <h6 className="servigo-booking-subtitle small fw-bold text-success mb-3 d-flex align-items-center gap-2">
+            <i className="bi bi-calendar-check-fill" aria-hidden="true" />
+            Horarios de atención disponibles
           </h6>
-          <div className="d-flex flex-wrap gap-2">
+          <div className="d-flex flex-column gap-2">
             {disponibilidades.map((regla, idx) => (
               <div
                 key={`${regla.diaSemana}-${regla.horaInicio}-${idx}`}
-                className="servigo-recurring-day card border rounded-3 px-3 py-2"
+                className="d-flex align-items-center justify-content-between p-2 bg-white rounded-2 border-1"
               >
                 <div className="d-flex align-items-center gap-2">
-                  <i className="bi bi-calendar3 text-success" aria-hidden="true" />
-                  <div>
-                    <strong className="small d-block">{etiquetaDiaRecurrente(regla.diaSemana)}</strong>
-                    <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                      {regla.horaInicio} – {regla.horaFin}
-                    </span>
+                  <div className="text-success fw-bold" style={{ minWidth: '120px' }}>
+                    {etiquetaDiaRecurrente(regla.diaSemana)}
                   </div>
+                </div>
+                <div className="text-muted small fw-semibold">
+                  <i className="bi bi-clock-history me-1 text-success" aria-hidden="true" />
+                  {regla.horaInicio} – {regla.horaFin}
                 </div>
               </div>
             ))}
           </div>
+          <p className="small text-secondary mt-3 mb-0">
+            <i className="bi bi-info-circle me-1" aria-hidden="true" />
+            Los horarios mostrados se repiten cada semana según la disponibilidad del especialista.
+          </p>
         </section>
       )}
 
@@ -235,9 +239,15 @@ export const BookingForm = ({
             Selecciona el horario
           </label>
           {fechaSeleccionada ? (
-            <p className="small text-muted mb-3">{formatFechaHorarioTitulo(fechaSeleccionada)}</p>
+            <p className="small text-muted mb-3">
+              <i className="bi bi-calendar-event me-1 text-success" aria-hidden="true" />
+              {formatFechaHorarioTitulo(fechaSeleccionada)}
+            </p>
           ) : (
-            <p className="small text-muted mb-3">Primero elige una fecha disponible.</p>
+            <p className="small text-muted mb-3">
+              <i className="bi bi-calendar-check me-1 text-warning" aria-hidden="true" />
+              Primero elige una fecha disponible.
+            </p>
           )}
 
           <div className="row g-2">
@@ -250,18 +260,20 @@ export const BookingForm = ({
               );
               const disponible = Boolean(fechaSeleccionada) && !horaPasada;
               return (
-                <div key={hora} className="col-6 col-md-3">
+                <div key={hora} className="col-6 col-md-4 col-lg-3">
                   <button
                     type="button"
                     className={`btn w-100 py-2 rounded-3 fw-semibold servigo-transition servigo-booking-hour ${
                       horaSeleccionada === hora
-                        ? 'servigo-time-slot--selected'
+                        ? 'btn-success text-white'
                         : 'btn-outline-secondary'
                     }`}
                     onClick={() => setHoraSeleccionada(hora)}
                     disabled={!disponible}
+                    title={!disponible ? 'Este horario no está disponible' : `Seleccionar ${hora}`}
                   >
-                    {hora}
+                    <i className="bi bi-clock-history me-1" aria-hidden="true" />
+                    {hora} hrs
                   </button>
                 </div>
               );
@@ -269,19 +281,22 @@ export const BookingForm = ({
           </div>
 
           {!fechaSeleccionada && horariosDisponibles.length === 0 && (
-            <p className="small text-muted mt-2 mb-0">No hay horarios para mostrar.</p>
+            <div className="alert alert-light border text-center py-3 mt-3 mb-0">
+              <p className="small text-muted mb-0">
+                <i className="bi bi-info-circle me-1" aria-hidden="true" />
+                Selecciona una fecha para ver los horarios disponibles.
+              </p>
+            </div>
           )}
 
-          <div className="d-flex flex-wrap gap-3 mt-3 small text-muted">
-            <span>
-              <span className="servigo-legend-dot servigo-legend-dot--available" aria-hidden="true" />
-              Disponible
-            </span>
-            <span>
-              <span className="servigo-legend-dot servigo-legend-dot--unavailable" aria-hidden="true" />
-              No disponible
-            </span>
-          </div>
+          {fechaSeleccionada && horariosDisponibles.length === 0 && (
+            <div className="alert alert-warning border text-center py-3 mt-3 mb-0">
+              <p className="small mb-0">
+                <i className="bi bi-exclamation-triangle me-1" aria-hidden="true" />
+                No hay horarios disponibles para esta fecha. Intenta con otra fecha.
+              </p>
+            </div>
+          )}
         </section>
 
         <div className="servigo-booking-help rounded-3 p-3 mb-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">

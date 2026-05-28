@@ -74,6 +74,20 @@ public class ReservaController {
         }
     }
 
+    @DeleteMapping("/cliente/{id}/eliminar")
+    public ResponseEntity<?> eliminarReservaCliente(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        try {
+            reservaService.eliminarReservaCliente(id, authentication.getName());
+            return ResponseEntity.ok(Map.of("mensaje", "Reserva eliminada correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping
     public List<Reserva> listarReservas() {
         return reservaService.listarReservas();

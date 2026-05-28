@@ -47,6 +47,12 @@ export const cancelarReservaCliente = async (idReserva) => {
   });
 };
 
+export const eliminarReservaCliente = async (idReserva) => {
+  return fetchAutenticado(`${API_URL_RESERVAS}/cliente/${idReserva}/eliminar`, {
+    method: 'DELETE',
+  });
+};
+
 export const crearReservaCliente = async ({ idPrestador, idServicio, fecha, hora }) => {
   const payload = { idPrestador, fecha, hora };
   if (idServicio != null) {

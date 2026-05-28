@@ -150,6 +150,8 @@ export const generarHorariosEnRango = (horaInicio, horaFin) => {
   let current = hIni * 60 + (mIni || 0);
   const end = hFin * 60 + (mFin || 0);
   const slots = [];
+  
+  // Genera horas cada 60 minutos sin pasarse de la hora final
   while (current <= end) {
     const hh = Math.floor(current / 60);
     const mm = current % 60;
@@ -161,7 +163,9 @@ export const generarHorariosEnRango = (horaInicio, horaFin) => {
 
 export const horariosParaFecha = (fechaIso, disponibilidades) => {
   if (!fechaIso) return [];
-  if (!disponibilidades?.length) return BLOQUES_HORARIOS;
+  
+  // CORRECCIÓN: Si no hay disponibilidades, devolvemos un arreglo vacío (no el falso).
+  if (!disponibilidades?.length) return [];
 
   const dia = getDiaSemanaBackend(parseFechaIso(fechaIso));
   const reglas = disponibilidades.filter((d) => d.diaSemana === dia);
@@ -230,7 +234,6 @@ export const validarSeleccionHorario = (fecha, hora, fechaHoyString, horaActualS
   return validarReglaAgenda(fecha, hora, fechaHoyString, horaActualString);
 };
 
-/** Mensajes orientados al cliente según estado de la reserva. */
 export const mensajeEstadoReserva = (estado) => {
   const e = (estado || '').toLowerCase();
   if (e.includes('pendiente')) {

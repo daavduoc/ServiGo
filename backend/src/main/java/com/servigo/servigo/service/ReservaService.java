@@ -131,6 +131,28 @@ public class ReservaService {
         return reservaRepository.save(reserva);
     }
 
+    /**
+     * Permite que un cliente autenticado elimine una reserva completada o cancelada.
+     */
+    public void eliminarReservaCliente(Long idReserva, String correo) {
+        Cliente cliente = resolverClientePorCorreo(correo);
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        if (reserva.getSolicitud() == null
+                || reserva.getSolicitud().getCliente() == null
+                || !cliente.getIdCliente().equals(reserva.getSolicitud().getCliente().getIdCliente())) {
+            throw new RuntimeException("No tienes permiso para eliminar esta reserva");
+        }
+
+        String estado = reserva.getEstado() != null ? reserva.getEstado().toLowerCase(Locale.ROOT) : "";
+        if (!puedeEliminarReserva(estado)) {
+            throw new RuntimeException("Esta reserva no puede eliminarse. Solo se pueden eliminar reservas finalizadas o canceladas");
+        }
+
+        reservaRepository.deleteById(idReserva);
+    }
+
     public void cancelarReservaCliente(Long idReserva, String correo) {
         Cliente cliente = resolverClientePorCorreo(correo);
         Reserva reserva = reservaRepository.findById(idReserva)
@@ -332,10 +354,19 @@ public class ReservaService {
             dto.setHoraTexto("—");
         }
 
+        // Fecha de solicitud (cuando se creó la reserva)
+        if (reserva.getFechaCreacionReserva() != null) {
+            dto.setFechaSolicitudTexto("Solicitado: " + capitalizeMonth(reserva.getFechaCreacionReserva().format(FECHA_TEXTO)));
+        }
+
         String estadoRaw = reserva.getEstado() != null ? reserva.getEstado() : "pendiente";
         dto.setEstado(formatearEstado(estadoRaw));
         dto.setEstadoEtiqueta(etiquetaEstado(estadoRaw));
         dto.setMensajeDetalle(mensajeDetalleEstado(estadoRaw));
+
+        // Determinar si puede eliminarse y si puede realizarse
+        dto.setPuedeEliminar(puedeEliminarReserva(estadoRaw));
+        dto.setPuedeRealizar(puedeRealizarReserva(estadoRaw));
 
         return dto;
     }
@@ -452,5 +483,23 @@ public class ReservaService {
             return "El especialista no pudo aceptar esta solicitud.";
         }
         return null;
+    }
+
+    /**
+     * Determina si una reserva puede ser eliminada por el cliente.
+     * Solo se pueden eliminar reservas finalizadas o canceladas.
+     */
+    private boolean puedeEliminarReserva(String estado) {
+        String e = estado.toLowerCase(Locale.ROOT);
+        return e.contains("finaliz") || e.contains("cancel");
+    }
+
+    /**
+     * Determina si una reserva puede ser realizada/agendada.
+     * Solo las reservas pendientes o confirmadas pueden realizarse.
+     */
+    private boolean puedeRealizarReserva(String estado) {
+        String e = estado.toLowerCase(Locale.ROOT);
+        return e.contains("pendiente") || e.contains("confirm");
     }
 }
