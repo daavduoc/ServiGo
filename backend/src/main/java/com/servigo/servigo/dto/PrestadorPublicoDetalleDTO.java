@@ -19,6 +19,14 @@ public class PrestadorPublicoDetalleDTO {
     private String descripcion;
     private String experiencia;
     private List<ServicioPublicoDTO> servicios = new ArrayList<>();
+    private List<DisponibilidadPublicaDTO> disponibilidades = new ArrayList<>();
+
+    @Data
+    public static class DisponibilidadPublicaDTO {
+        private String diaSemana;
+        private String horaInicio;
+        private String horaFin;
+    }
 
     @Data
     public static class ServicioPublicoDTO {

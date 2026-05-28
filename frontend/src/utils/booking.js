@@ -2,54 +2,34 @@ export const BLOQUES_HORARIOS = ['09:00', '11:00', '14:30', '16:30'];
 
 const pad2 = (n) => String(n).padStart(2, '0');
 
-export const getFechaHoyStrings = () => {
-  const hoy = new Date();
-  const fechaHoyString = `${hoy.getFullYear()}-${pad2(hoy.getMonth() + 1)}-${pad2(hoy.getDate())}`;
-  const horaActualString = `${pad2(hoy.getHours())}:${pad2(hoy.getMinutes())}`;
-  return { fechaHoyString, horaActualString };
+export const DIAS_SEMANA_BACKEND = [
+  'DOMINGO',
+  'LUNES',
+  'MARTES',
+  'MIERCOLES',
+  'JUEVES',
+  'VIERNES',
+  'SABADO',
+];
+
+export const ETIQUETAS_DIA_CORTA = {
+  LUNES: 'Lun',
+  MARTES: 'Mar',
+  MIERCOLES: 'Mié',
+  JUEVES: 'Jue',
+  VIERNES: 'Vie',
+  SABADO: 'Sáb',
+  DOMINGO: 'Dom',
 };
 
-/** Límites de agenda: mínimo 2 días desde hoy, máximo fin de mes calendario. */
-export const getLimitesAgenda = () => {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-
-  const min = new Date(hoy);
-  min.setDate(min.getDate() + 2);
-
-  const lastDay = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
-
-  return {
-    fechaMinString: `${min.getFullYear()}-${pad2(min.getMonth() + 1)}-${pad2(min.getDate())}`,
-    fechaMaxString: `${hoy.getFullYear()}-${pad2(hoy.getMonth() + 1)}-${pad2(lastDay)}`,
-  };
-};
-
-export const isHoraPasada = (fechaIso, hora, fechaHoyString, horaActualString) => {
-  if (!fechaIso || !hora) return false;
-  if (fechaIso === fechaHoyString && hora < horaActualString) return true;
-  return false;
-};
-
-export const validarReglaAgenda = (fecha, hora, fechaHoyString, horaActualString) => {
-  if (!fecha || !hora) {
-    return 'Por favor, selecciona una fecha y una hora para continuar.';
-  }
-  const { fechaMinString, fechaMaxString } = getLimitesAgenda();
-  if (fecha < fechaMinString || fecha > fechaMaxString) {
-    return 'La fecha debe estar entre hoy + 2 días y el fin del mes actual.';
-  }
-  if (isHoraPasada(fecha, hora, fechaHoyString, horaActualString)) {
-    return 'El horario seleccionado ya ha pasado. Elige una hora futura.';
-  }
-  return null;
-};
-
-export const validarSeleccionHorario = (fecha, hora, fechaHoyString, horaActualString) => {
-  if (!fecha || !hora) {
-    return 'Por favor, selecciona una fecha y una hora para continuar.';
-  }
-  return validarReglaAgenda(fecha, hora, fechaHoyString, horaActualString);
+export const NOMBRES_DIA = {
+  LUNES: 'Lunes',
+  MARTES: 'Martes',
+  MIERCOLES: 'Miércoles',
+  JUEVES: 'Jueves',
+  VIERNES: 'Viernes',
+  SABADO: 'Sábado',
+  DOMINGO: 'Domingo',
 };
 
 const MESES_ES = [
@@ -67,12 +47,187 @@ const MESES_ES = [
   'diciembre',
 ];
 
+export const getFechaHoyStrings = () => {
+  const hoy = new Date();
+  const fechaHoyString = toFechaIso(hoy);
+  const horaActualString = `${pad2(hoy.getHours())}:${pad2(hoy.getMinutes())}`;
+  return { fechaHoyString, horaActualString };
+};
+
+/** Límites: mínimo 2 días desde hoy, máximo 4 semanas. */
+export const getLimitesAgenda = () => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const min = new Date(hoy);
+  min.setDate(min.getDate() + 2);
+
+  const max = new Date(hoy);
+  max.setDate(max.getDate() + 28);
+
+  return {
+    fechaMinString: toFechaIso(min),
+    fechaMaxString: toFechaIso(max),
+    fechaMinDate: min,
+    fechaMaxDate: max,
+  };
+};
+
+export const parseFechaIso = (fechaIso) => {
+  const [y, m, d] = fechaIso.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
+export const toFechaIso = (date) =>
+  `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+
+export const getInicioSemana = (date) => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d;
+};
+
+export const addDias = (date, dias) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + dias);
+  return d;
+};
+
+export const getDiaSemanaBackend = (date) => DIAS_SEMANA_BACKEND[date.getDay()];
+
+export const esFechaAgendable = (fechaIso, fechaMinString, fechaMaxString) =>
+  Boolean(fechaIso) && fechaIso >= fechaMinString && fechaIso <= fechaMaxString;
+
+export const fechaCoincideDisponibilidad = (fechaIso, disponibilidades) => {
+  if (!disponibilidades?.length) return true;
+  const dia = getDiaSemanaBackend(parseFechaIso(fechaIso));
+  return disponibilidades.some((d) => d.diaSemana === dia);
+};
+
+export const esFechaReservable = (fechaIso, fechaMinString, fechaMaxString, disponibilidades) =>
+  esFechaAgendable(fechaIso, fechaMinString, fechaMaxString) &&
+  fechaCoincideDisponibilidad(fechaIso, disponibilidades);
+
 export const formatFechaCitaLegible = (fechaIso) => {
   if (!fechaIso) return '';
-  const [y, m, d] = fechaIso.split('-').map(Number);
-  if (!y || !m || !d) return fechaIso;
-  const mes = MESES_ES[m - 1] || '';
-  return `${d} de ${mes} de ${y}`;
+  const date = parseFechaIso(fechaIso);
+  const mes = MESES_ES[date.getMonth()] || '';
+  return `${date.getDate()} de ${mes} de ${date.getFullYear()}`;
+};
+
+export const formatFechaChip = (fechaIso) => {
+  if (!fechaIso) return '';
+  const date = parseFechaIso(fechaIso);
+  const dia = NOMBRES_DIA[getDiaSemanaBackend(date)] || '';
+  const mes = MESES_ES[date.getMonth()] || '';
+  return `${dia.slice(0, 3)} ${date.getDate()} ${mes}`;
+};
+
+export const formatFechaHorarioTitulo = (fechaIso) => {
+  if (!fechaIso) return '';
+  const date = parseFechaIso(fechaIso);
+  const dia = NOMBRES_DIA[getDiaSemanaBackend(date)] || '';
+  const mes = MESES_ES[date.getMonth()] || '';
+  return `${dia} ${date.getDate()} de ${mes}`;
+};
+
+export const formatRangoSemana = (inicio, fin) => {
+  const mesIni = MESES_ES[inicio.getMonth()];
+  const mesFin = MESES_ES[fin.getMonth()];
+  if (inicio.getMonth() === fin.getMonth()) {
+    return `${inicio.getDate()} al ${fin.getDate()} de ${mesIni}`;
+  }
+  return `${inicio.getDate()} de ${mesIni} al ${fin.getDate()} de ${mesFin}`;
+};
+
+export const generarHorariosEnRango = (horaInicio, horaFin) => {
+  if (!horaInicio || !horaFin) return [];
+  const [hIni, mIni] = horaInicio.split(':').map(Number);
+  const [hFin, mFin] = horaFin.split(':').map(Number);
+  let current = hIni * 60 + (mIni || 0);
+  const end = hFin * 60 + (mFin || 0);
+  const slots = [];
+  while (current <= end) {
+    const hh = Math.floor(current / 60);
+    const mm = current % 60;
+    slots.push(`${pad2(hh)}:${pad2(mm)}`);
+    current += 60;
+  }
+  return slots;
+};
+
+export const horariosParaFecha = (fechaIso, disponibilidades) => {
+  if (!fechaIso) return [];
+  if (!disponibilidades?.length) return BLOQUES_HORARIOS;
+
+  const dia = getDiaSemanaBackend(parseFechaIso(fechaIso));
+  const reglas = disponibilidades.filter((d) => d.diaSemana === dia);
+  if (!reglas.length) return [];
+
+  const slots = new Set();
+  reglas.forEach((regla) => {
+    generarHorariosEnRango(regla.horaInicio, regla.horaFin).forEach((h) => slots.add(h));
+  });
+  return [...slots].sort();
+};
+
+export const listarProximasFechas = (
+  fechaMinString,
+  fechaMaxString,
+  disponibilidades,
+  excluirSemanaInicio
+) => {
+  const fechas = [];
+  let cursor = parseFechaIso(fechaMinString);
+  const max = parseFechaIso(fechaMaxString);
+  const finSemanaExcluida = excluirSemanaInicio ? addDias(excluirSemanaInicio, 6) : null;
+
+  while (cursor <= max) {
+    const iso = toFechaIso(cursor);
+    const enSemanaActual =
+      finSemanaExcluida &&
+      cursor >= excluirSemanaInicio &&
+      cursor <= finSemanaExcluida;
+
+    if (!enSemanaActual && esFechaReservable(iso, fechaMinString, fechaMaxString, disponibilidades)) {
+      fechas.push(iso);
+    }
+    cursor = addDias(cursor, 1);
+  }
+  return fechas;
+};
+
+export const etiquetaDiaRecurrente = (diaSemana) =>
+  NOMBRES_DIA[diaSemana] || diaSemana;
+
+export const isHoraPasada = (fechaIso, hora, fechaHoyString, horaActualString) => {
+  if (!fechaIso || !hora) return false;
+  if (fechaIso === fechaHoyString && hora < horaActualString) return true;
+  return false;
+};
+
+export const validarReglaAgenda = (fecha, hora, fechaHoyString, horaActualString) => {
+  if (!fecha || !hora) {
+    return 'Por favor, selecciona una fecha y una hora para continuar.';
+  }
+  const { fechaMinString, fechaMaxString } = getLimitesAgenda();
+  if (fecha < fechaMinString || fecha > fechaMaxString) {
+    return 'La fecha debe estar entre hoy + 2 días y las próximas 4 semanas.';
+  }
+  if (isHoraPasada(fecha, hora, fechaHoyString, horaActualString)) {
+    return 'El horario seleccionado ya ha pasado. Elige una hora futura.';
+  }
+  return null;
+};
+
+export const validarSeleccionHorario = (fecha, hora, fechaHoyString, horaActualString) => {
+  if (!fecha || !hora) {
+    return 'Por favor, selecciona una fecha y una hora para continuar.';
+  }
+  return validarReglaAgenda(fecha, hora, fechaHoyString, horaActualString);
 };
 
 /** Mensajes orientados al cliente según estado de la reserva. */

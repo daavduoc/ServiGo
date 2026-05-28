@@ -127,10 +127,12 @@ export const ServiceDetailView = () => {
     servicioPrincipal?.descripcion ||
     `${prestador.nombre} ofrece servicios de ${prestador.profesion} en ${prestador.comuna || 'tu comuna'}.`;
 
+  const ubicacion = [prestador.comuna, prestador.region].filter(Boolean).join(', ');
+
   return (
-    <div className="container py-4" style={{ maxWidth: '1000px' }}>
+    <div className="container py-4 servigo-detail-page">
       <div className="mb-3">
-        <Link to="/buscar" className="text-success text-decoration-none small fw-semibold">
+        <Link to="/buscar" className="servigo-detail-back text-decoration-none">
           ← Volver al buscador
         </Link>
       </div>
@@ -156,92 +158,144 @@ export const ServiceDetailView = () => {
           </div>
         </div>
       ) : (
+        <>
         <div className="row g-4">
-          <div className="col-lg-7">
-            <div className="card border-0 shadow-sm p-4 rounded-3 bg-white h-100">
-              <div className="d-flex align-items-center gap-3 mb-4">
-                <img
-                  src={prestador.imagen || PLACEHOLDER_AVATAR}
-                  alt={prestador.nombre}
-                  className="rounded-circle border border-3 border-light shadow-sm"
-                  style={{ width: '88px', height: '88px', objectFit: 'cover' }}
-                  onError={(e) => {
-                    e.currentTarget.src = PLACEHOLDER_AVATAR;
-                  }}
-                />
-                <div>
-                  <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1.5 fs-6 fw-semibold">
-                    {prestador.area}
+          <div className="col-lg-4">
+            <div className="servigo-profile-card card border-0 shadow-sm bg-white h-100 overflow-hidden">
+              <div className="servigo-profile-card__header">
+                <div className="d-flex align-items-start justify-content-between gap-2">
+                  <img
+                    src={prestador.imagen || PLACEHOLDER_AVATAR}
+                    alt={prestador.nombre}
+                    className="servigo-profile-card__avatar rounded-circle"
+                    onError={(e) => {
+                      e.currentTarget.src = PLACEHOLDER_AVATAR;
+                    }}
+                  />
+                  <span className="servigo-profile-status badge bg-white rounded-pill shadow-sm">
+                    <span className="servigo-status-dot" aria-hidden="true" />
+                    Disponible
                   </span>
-                  <h2 className="fw-bold text-dark mb-1 mt-2">{prestador.nombre}</h2>
-                  <p className="text-muted mb-0">{prestador.profesion}</p>
                 </div>
               </div>
 
-              <div className="d-flex flex-wrap align-items-center gap-3 text-muted small mb-4">
-                <span>
-                  📍 {[prestador.comuna, prestador.region].filter(Boolean).join(', ')}
-                </span>
-                {prestador.experiencia && <span>💼 {prestador.experiencia}</span>}
-              </div>
+              <div className="card-body px-4 pb-4 pt-3">
+                <h2 className="fw-bold text-dark mb-1">{prestador.nombre}</h2>
+                <p className="text-muted mb-2">{prestador.profesion}</p>
+                {ubicacion && (
+                  <p className="text-muted small mb-3">
+                    <i className="bi bi-geo-alt-fill text-danger me-1" aria-hidden="true" />
+                    {ubicacion.toUpperCase()}
+                  </p>
+                )}
 
-              <h5 className="fw-bold text-dark mb-2">{tituloServicio}</h5>
-              <p className="text-secondary lh-base mb-4 small">{descripcion}</p>
-
-              {prestador.servicios?.length > 0 && (
-                <>
-                  <h5 className="fw-bold text-dark mb-3">Servicios ofrecidos</h5>
-                  <ul className="list-unstyled mb-4">
-                    {prestador.servicios.map((servicio) => (
-                      <li
-                        key={servicio.idServicio}
-                        className="border rounded-3 p-3 mb-2 bg-light"
-                      >
-                        <div className="d-flex justify-content-between align-items-start gap-2">
-                          <div>
-                            <strong className="text-dark">{servicio.nombre}</strong>
-                            {servicio.descripcion && (
-                              <p className="text-muted small mb-0 mt-1">{servicio.descripcion}</p>
-                            )}
-                          </div>
-                          <span className="text-success fw-bold small text-nowrap">
-                            {formatearPrecio(servicio.precioReferencial)}
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-
-              <div className="bg-light p-3 rounded-3 mt-auto d-flex justify-content-between align-items-center border-start border-success border-4">
-                <div>
-                  <small className="text-muted d-block text-uppercase fw-bold">Desde</small>
-                  <span className="fs-3 fw-bold text-success">
-                    {formatearPrecio(prestador.precio)}
-                  </span>
+                <div className="servigo-profile-highlight rounded-3 p-3 mb-3">
+                  <div>
+                    <strong className="text-dark d-block">{tituloServicio}</strong>
+                    {prestador.area && (
+                      <span className="text-muted small">{prestador.area}</span>
+                    )}
+                  </div>
                 </div>
-                <small className="text-muted text-end">
-                  Precio referencial
-                  <br />
-                  según servicio
-                </small>
+
+                <section className="servigo-profile-section border-top pt-3 mb-3">
+                  <h6 className="servigo-profile-section__title">
+                    <i className="bi bi-person" aria-hidden="true" />
+                    Sobre mí
+                  </h6>
+                  <p className="text-secondary small lh-base mb-0">{descripcion}</p>
+                  {prestador.experiencia && (
+                    <p className="text-muted small mt-2 mb-0">
+                      <i className="bi bi-briefcase me-1" aria-hidden="true" />
+                      {prestador.experiencia}
+                    </p>
+                  )}
+                </section>
+
+                {prestador.servicios?.length > 0 && (
+                  <section className="servigo-profile-section border-top pt-3 mb-3">
+                    <h6 className="servigo-profile-section__title">
+                      <i className="bi bi-star" aria-hidden="true" />
+                      Servicios que ofrezco
+                    </h6>
+                    <div className="d-flex flex-wrap gap-2">
+                      {prestador.servicios.map((servicio) => (
+                        <span key={servicio.idServicio} className="servigo-profile-tag">
+                          {servicio.nombre}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                <div className="servigo-profile-price rounded-3 p-3 d-flex align-items-center gap-3 mt-2">
+                  <span className="servigo-icon-badge" aria-hidden="true">
+                    <i className="bi bi-tag" />
+                  </span>
+                  <div className="flex-grow-1">
+                    <span className="servigo-profile-price__label d-block">DESDE</span>
+                    <span className="servigo-profile-price__value">
+                      {formatearPrecio(prestador.precio)}
+                    </span>
+                  </div>
+                  <small className="text-muted text-end" style={{ maxWidth: '120px' }}>
+                    Precio referencial según servicio
+                  </small>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="col-lg-5">
+          <div className="col-lg-8">
             {errorReserva && (
               <div className="alert alert-danger small mb-3">{errorReserva}</div>
             )}
             <BookingForm
               prestador={prestador}
+              precioReferencial={prestador.precio}
               onSubmit={handleBookingSubmit}
               submitting={reservando}
               resetKey={bookingResetKey}
             />
           </div>
         </div>
+
+        <div className="row g-4 mt-2">
+          <div className="col-md-4">
+            <div className="servigo-detail-trust text-center p-4 h-100">
+              <div className="servigo-detail-trust-icon mb-3" aria-hidden="true">
+                <i className="bi bi-shield-check" />
+              </div>
+              <h6>Pago seguro</h6>
+              <p className="text-muted mb-0">
+                Transacciones protegidas y proceso de reserva transparente.
+              </p>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="servigo-detail-trust text-center p-4 h-100">
+              <div className="servigo-detail-trust-icon mb-3" aria-hidden="true">
+                <i className="bi bi-chat-dots" />
+              </div>
+              <h6>Comunicación directa</h6>
+              <p className="text-muted mb-0">
+                Contacta al especialista y coordina los detalles de tu servicio.
+              </p>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="servigo-detail-trust text-center p-4 h-100">
+              <div className="servigo-detail-trust-icon mb-3" aria-hidden="true">
+                <i className="bi bi-patch-check" />
+              </div>
+              <h6>Especialistas verificados</h6>
+              <p className="text-muted mb-0">
+                Profesionales revisados para brindarte mayor confianza.
+              </p>
+            </div>
+          </div>
+        </div>
+        </>
       )}
 
       {showReservaExitoModal && reservaExito && (

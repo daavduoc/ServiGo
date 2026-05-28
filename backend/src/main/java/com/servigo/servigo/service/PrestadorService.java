@@ -2,15 +2,21 @@ package com.servigo.servigo.service;
 
 import com.servigo.servigo.dto.PrestadorBusquedaDTO;
 import com.servigo.servigo.dto.PrestadorPublicoDetalleDTO;
+import com.servigo.servigo.dto.PrestadorPublicoDetalleDTO.DisponibilidadPublicaDTO;
 import com.servigo.servigo.dto.PrestadorPublicoDetalleDTO.ServicioPublicoDTO;
+import com.servigo.servigo.entity.Disponibilidad;
 import com.servigo.servigo.entity.Empresa;
 import com.servigo.servigo.entity.Prestador;
 import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.entity.Usuario;
+import com.servigo.servigo.repository.DisponibilidadRepository;
 import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.ServicioRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,17 +35,22 @@ public class PrestadorService {
     private final UsuarioRepository usuarioRepository;
     private final ServicioRepository servicioRepository;
     private final FotoPerfilRepository fotoPerfilRepository;
+    private final DisponibilidadRepository disponibilidadRepository;
+
+    private static final DateTimeFormatter HORA_FMT = DateTimeFormatter.ofPattern("HH:mm");
 
     public PrestadorService(
             PrestadorRepository prestadorRepository,
             UsuarioRepository usuarioRepository,
             ServicioRepository servicioRepository,
-            FotoPerfilRepository fotoPerfilRepository
+            FotoPerfilRepository fotoPerfilRepository,
+            DisponibilidadRepository disponibilidadRepository
     ) {
         this.prestadorRepository = prestadorRepository;
         this.usuarioRepository = usuarioRepository;
         this.servicioRepository = servicioRepository;
         this.fotoPerfilRepository = fotoPerfilRepository;
+        this.disponibilidadRepository = disponibilidadRepository;
     }
 
     public List<Prestador> listarPrestadores() {
@@ -81,7 +92,25 @@ public class PrestadorService {
                 .collect(Collectors.toList());
         detalle.setServicios(servicios);
 
+        List<DisponibilidadPublicaDTO> disponibilidades = disponibilidadRepository.findByPrestadorIdPrestador(id).stream()
+                .filter(d -> d.getEstado() == null || "activo".equalsIgnoreCase(d.getEstado()))
+                .map(this::convertirDisponibilidadPublica)
+                .collect(Collectors.toList());
+        detalle.setDisponibilidades(disponibilidades);
+
         return detalle;
+    }
+
+    private DisponibilidadPublicaDTO convertirDisponibilidadPublica(Disponibilidad d) {
+        DisponibilidadPublicaDTO dto = new DisponibilidadPublicaDTO();
+        dto.setDiaSemana(d.getDiaSemana());
+        dto.setHoraInicio(formatearHora(d.getHoraInicio()));
+        dto.setHoraFin(formatearHora(d.getHoraFin()));
+        return dto;
+    }
+
+    private String formatearHora(LocalTime hora) {
+        return hora != null ? hora.format(HORA_FMT) : null;
     }
 
     public List<PrestadorBusquedaDTO> listarPrestadoresPublicos(String categoria, String query) {
