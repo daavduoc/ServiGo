@@ -81,7 +81,8 @@ export const ProviderRegisterView = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!fotoBiometrica)
+    // La foto biométrica solo es obligatoria para prestadores particulares, no para empresas
+    if (!esEmpresa && !fotoBiometrica)
       return setError('Debes tomar tu foto biométrica antes de continuar.');
 
     if (formData.contrasena !== confirmContrasena)
@@ -126,7 +127,8 @@ export const ProviderRegisterView = () => {
         idCategoria:    formData.tipoServicio === 'profesional' ? 2 : 1,
         direccionLocal: formData.direccion,
         especialidad:   formData.especialidad,
-        fotoBiometrica,
+        // Solo enviar foto biométrica si no es empresa
+        fotoBiometrica: esEmpresa ? null : fotoBiometrica,
         ...(esEmpresa && {
           razonSocial:    formData.nombre,
           nombreFantasia: formData.nombreFantasia,
@@ -298,21 +300,24 @@ export const ProviderRegisterView = () => {
         </p>
         {/* Fin seccion de mensajes y acciones */}
 
-        <BiometricCaptureModal
-          isOpen={isBiometricModalOpen}
-          onClose={() => setIsBiometricModalOpen(false)}
-          onConfirm={(foto) => {
-            setFotoBiometrica(foto);
-            setIsBiometricModalOpen(false);
-            if (error) setError(null);
-          }}
-          onReject={() => {
-            setBiometricRejected(true);
-            setFotoBiometrica(null);
-            setIsBiometricModalOpen(false);
-            if (error) setError(null);
-          }}
-        />
+        {/* Solo mostrar el modal de cámara biométrica si NO es empresa */}
+        {!esEmpresa && (
+          <BiometricCaptureModal
+            isOpen={isBiometricModalOpen}
+            onClose={() => setIsBiometricModalOpen(false)}
+            onConfirm={(foto) => {
+              setFotoBiometrica(foto);
+              setIsBiometricModalOpen(false);
+              if (error) setError(null);
+            }}
+            onReject={() => {
+              setBiometricRejected(true);
+              setFotoBiometrica(null);
+              setIsBiometricModalOpen(false);
+              if (error) setError(null);
+            }}
+          />
+        )}
 
       </form>
     </CardContainer>

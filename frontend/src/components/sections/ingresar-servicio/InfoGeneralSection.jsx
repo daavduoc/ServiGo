@@ -2,10 +2,12 @@ import React from 'react';
 
 export const InfoGeneralSection = ({
   nombre, setNombre,
-  area,
+  area, setArea,               //  Recibe la función para cambiar la especialidad
   precio, setPrecio,
   modalidad, setModalidad,
   descripcion, setDescripcion,
+  especialidades = [],         // Recibe el listado de especialidades del sistema
+  esEmpresa                    // Recibe si el prestador es una empresa
 }) => {
   return (
     <div className="card border-0 shadow-sm p-4 mb-4 bg-white animate__animated animate__fadeIn">
@@ -27,18 +29,37 @@ export const InfoGeneralSection = ({
           />
         </div>
 
+        {/* Sección de Especialidad Adaptada */}
         <div className="col-md-6">
           <label className="form-label fw-bold">Área / Especialidad</label>
-          <input
-            type="text"
-            className="form-control bg-light text-secondary fw-semibold"
-            value={area}
-            disabled
-            readOnly
-            placeholder="Sin especialidad asignada"
-          />
+          {esEmpresa ? (
+            // Si es empresa, se despliega un selector interactivo
+            <select
+              className="form-select"
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              required
+            >
+              <option value="">Seleccione una especialidad</option>
+              {especialidades.map((esp) => (
+                <option key={esp.idEspecialidad} value={esp.nombre}>
+                  {esp.nombre}
+                </option>
+              ))}
+            </select>
+          ) : (
+            // Si es particular, queda bloqueada mostrando su especialidad de registro
+            <input
+              type="text"
+              className="form-control bg-light text-secondary fw-semibold"
+              value={area}
+              disabled
+              readOnly
+              placeholder="Sin especialidad asignada"
+            />
+          )}
         </div>
-
+            {/* Precio del Servicio */}
         <div className="col-md-6">
           <label className="form-label fw-bold">Precio Referencial ($)</label>
           <input
@@ -50,7 +71,7 @@ export const InfoGeneralSection = ({
             required
           />
         </div>
-
+            {/* Modalidad del Servicio */}
         <div className="col-md-6">
           <label className="form-label fw-bold">Modalidad de Servicio</label>
           <select
@@ -63,7 +84,7 @@ export const InfoGeneralSection = ({
             <option value="Online">Online / Remoto</option>
           </select>
         </div>
-
+          {/* Descripción del Servicio */}
         <div className="col-12">
           <label className="form-label fw-bold">Descripción del Servicio</label>
           <textarea

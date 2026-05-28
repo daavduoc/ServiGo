@@ -1,5 +1,3 @@
-// D:/Proyectos/servigo91/ServiGo/frontend/src/components/view/provider/ProviderIngresarServicioPage.jsx
-
 // Vista de control de servicios generados por el prestador
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importamos useNavigate para la redirección
@@ -46,6 +44,7 @@ export const ProviderIngresarServicioPage = () => {
 
   const [especialidades, setEspecialidades] = useState([]);
   const [idPrestador,    setIdPrestador]    = useState(null); // Estado para el ID real del prestador
+  const [tipoPrestador,  setTipoPrestador]  = useState('particular'); // Estado para el tipo de prestador
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -56,6 +55,11 @@ export const ProviderIngresarServicioPage = () => {
         // Guardamos el ID del prestador de forma segura desde el backend
         if (perfil.idPrestador) {
           setIdPrestador(perfil.idPrestador);
+        }
+
+        // Guardamos el tipo de prestador para controlar la visibilidad de secciones
+        if (perfil.tipoPrestador) {
+          setTipoPrestador(perfil.tipoPrestador.toLowerCase());
         }
 
         if (perfil.latitud != null && perfil.longitud != null) {
@@ -79,6 +83,21 @@ export const ProviderIngresarServicioPage = () => {
 
     cargarDatos();
   }, [updateUserData]);
+
+  // Determinar si se debe mostrar la sección de ubicación:
+  // Solo para empresas, o para particulares con modalidad "Establecido"
+  const esEmpresa = tipoPrestador === 'empresa';
+  const mostrarUbicacion = esEmpresa || modalidad === 'Establecido';
+  
+  // La validación de seguridad (cámara) solo se muestra a prestadores particulares que van a domicilio
+  const mostrarVerificacion = tipoPrestador === 'particular' && modalidad === 'Domicilio';
+
+  // Si se oculta la sección de verificación, limpiamos la foto para evitar subidas residuales
+  useEffect(() => {
+    if (!mostrarVerificacion) {
+      setFotoCapturada(null);
+    }
+  }, [mostrarVerificacion]);
 
   const handleClear = () => {
     setNombre(''); setArea(user?.especialidad || ''); setDescripcion(''); setPrecio('');
@@ -206,20 +225,28 @@ export const ProviderIngresarServicioPage = () => {
       <form onSubmit={handleSubmit}>
 
         <InfoGeneralSection
-          nombre={nombre}       setNombre={setNombre}
-          area={area}
-          precio={precio}       setPrecio={setPrecio}
-          modalidad={modalidad} setModalidad={setModalidad}
-          descripcion={descripcion} setDescripcion={setDescripcion}
+          nombre={nombre}               setNombre={setNombre}
+          area={area}                   setArea={setArea} // <-- Agregado
+          precio={precio}               setPrecio={setPrecio}
+          modalidad={modalidad}         setModalidad={setModalidad}
+          descripcion={descripcion}     setDescripcion={setDescripcion}
+          especialidades={especialidades}                 // <-- Agregado
+          esEmpresa={esEmpresa}                           // <-- Agregado
         />
 
         <AgendaSection agenda={agenda} setAgenda={setAgenda} />
 
-        <UbicacionSection
-          user={user} coordenadas={coordenadas} setCoordenadas={setCoordenadas}
-        />
+        {/* Sección de ubicación: solo visible para empresa o modalidad establecido */}
+        {mostrarUbicacion && (
+          <UbicacionSection
+            user={user} coordenadas={coordenadas} setCoordenadas={setCoordenadas} esEmpresa={esEmpresa}
+          />
+        )}
 
-        <VerificacionSection fotoCapturada={fotoCapturada} setFotoCapturada={setFotoCapturada} />
+        {/* Sección de verificación: solo para particulares a domicilio */}
+        {mostrarVerificacion && (
+          <VerificacionSection fotoCapturada={fotoCapturada} setFotoCapturada={setFotoCapturada} />
+        )}
 
         <div className="d-flex justify-content-end gap-3 mt-4 pt-4 border-top">
           <button type="button" className="btn btn-outline-secondary px-4 fw-bold"

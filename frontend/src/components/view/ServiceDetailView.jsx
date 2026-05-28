@@ -6,6 +6,7 @@ import { crearReservaCliente } from '../../serviceFront/reservaService';
 import { formatFechaCitaLegible } from '../../utils/booking';
 import { formatearPrecio } from '../../utils/formatPrice';
 import { LoginModal } from '../ui/LoginModal';
+import { MapSection } from '../ui/MapSection';
 import { BookingForm } from './BookingForm';
 import '../../assets/css/service-detail.css';
 
@@ -129,6 +130,22 @@ export const ServiceDetailView = () => {
 
   const ubicacion = [prestador.comuna, prestador.region].filter(Boolean).join(', ');
 
+  // Determinar si el prestador es empresa o tiene servicios en establecimiento
+  const esEmpresa = prestador.tipoPrestador?.toLowerCase() === 'empresa';
+  const esEstablecido = prestador.servicios?.some(s => s.modalidad === 'Establecido');
+  const mostrarDireccionYMapa = esEmpresa || esEstablecido;
+
+  // Construir la dirección completa para prestadores establecidos/empresa
+  const direccionCompleta = prestador.direccionLocal || prestador.direccion || '';
+  const direccionParaMapa = [direccionCompleta, prestador.comuna, prestador.region, 'Chile']
+    .filter(Boolean)
+    .join(', ');
+
+  // Posición inicial para el mapa si hay coordenadas
+  const initialMapPosition = (prestador.latitud != null && prestador.longitud != null)
+    ? { lat: prestador.latitud, lng: prestador.longitud }
+    : null;
+
   return (
     <div className="container py-4 servigo-detail-page">
       <div className="mb-3">
@@ -242,6 +259,36 @@ export const ServiceDetailView = () => {
                     Precio referencial según servicio
                   </small>
                 </div>
+
+                {/* Bloque de dirección y mapa para empresa / prestador establecido */}
+                {mostrarDireccionYMapa && direccionCompleta && (
+                  <section className="servigo-profile-section border-top pt-3 mt-3">
+                    <h6 className="servigo-profile-section__title">
+                      <i className="bi bi-building" aria-hidden="true" />
+                      {esEmpresa ? 'Ubicación del Local' : 'Ubicación del Establecimiento'}
+                    </h6>
+                    <div className="bg-light rounded-3 p-3 mb-3 border-start border-primary border-3">
+                      <p className="small mb-1">
+                        <i className="bi bi-geo-alt-fill text-primary me-1" />
+                        <strong>Dirección:</strong> {direccionCompleta}
+                      </p>
+                      {(prestador.comuna || prestador.region) && (
+                        <p className="small text-muted mb-0">
+                          {[prestador.comuna, prestador.region].filter(Boolean).join(', ')}
+                        </p>
+                      )}
+                    </div>
+                    {/* Mapa miniatura de la ubicación del local */}
+                    <MapSection
+                      label=""
+                      fullAddress={direccionParaMapa}
+                      onCoordsChange={() => {}}
+                      allowMarkerDrag={false}
+                      initialPosition={initialMapPosition}
+                      mapHint=""
+                    />
+                  </section>
+                )}
               </div>
             </div>
           </div>

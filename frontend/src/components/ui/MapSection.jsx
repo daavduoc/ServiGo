@@ -16,6 +16,11 @@ function ChangeView({ center }) {
   const map = useMap();
   useEffect(() => {
     map.setView(center, 15, { animate: true, duration: 1.5 });
+    // Forzar redibujado para solucionar contenedores ocultos o de tamaño 0 al montar/actualizar
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [map, center]);
   return null;
 }
@@ -32,6 +37,8 @@ function MapFocusGuard() {
 
     const frame = requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      // Asegurar que el mapa calcule sus dimensiones correctamente
+      map.invalidateSize();
     });
     return () => cancelAnimationFrame(frame);
   }, [map]);
@@ -60,6 +67,13 @@ export const MapSection = ({
   const notifyCoords = useCallback((lat, lng) => {
     onCoordsChange({ lat, lng });
   }, [onCoordsChange]);
+
+  // Sincronizar el estado interno de la posición cuando se carguen las coordenadas iniciales del perfil
+  useEffect(() => {
+    if (initialPosition && initialPosition.lat != null && initialPosition.lng != null) {
+      setPosition([initialPosition.lat, initialPosition.lng]);
+    }
+  }, [initialPosition]);
 
   useEffect(() => {
     const direccionLimpia = fullAddress
@@ -110,8 +124,9 @@ export const MapSection = ({
           <span className="badge bg-success rounded-pill fw-normal">Ubicando...</span>
         )}
       </label>
+      {/* Contenedor del mapa con estilos para asegurar tamaño y responsividad (rebisar si funciona de formaresponsiva cuando se use en celular) */}
       <div
-        className={`map-section-map ${mapClassName}`.trim()}
+        className={`map-container-wrapper ${mapClassName}`.trim()}
         style={{
           height: '300px',
           width: '100%',
