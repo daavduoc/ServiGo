@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoginModal } from './LoginModal';
 import { useAuth } from '../../context/AuthContext';
 import { getDisplayName, isAdminUser, isPrestadorUser } from '../../utils/userDisplay';
+import { obtenerEstadisticas } from '../../serviceFront/adminService';
 
 export const AuthButtons = () => {
   // Estado para la ventana de Iniciar Sesión
@@ -11,7 +12,35 @@ export const AuthButtons = () => {
   // Estado para controlar el puntito verde de las notificaciones
   const [hayNotificacionesNuevas, setHayNotificacionesNuevas] = useState(true);
 
+  // Estado para notificaciones del admin
+  const [adminNotifs, setAdminNotifs] = useState({ prestadoresPendientes: 0, soportePendientes: 0 });
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
   const { isAuthenticated, user, logout } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user || !isAdminUser(user)) return;
+    obtenerEstadisticas()
+      .then((data) => {
+        setAdminNotifs({
+          prestadoresPendientes: data.prestadoresPendientes || 0,
+          soportePendientes: data.soportePendientes || 0,
+        });
+      })
+      .catch(() => {});
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    if (!showNotifDropdown) return;
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowNotifDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotifDropdown]);
 
   if (isAuthenticated && user) {
     const esAdmin = isAdminUser(user);
@@ -24,9 +53,65 @@ export const AuthButtons = () => {
         </span>
 
         {esAdmin ? (
-          <Link to="/admin/dashboard" className="btn btn-outline-success btn-sm fw-bold">
-            Panel Admin
-          </Link>
+          <>
+            <div className="position-relative" ref={dropdownRef}>
+              <button
+                type="button"
+                className="btn btn-link text-dark p-0 border-0 position-relative"
+                title="Notificaciones"
+                onClick={() => setShowNotifDropdown((prev) => !prev)}
+              >
+                <i className="bi bi-bell fs-5" />
+                {(adminNotifs.prestadoresPendientes + adminNotifs.soportePendientes) > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>
+                    {adminNotifs.prestadoresPendientes + adminNotifs.soportePendientes}
+                    <span className="visually-hidden">notificaciones pendientes</span>
+                  </span>
+                )}
+              </button>
+
+              {showNotifDropdown && (
+                <div className="dropdown-menu show end-0 mt-2 shadow-sm" style={{ minWidth: '260px' }}>
+                  <h6 className="dropdown-header">Notificaciones</h6>
+                  <Link
+                    to="/admin/prestadores"
+                    className="dropdown-item d-flex justify-content-between align-items-center"
+                    onClick={() => setShowNotifDropdown(false)}
+                  >
+                    <span>
+                      <i className="bi bi-person-badge me-2" />
+                      Prestadores pendientes
+                    </span>
+                    <span className={`badge ${adminNotifs.prestadoresPendientes > 0 ? 'bg-warning text-dark' : 'bg-secondary'} rounded-pill`}>
+                      {adminNotifs.prestadoresPendientes}
+                    </span>
+                  </Link>
+                  <Link
+                    to="/admin/soporte"
+                    className="dropdown-item d-flex justify-content-between align-items-center"
+                    onClick={() => setShowNotifDropdown(false)}
+                  >
+                    <span>
+                      <i className="bi bi-headset me-2" />
+                      Mensajes de soporte
+                    </span>
+                    <span className={`badge ${adminNotifs.soportePendientes > 0 ? 'bg-warning text-dark' : 'bg-secondary'} rounded-pill`}>
+                      {adminNotifs.soportePendientes}
+                    </span>
+                  </Link>
+                  {(adminNotifs.prestadoresPendientes + adminNotifs.soportePendientes) === 0 && (
+                    <span className="dropdown-item text-muted small">
+                      Sin notificaciones pendientes
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Link to="/admin/dashboard" className="btn btn-outline-success btn-sm fw-bold">
+              Panel Admin
+            </Link>
+          </>
         ) : (
           <>
             <Link

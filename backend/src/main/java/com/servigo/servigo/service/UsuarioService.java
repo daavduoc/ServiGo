@@ -16,6 +16,7 @@ import com.servigo.servigo.repository.EmpresaRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.RolRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,9 @@ public class UsuarioService {
     private final FotoPerfilService fotoPerfilService;
     private final EmailService emailService;
     private final SecureRandom secureRandom = new SecureRandom();
+
+    @Value("${admin.notification-email}")
+    private String adminNotificationEmail;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
@@ -201,6 +205,16 @@ public class UsuarioService {
             }
 
             prestador = prestadorRepository.save(prestador);
+
+            emailService.enviarNotificacionPrestadorPendienteAsync(
+                    adminNotificationEmail,
+                    usuario.getNombre() + " " + usuario.getApellido(),
+                    usuario.getCorreo(),
+                    prestador.getTipoPrestador(),
+                    prestador.getEspecialidad(),
+                    LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+            );
+
             idPrestador = prestador.getIdPrestador();
         }
 

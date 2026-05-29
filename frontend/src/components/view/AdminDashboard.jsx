@@ -74,27 +74,39 @@ const AdminDashboard = () => {
           </p>
         </Link>
 
-        <div className="stat-card">
-          <h3>Solicitudes Completadas</h3>
-          <p className="stat-value">{stats.solicitudesCompletadas}</p>
-          <p className="stat-desc">Servicios finalizados</p>
-        </div>
+        <Link
+          to="/admin/soporte"
+          className="stat-card text-decoration-none stat-card--link"
+          style={{ display: 'block', color: 'inherit' }}
+        >
+          <h3>Mensajes de Soporte</h3>
+          <p className="stat-value">{stats.soportePendientes}</p>
+          <p className="stat-desc mb-0">
+            {stats.soportePendientes > 0
+              ? 'Pendientes de respuesta →'
+              : 'Sin mensajes pendientes'}
+          </p>
+        </Link>
       </div>
 
       <div className="stats-section">
-        <h2>Resumen General</h2>
+        <h2>Resumen de Soporte</h2>
         <div className="breakdown-grid">
           <div className="breakdown-item">
+            <p className="label">Soporte Pendiente</p>
+            <p className="value">🟡 {stats.soportePendientes}</p>
+          </div>
+          <div className="breakdown-item">
+            <p className="label">Soporte En Proceso</p>
+            <p className="value">🔵 {stats.soporteEnProceso}</p>
+          </div>
+          <div className="breakdown-item">
+            <p className="label">Soporte Resuelto</p>
+            <p className="value">🟢 {stats.soporteResueltos}</p>
+          </div>
+          <div className="breakdown-item">
             <p className="label">Calificación Promedio</p>
-            <p className="value">⭐ {(stats.calificacionPromedio || 0).toFixed(2)}</p>
-          </div>
-          <div className="breakdown-item">
-            <p className="label">Ingresos Totales</p>
-            <p className="value">💰 ${stats.ingresosTotales || 0}</p>
-          </div>
-          <div className="breakdown-item">
-            <p className="label">Reportes Activos</p>
-            <p className="value">🚨 {stats.reportesActivos || 0}</p>
+            <p className="value">⭐ {(stats.promedioCalificacion || 0).toFixed(2)}</p>
           </div>
         </div>
       </div>

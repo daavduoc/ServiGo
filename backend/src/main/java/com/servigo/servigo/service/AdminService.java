@@ -89,6 +89,10 @@ public class AdminService {
         stats.setUsuariosBloqueados(usuarioRepository.countByEstado("bloqueado"));
         stats.setUsuariosInactivos(usuarioRepository.countByEstado("inactivo"));
 
+        stats.setSoportePendientes(mensajeSoporteRepository.countByEstado("pendiente"));
+        stats.setSoporteEnProceso(mensajeSoporteRepository.countByEstado("en_proceso"));
+        stats.setSoporteResueltos(mensajeSoporteRepository.countByEstado("resuelto"));
+
         return stats;
     }
 

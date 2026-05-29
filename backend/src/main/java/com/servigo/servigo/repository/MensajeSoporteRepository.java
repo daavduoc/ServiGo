@@ -18,4 +18,6 @@ public interface MensajeSoporteRepository extends JpaRepository<MensajeSoporte, 
     List<MensajeSoporte> findByEstadoAndRolRemitenteOrderByFechaCreacionDesc(String estado, String rolRemitente);
 
     List<MensajeSoporte> findByUsuario_IdUsuarioOrderByFechaCreacionDesc(Long idUsuario);
+
+    long countByEstado(String estado);
 }

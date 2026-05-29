@@ -22,4 +22,7 @@ public class AdminDashboardStatsDTO {
     private Long usuariosActivos;
     private Long usuariosBloqueados;
     private Long usuariosInactivos;
+    private Long soportePendientes;
+    private Long soporteEnProceso;
+    private Long soporteResueltos;
 }

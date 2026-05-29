@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { to: '/admin/usuarios', icon: 'bi-people', label: 'Usuarios' },
   { to: '/admin/prestadores', icon: 'bi-person-badge', label: 'Validación prestadores' },
   { to: '/admin/soporte', icon: 'bi-headset', label: 'Soporte' },
-  { to: '/admin/solicitudes', icon: 'bi-clipboard-check', label: 'Solicitudes' },
   { to: '/admin/reportes', icon: 'bi-bar-chart-line', label: 'Reportes' },
   { to: '/admin/auditoria', icon: 'bi-journal-text', label: 'Auditoría' },
 ];

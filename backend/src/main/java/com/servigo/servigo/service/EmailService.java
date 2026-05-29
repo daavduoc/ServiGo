@@ -182,4 +182,59 @@ public class EmailService {
             log.error("Fallo envío async de cita rechazada a {}: {}", destinatario, e.getMessage());
         }
     }
+
+    public void enviarNotificacionPrestadorPendiente(
+            String emailAdmin,
+            String nombrePrestador,
+            String correoPrestador,
+            String tipoPrestador,
+            String especialidad,
+            String fechaRegistro
+    ) {
+        String asunto = "ServiGo - Nuevo prestador pendiente de validación";
+        String tipo = (tipoPrestador != null && !tipoPrestador.isBlank()) ? tipoPrestador : "No especificado";
+        String esp = (especialidad != null && !especialidad.isBlank()) ? especialidad : "No especificada";
+        String cuerpo = """
+                Hola Administrador,
+
+                Un nuevo prestador se ha registrado en ServiGo y está esperando validación.
+
+                Nombre: %s
+                Correo: %s
+                Tipo: %s
+                Especialidad: %s
+                Fecha de registro: %s
+
+                Puedes revisar y validar este prestador desde el panel de administración,
+                sección "Validación prestadores".
+
+                Saludos,
+                Equipo ServiGo
+                """.formatted(
+                nombrePrestador,
+                correoPrestador,
+                tipo,
+                esp,
+                fechaRegistro
+        );
+        enviarCorreo(emailAdmin, asunto, cuerpo);
+    }
+
+    @Async
+    public void enviarNotificacionPrestadorPendienteAsync(
+            String emailAdmin,
+            String nombrePrestador,
+            String correoPrestador,
+            String tipoPrestador,
+            String especialidad,
+            String fechaRegistro
+    ) {
+        try {
+            enviarNotificacionPrestadorPendiente(
+                    emailAdmin, nombrePrestador, correoPrestador, tipoPrestador, especialidad, fechaRegistro
+            );
+        } catch (RuntimeException e) {
+            log.error("Fallo envío async de notificación prestador pendiente a {}: {}", emailAdmin, e.getMessage());
+        }
+    }
 }
