@@ -54,7 +54,7 @@ export const getFechaHoyStrings = () => {
   return { fechaHoyString, horaActualString };
 };
 
-/** Límites: mínimo 2 días desde hoy, máximo 4 semanas. */
+/** Límites: mínimo 2 días desde hoy, máximo fin del mes siguiente. */
 export const getLimitesAgenda = () => {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
@@ -62,8 +62,7 @@ export const getLimitesAgenda = () => {
   const min = new Date(hoy);
   min.setDate(min.getDate() + 2);
 
-  const max = new Date(hoy);
-  max.setDate(max.getDate() + 28);
+  const max = new Date(hoy.getFullYear(), hoy.getMonth() + 2, 0);
 
   return {
     fechaMinString: toFechaIso(min),
@@ -219,7 +218,7 @@ export const validarReglaAgenda = (fecha, hora, fechaHoyString, horaActualString
   }
   const { fechaMinString, fechaMaxString } = getLimitesAgenda();
   if (fecha < fechaMinString || fecha > fechaMaxString) {
-    return 'La fecha debe estar entre hoy + 2 días y las próximas 4 semanas.';
+    return 'La fecha debe estar entre hoy + 2 días y el fin del mes siguiente.';
   }
   if (isHoraPasada(fecha, hora, fechaHoyString, horaActualString)) {
     return 'El horario seleccionado ya ha pasado. Elige una hora futura.';

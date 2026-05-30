@@ -449,12 +449,13 @@ public class ReservaService {
     private void validarReglasAgenda(LocalDateTime fechaHora) {
         LocalDate hoy = LocalDate.now();
         LocalDate min = hoy.plusDays(2);
-        LocalDate max = hoy.withDayOfMonth(hoy.lengthOfMonth());
+        LocalDate siguienteMes = hoy.plusMonths(1);
+        LocalDate max = siguienteMes.withDayOfMonth(siguienteMes.lengthOfMonth());
 
         LocalDate fecha = fechaHora.toLocalDate();
         if (fecha.isBefore(min) || fecha.isAfter(max)) {
             throw new RuntimeException(
-                    "La fecha debe estar entre hoy + 2 días y el fin del mes actual."
+                    "La fecha debe estar entre hoy + 2 días y el fin del mes siguiente."
             );
         }
         if (fechaHora.isBefore(LocalDateTime.now())) {
