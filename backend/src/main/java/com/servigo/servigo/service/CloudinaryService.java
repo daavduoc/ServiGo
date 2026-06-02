@@ -1,6 +1,7 @@
 package com.servigo.servigo.service;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,30 @@ public class CloudinaryService {
                         "fetch_format", "auto"
                 )
         );
+    }
+
+    public Map subirImagenPrivada(MultipartFile file, String carpeta) throws IOException {
+        return cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                        "folder", carpeta,
+                        "resource_type", "image",
+                        "type", "private",
+                        "access_mode", "authenticated",
+                        "quality", "auto:good",
+                        "fetch_format", "auto"
+                )
+        );
+    }
+
+    public String generarUrlFirmada(String publicId, int segundosExpiracion) {
+        return cloudinary.url()
+                .resourceType("image")
+                .type("private")
+                .signed(true)
+                .format("jpg")
+                .transformation(new Transformation().quality("auto:good"))
+                .generate(publicId);
     }
 
     /** Imágenes y PDF (certificados, patentes, etc.). */

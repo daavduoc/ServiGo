@@ -1,10 +1,9 @@
 package com.servigo.servigo.service;
 
-import com.servigo.servigo.entity.FotoPerfil;
+import com.servigo.servigo.dto.FotoBiometricaRegistroAccessDTO;
 import com.servigo.servigo.entity.SolicitudServicio;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.entity.ValidacionBiometrica;
-import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.SolicitudServicioRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.repository.ValidacionBiometricaRepository;
@@ -22,20 +21,20 @@ public class ValidacionBiometricaService {
     private final CloudinaryService cloudinaryService;
     private final UsuarioRepository usuarioRepository;
     private final SolicitudServicioRepository solicitudRepository;
-    private final FotoPerfilRepository fotoPerfilRepository;
+    private final FotoBiometricaRegistroService fotoBiometricaRegistroService;
 
     public ValidacionBiometricaService(
             ValidacionBiometricaRepository validacionRepository,
             CloudinaryService cloudinaryService,
             UsuarioRepository usuarioRepository,
             SolicitudServicioRepository solicitudRepository,
-            FotoPerfilRepository fotoPerfilRepository
+            FotoBiometricaRegistroService fotoBiometricaRegistroService
     ) {
         this.validacionRepository = validacionRepository;
         this.cloudinaryService = cloudinaryService;
         this.usuarioRepository = usuarioRepository;
         this.solicitudRepository = solicitudRepository;
-        this.fotoPerfilRepository = fotoPerfilRepository;
+        this.fotoBiometricaRegistroService = fotoBiometricaRegistroService;
     }
 
     public List<ValidacionBiometrica> listarValidaciones() {
@@ -95,13 +94,17 @@ public class ValidacionBiometricaService {
         SolicitudServicio solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
 
-        FotoPerfil fotoPerfil = fotoPerfilRepository.findByUsuario_IdUsuario(idUsuario)
-                .orElseThrow(() -> new RuntimeException("El usuario no tiene foto base registrada"));
+        FotoBiometricaRegistroAccessDTO fotoReferencia =
+                fotoBiometricaRegistroService.obtenerFotoParaValidacion(idUsuario);
 
-        Map resultadoCloudinary = cloudinaryService.subirImagen(
-                fotoCapturada,
-                "servigo/validaciones-biometricas"
-        );
+        Map resultadoCloudinary;
+        try {
+            resultadoCloudinary = cloudinaryService.subirImagen(
+                    fotoCapturada, "servigo/validaciones-biometricas"
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error al subir la foto capturada a Cloudinary", e);
+        }
 
         String urlFotoCapturada = resultadoCloudinary.get("secure_url").toString();
 
