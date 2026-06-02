@@ -45,6 +45,12 @@ public class SecurityConfig {
                     "/usuarios/registro-con-foto",
                     "/usuarios/registro/**"
                 ).permitAll()
+                .requestMatchers(HttpMethod.PUT,
+                    "/fotos-biometricas-registro/bloquear/*"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                    "/fotos-biometricas-registro/**"
+                ).authenticated()
                 // Public GET browsing
                 .requestMatchers(HttpMethod.GET, "/prestadores/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/servicios/**").permitAll()

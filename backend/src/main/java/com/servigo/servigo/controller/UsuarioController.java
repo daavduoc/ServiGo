@@ -11,7 +11,11 @@ import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.repository.FotoPerfilRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.service.FotoPerfilService;
+import com.servigo.servigo.service.FotoBiometricaRegistroService;
 import com.servigo.servigo.service.UsuarioService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -19,8 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.dto.CambiarPasswordPerfilDTO;
-
-import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -36,6 +38,7 @@ public class UsuarioController {
     private final PrestadorRepository prestadorRepository;
     private final FotoPerfilRepository fotoPerfilRepository;
     private final CertificacionService certificacionService;
+    private final FotoBiometricaRegistroService fotoBiometricaRegistroService;
 
     public UsuarioController(
             UsuarioService usuarioService,
@@ -43,7 +46,8 @@ public class UsuarioController {
             UsuarioRepository usuarioRepository,
             PrestadorRepository prestadorRepository,
             FotoPerfilRepository fotoPerfilRepository,
-            CertificacionService certificacionService
+            CertificacionService certificacionService,
+            FotoBiometricaRegistroService fotoBiometricaRegistroService
     ) {
         this.usuarioService = usuarioService;
         this.fotoPerfilService = fotoPerfilService;
@@ -51,6 +55,7 @@ public class UsuarioController {
         this.prestadorRepository = prestadorRepository;
         this.fotoPerfilRepository = fotoPerfilRepository;
         this.certificacionService = certificacionService;
+        this.fotoBiometricaRegistroService = fotoBiometricaRegistroService;
     }
 
     // GET: listar todos los usuarios
@@ -135,7 +140,9 @@ public class UsuarioController {
             @RequestParam(value = "giroComercial", required = false) String giroComercial,
             @RequestParam(value = "rutEmpresa", required = false) String rutEmpresa,
             @RequestParam(value = "especialidad", required = false) String especialidad,
-            @RequestParam(value = "file", required = false) MultipartFile file
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "fotoBiometrica", required = false) MultipartFile fotoBiometrica,
+            HttpServletRequest request
     ) throws IOException {
 
         RegistroUsuarioDTO dto = buildRegistroDtoFromParams(
@@ -149,6 +156,15 @@ public class UsuarioController {
 
         if (file != null && !file.isEmpty()) {
             fotoPerfilService.subirFotoPerfil(response.getIdUsuario(), file);
+        }
+
+        if (fotoBiometrica != null && !fotoBiometrica.isEmpty()) {
+            String createdBy = request.getUserPrincipal() != null
+                    ? request.getUserPrincipal().getName()
+                    : "registro-web";
+            fotoBiometricaRegistroService.registrarFotoBiometrica(
+                    response.getIdUsuario(), fotoBiometrica, createdBy, request.getRemoteAddr()
+            );
         }
 
         return response;
