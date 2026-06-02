@@ -116,11 +116,11 @@ export const ProviderIngresarServicioPage = () => {
       return;
     }
 
-    const reglasValidas = agenda.filter((r) => !r.excluido);
-    const tieneReglas = reglasValidas.length > 0;
+    const todasLasReglas = agenda;
+    const tieneReglas = todasLasReglas.length > 0;
 
     if (tieneReglas) {
-      const reglasSinHora = reglasValidas.some((r) => !r.horaInicio || !r.horaFin);
+      const reglasSinHora = todasLasReglas.some((r) => !r.horaInicio || !r.horaFin);
       if (reglasSinHora) {
         setMensajeError('Cada regla de horario debe tener hora de inicio y hora de fin.');
         return;
@@ -170,10 +170,10 @@ export const ProviderIngresarServicioPage = () => {
       console.log('Servicio creado con éxito:', servicioCreado);
 
       if (tieneReglas) {
-        const disponibilidades = reglasValidas.map((regla) => {
+        const disponibilidades = todasLasReglas.map((regla) => {
           let diaSemana = regla.diaSemana;
 
-          if (!diaSemana && regla.fecha) {
+          if (!diaSemana && regla.fecha && !regla.excluido) {
             diaSemana = obtenerDiaSemanaDeFecha(regla.fecha);
           }
 
@@ -182,7 +182,10 @@ export const ProviderIngresarServicioPage = () => {
             horaInicio: regla.horaInicio,
             horaFin:    regla.horaFin,
             estado:     'activo',
-            prestador:  { idPrestador: idPrestadorActual }, // Asignamos el ID correcto
+            prestador:  { idPrestador: idPrestadorActual },
+            servicio:   { idServicio: servicioCreado.idServicio },
+            fecha:      regla.fecha || null,
+            excluido:   regla.excluido || false,
           };
         });
 

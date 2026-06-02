@@ -22,6 +22,7 @@ import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.entity.SolicitudServicio;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.repository.ClienteRepository;
+import com.servigo.servigo.repository.DisponibilidadRepository;
 import com.servigo.servigo.repository.EspecialidadRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
 import com.servigo.servigo.repository.ReservaRepository;
@@ -46,6 +47,7 @@ public class ReservaService {
     private final ServicioRepository servicioRepository;
     private final PrestadorRepository prestadorRepository;
     private final EspecialidadRepository especialidadRepository;
+    private final DisponibilidadRepository disponibilidadRepository;
 
     public ReservaService(
             ReservaRepository reservaRepository,
@@ -54,7 +56,8 @@ public class ReservaService {
             UsuarioRepository usuarioRepository,
             ServicioRepository servicioRepository,
             PrestadorRepository prestadorRepository,
-            EspecialidadRepository especialidadRepository
+            EspecialidadRepository especialidadRepository,
+            DisponibilidadRepository disponibilidadRepository
     ) {
         this.reservaRepository = reservaRepository;
         this.solicitudRepository = solicitudRepository;
@@ -63,6 +66,7 @@ public class ReservaService {
         this.servicioRepository = servicioRepository;
         this.prestadorRepository = prestadorRepository;
         this.especialidadRepository = especialidadRepository;
+        this.disponibilidadRepository = disponibilidadRepository;
     }
 
     public List<Reserva> listarReservas() {
@@ -107,6 +111,13 @@ public class ReservaService {
 
         LocalDateTime fechaHora = parseFechaHora(dto.getFecha(), dto.getHora());
         validarReglasAgenda(fechaHora);
+
+        boolean fechaExcluida = disponibilidadRepository
+                .existsByPrestadorIdPrestadorAndFechaAndExcluido(
+                        dto.getIdPrestador(), fechaHora.toLocalDate(), true);
+        if (fechaExcluida) {
+            throw new RuntimeException("Esta fecha no está disponible para agendar.");
+        }
 
         Prestador prestador = servicio.getPrestador();
         if (prestador == null || !dto.getIdPrestador().equals(prestador.getIdPrestador())) {
@@ -247,23 +258,7 @@ public class ReservaService {
             return servicios.get(0);
         }
 
-        // Fallback: si el prestador fue creado sin servicios, creamos uno por defecto.
-        if (especialidadRepository.count() == 0) {
-            throw new RuntimeException("No hay especialidades disponibles para crear un servicio.");
-        }
-
-        Servicio servicio = new Servicio();
-        servicio.setPrestador(prestador);
-        servicio.setEstado("activo");
-        servicio.setModalidad("domicilio");
-        servicio.setPrecioReferencial(0.0);
-        servicio.setNombre(prestador.getCategoriaPrestador() != null
-                ? prestador.getCategoriaPrestador().getNombre()
-                : "Servicio");
-        servicio.setDescripcion("Servicio creado automáticamente para permitir agendamiento.");
-        servicio.setEspecialidad(especialidadRepository.findAll().get(0));
-
-        return servicioRepository.save(servicio);
+        throw new RuntimeException("El prestador no tiene servicios publicados. No es posible agendar.");
     }
 
     private LocalDateTime parseFechaHora(String fecha, String hora) {

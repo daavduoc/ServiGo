@@ -106,6 +106,11 @@ public class PrestadorService {
         dto.setDiaSemana(d.getDiaSemana());
         dto.setHoraInicio(formatearHora(d.getHoraInicio()));
         dto.setHoraFin(formatearHora(d.getHoraFin()));
+        if (d.getServicio() != null) {
+            dto.setIdServicio(d.getServicio().getIdServicio());
+        }
+        dto.setFecha(d.getFecha() != null ? d.getFecha().toString() : null);
+        dto.setExcluido(d.getExcluido() != null ? d.getExcluido() : false);
         return dto;
     }
 

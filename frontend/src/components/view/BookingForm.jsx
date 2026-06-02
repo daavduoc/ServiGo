@@ -6,6 +6,7 @@ import {
   addDias,
   esFechaReservable,
   etiquetaDiaRecurrente,
+  filtrarDisponibilidades,
   formatFechaChip,
   formatFechaHorarioTitulo,
   formatRangoSemana,
@@ -28,20 +29,27 @@ export const BookingForm = ({
   submitting = false,
   resetKey = 0,
 }) => {
-  const disponibilidades = prestador.disponibilidades || [];
+  const todasDisponibilidades = prestador.disponibilidades || [];
   const { fechaMinString, fechaMaxString } = getLimitesAgenda();
   const fechaMinDate = useMemo(() => parseFechaIso(fechaMinString), [fechaMinString]);
   const { fechaHoyString, horaActualString } = getFechaHoyStrings();
 
+  const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState('');
   const [horaSeleccionada, setHoraSeleccionada] = useState('');
   const [inicioSemana, setInicioSemana] = useState(() => getInicioSemana(fechaMinDate));
 
   useEffect(() => {
+    setServicioSeleccionado(null);
     setFechaSeleccionada('');
     setHoraSeleccionada('');
     setInicioSemana(getInicioSemana(fechaMinDate));
   }, [resetKey, fechaMinDate]);
+
+  const disponibilidades = useMemo(
+    () => filtrarDisponibilidades(todasDisponibilidades, servicioSeleccionado?.idServicio ?? null),
+    [todasDisponibilidades, servicioSeleccionado]
+  );
 
   const finSemana = useMemo(() => addDias(inicioSemana, 6), [inicioSemana]);
 
@@ -64,6 +72,12 @@ export const BookingForm = ({
   const inicioSemanaMax = getInicioSemana(parseFechaIso(fechaMaxString));
   const puedeSemanaAnterior = inicioSemana > inicioSemanaMin;
   const puedeSemanaSiguiente = inicioSemana < inicioSemanaMax;
+
+  const seleccionarServicio = (servicio) => {
+    setServicioSeleccionado(servicio);
+    setFechaSeleccionada('');
+    setHoraSeleccionada('');
+  };
 
   const seleccionarFecha = (fechaIso) => {
     setFechaSeleccionada(fechaIso);
@@ -92,8 +106,10 @@ export const BookingForm = ({
       alert(errorMsg);
       return;
     }
-    onSubmit(fechaSeleccionada, horaSeleccionada);
+    onSubmit(fechaSeleccionada, horaSeleccionada, servicioSeleccionado?.idServicio ?? null);
   };
+
+  const servicios = prestador.servicios || [];
 
   return (
     <div className="servigo-booking-card card border-0 shadow-sm p-4 bg-white h-100">
@@ -102,19 +118,66 @@ export const BookingForm = ({
         Agendar cita
       </h4>
       <p className="text-muted small mb-4">
-        Selecciona fecha y hora para solicitar una cita con <strong>{prestador.nombre}</strong>.
+        Selecciona un servicio, fecha y hora para solicitar una cita con <strong>{prestador.nombre}</strong>.
         Puedes agendar desde <strong>2 días después de hoy</strong> hasta{' '}
         <strong>4 semanas</strong>.
       </p>
+
+      {servicios.length > 0 && (
+        <section className="mb-4 p-3 rounded-3 bg-light border">
+          <h6 className="servigo-booking-subtitle small fw-bold text-success mb-3 d-flex align-items-center gap-2">
+            <span className="servigo-booking-step-num" aria-hidden="true">0</span>
+            Selecciona el servicio
+          </h6>
+          <div className="d-flex flex-column gap-2">
+            {servicios.map((servicio) => {
+              const seleccionado = servicioSeleccionado?.idServicio === servicio.idServicio;
+              return (
+                <button
+                  key={servicio.idServicio}
+                  type="button"
+                  className={`btn w-100 text-start servigo-transition servigo-service-select-btn ${
+                    seleccionado ? 'btn-success text-white' : 'btn-outline-secondary'
+                  }`}
+                  onClick={() => seleccionarServicio(servicio)}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>{servicio.nombre}</strong>
+                      {servicio.descripcion && (
+                        <span className="small text-muted ms-2 d-none d-md-inline">
+                          — {servicio.descripcion.length > 60 ? servicio.descripcion.substring(0, 60) + '...' : servicio.descripcion}
+                        </span>
+                      )}
+                    </div>
+                    <span className="fw-bold">
+                      {servicio.precioReferencial != null ? formatearPrecio(servicio.precioReferencial) : ''}
+                    </span>
+                  </div>
+                  {servicio.modalidad && (
+                    <small className={seleccionado ? 'text-white-50' : 'text-muted'}>
+                      <i className="bi bi-geo-alt me-1" aria-hidden="true" />
+                      {servicio.modalidad}
+                    </small>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {disponibilidades.length > 0 && (
         <section className="mb-4 p-3 rounded-3 bg-light border">
           <h6 className="servigo-booking-subtitle small fw-bold text-success mb-3 d-flex align-items-center gap-2">
             <i className="bi bi-calendar-check-fill" aria-hidden="true" />
             Horarios de atención disponibles
+            {servicioSeleccionado && (
+              <> para <em>{servicioSeleccionado.nombre}</em></>
+            )}
           </h6>
           <div className="d-flex flex-column gap-2">
-            {disponibilidades.map((regla, idx) => (
+            {disponibilidades.filter((regla) => !regla.excluido).map((regla, idx) => (
               <div
                 key={`${regla.diaSemana}-${regla.horaInicio}-${idx}`}
                 className="d-flex align-items-center justify-content-between p-2 bg-white rounded-2 border-1"
@@ -312,7 +375,9 @@ export const BookingForm = ({
           <div>
             <span className="servigo-profile-price__label d-block">DESDE</span>
             <span className="servigo-profile-price__value fs-5">
-              {formatearPrecio(precioReferencial)}
+              {formatearPrecio(
+                servicioSeleccionado?.precioReferencial ?? precioReferencial
+              )}
             </span>
           </div>
           <div className="text-sm-end">

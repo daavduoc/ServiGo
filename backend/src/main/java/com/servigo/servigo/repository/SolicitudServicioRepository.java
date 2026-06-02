@@ -29,4 +29,6 @@ public interface SolicitudServicioRepository extends JpaRepository<SolicitudServ
             "cliente.usuario"
     })
     Optional<SolicitudServicio> findWithRelacionesByIdSolicitud(Long idSolicitud);
+
+    List<SolicitudServicio> findByServicioIdServicio(Long idServicio);
 }

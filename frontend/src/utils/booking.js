@@ -103,7 +103,30 @@ export const esFechaAgendable = (fechaIso, fechaMinString, fechaMaxString) =>
 export const fechaCoincideDisponibilidad = (fechaIso, disponibilidades) => {
   if (!disponibilidades?.length) return true;
   const dia = getDiaSemanaBackend(parseFechaIso(fechaIso));
-  return disponibilidades.some((d) => d.diaSemana === dia);
+
+  const excluida = disponibilidades.some(
+    (d) => d.excluido && d.fecha === fechaIso
+  );
+  if (excluida) return false;
+
+  const tieneRecurrente = disponibilidades.some(
+    (d) => !d.excluido && d.diaSemana === dia && d.fecha == null
+  );
+
+  const tieneEspecifica = disponibilidades.some(
+    (d) => !d.excluido && d.fecha === fechaIso
+  );
+
+  return tieneRecurrente || tieneEspecifica;
+};
+
+export const filtrarDisponibilidades = (disponibilidades, idServicio) => {
+  if (!disponibilidades?.length) return [];
+  if (idServicio == null) return disponibilidades;
+  const conServicio = disponibilidades.filter((d) => d.idServicio != null && Number(d.idServicio) === Number(idServicio));
+  const sinServicio = disponibilidades.filter((d) => d.idServicio == null);
+  if (conServicio.length > 0) return conServicio;
+  return sinServicio.length > 0 ? sinServicio : [];
 };
 
 export const esFechaReservable = (fechaIso, fechaMinString, fechaMaxString, disponibilidades) =>
@@ -162,12 +185,22 @@ export const generarHorariosEnRango = (horaInicio, horaFin) => {
 
 export const horariosParaFecha = (fechaIso, disponibilidades) => {
   if (!fechaIso) return [];
-  
-  // CORRECCIÓN: Si no hay disponibilidades, devolvemos un arreglo vacío (no el falso).
   if (!disponibilidades?.length) return [];
 
+  const excluida = disponibilidades.some(
+    (d) => d.excluido && d.fecha === fechaIso
+  );
+  if (excluida) return [];
+
   const dia = getDiaSemanaBackend(parseFechaIso(fechaIso));
-  const reglas = disponibilidades.filter((d) => d.diaSemana === dia);
+
+  const reglas = disponibilidades.filter(
+    (d) => !d.excluido && (
+      (d.fecha == null && d.diaSemana === dia) ||
+      (d.fecha === fechaIso)
+    )
+  );
+
   if (!reglas.length) return [];
 
   const slots = new Set();

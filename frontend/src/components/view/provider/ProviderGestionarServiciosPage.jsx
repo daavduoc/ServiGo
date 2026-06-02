@@ -257,39 +257,43 @@ export const ProviderGestionarServiciosPage = () => {
                       </div>
                     )}
 
-                    {/* Horarios de Atención Asignados mostrando la fecha correspondiente */}
-                    {disponibilidades.length > 0 && (
-                      <div className="mt-2 mb-3 bg-light p-3 rounded-3 border-start border-success border-3">
-                        <div className="small fw-bold text-dark mb-2">
-                          <i className="bi bi-calendar3 text-success me-2" />
-                          Horario de Atención
+                    {/* Horarios de Atención Asignados filtrados por este servicio */}
+                    {(() => {
+                      const dispServicio = disponibilidades.filter(
+                        (d) => !d.servicio?.idServicio || d.servicio.idServicio === srv.idServicio
+                      );
+                      return dispServicio.length > 0 ? (
+                        <div className="mt-2 mb-3 bg-light p-3 rounded-3 border-start border-success border-3">
+                          <div className="small fw-bold text-dark mb-2">
+                            <i className="bi bi-calendar3 text-success me-2" />
+                            Horario de Atención
+                          </div>
+                          <div className="d-flex flex-column gap-1" style={{ fontSize: '12.5px' }}>
+                            {[...dispServicio]
+                              .sort((a, b) => {
+                                const orden = {
+                                  'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'JUEVES': 4,
+                                  'VIERNES': 5, 'SABADO': 6, 'DOMINGO': 7
+                                };
+                                const ordenA = orden[a.diaSemana?.toUpperCase()] || 99;
+                                const ordenB = orden[b.diaSemana?.toUpperCase()] || 99;
+                                if (ordenA !== ordenB) return ordenA - ordenB;
+                                return (a.horaInicio || '').localeCompare(b.horaInicio || '');
+                              })
+                              .map((disp) => (
+                                <div key={disp.idDisponibilidad} className="d-flex justify-content-between border-bottom border-light pb-1">
+                                  <span className="text-capitalize fw-semibold text-secondary">
+                                    {disp.diaSemana?.toLowerCase()} <span className="small text-muted fw-normal">{obtenerFechaDiaSemana(disp.diaSemana)}</span>:
+                                  </span>
+                                  <span className="text-dark fw-medium">
+                                    {disp.horaInicio?.substring(0, 5)} - {disp.horaFin?.substring(0, 5)}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
                         </div>
-                        <div className="d-flex flex-column gap-1" style={{ fontSize: '12.5px' }}>
-                          {[...disponibilidades]
-                            .sort((a, b) => {
-                              const orden = {
-                                'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'JUEVES': 4,
-                                'VIERNES': 5, 'SABADO': 6, 'DOMINGO': 7
-                              };
-                              const ordenA = orden[a.diaSemana?.toUpperCase()] || 99;
-                              const ordenB = orden[b.diaSemana?.toUpperCase()] || 99;
-                              if (ordenA !== ordenB) return ordenA - ordenB;
-                              return (a.horaInicio || '').localeCompare(b.horaInicio || '');
-                            })
-                            .map((disp) => (
-                              <div key={disp.idDisponibilidad} className="d-flex justify-content-between border-bottom border-light pb-1">
-                                <span className="text-capitalize fw-semibold text-secondary">
-                                  {disp.diaSemana?.toLowerCase()} <span className="small text-muted fw-normal">{obtenerFechaDiaSemana(disp.diaSemana)}</span>:
-                                </span>
-                                <span className="text-dark fw-medium">
-                                  {disp.horaInicio?.substring(0, 5)} - {disp.horaFin?.substring(0, 5)}
-                                </span>
-                              </div>
-                            ))
-                          }
-                        </div>
-                      </div>
-                    )}
+                      ) : null;
+                    })()}
 
                     <p className="text-muted small flex-grow-1 mb-4" style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {srv.descripcion}

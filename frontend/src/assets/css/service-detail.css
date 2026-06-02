@@ -340,3 +340,28 @@
     font-size: 0.55rem;
   }
 }
+
+/* —— Selector de servicio —— */
+.servigo-service-select-btn {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.15s ease-in-out;
+  border-width: 2px;
+}
+
+.servigo-service-select-btn.btn-success {
+  border-color: var(--servigo-green-dark) !important;
+  background: var(--servigo-green-tint) !important;
+  color: var(--servigo-green-dark) !important;
+}
+
+.servigo-service-select-btn.btn-success:hover {
+  background: var(--servigo-green) !important;
+  color: #fff !important;
+}
+
+.servigo-service-select-btn.btn-outline-secondary:hover {
+  border-color: var(--servigo-green-pale) !important;
+  color: var(--servigo-green) !important;
+  background-color: var(--servigo-green-tint) !important;
+}

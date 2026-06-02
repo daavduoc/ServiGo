@@ -26,6 +26,9 @@ public class PrestadorPublicoDetalleDTO {
         private String diaSemana;
         private String horaInicio;
         private String horaFin;
+        private Long idServicio;
+        private String fecha;
+        private Boolean excluido;
     }
 
     @Data

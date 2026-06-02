@@ -56,7 +56,7 @@ export const ServiceDetailView = () => {
     }
   }, [id]);
 
-  const handleBookingSubmit = async (fecha, hora) => {
+  const handleBookingSubmit = async (fecha, hora, idServicio) => {
     const tieneSesion = isAuthenticated && Boolean(localStorage.getItem('token'));
     if (!tieneSesion) {
       setShowAuthModal(true);
@@ -65,7 +65,9 @@ export const ServiceDetailView = () => {
 
     if (!prestador) return;
 
-    const servicioPrincipal = prestador.servicios?.[0];
+    const servicioElegido = idServicio
+      ? prestador.servicios?.find((s) => s.idServicio === idServicio)
+      : prestador.servicios?.[0];
 
     setReservando(true);
     setErrorReserva(null);
@@ -73,7 +75,7 @@ export const ServiceDetailView = () => {
     try {
       await crearReservaCliente({
         idPrestador: prestador.idPrestador,
-        idServicio: servicioPrincipal?.idServicio ?? null,
+        idServicio: servicioElegido?.idServicio ?? null,
         fecha,
         hora,
       });
@@ -121,11 +123,9 @@ export const ServiceDetailView = () => {
     );
   }
 
-  const servicioPrincipal = prestador.servicios?.[0];
-  const tituloServicio = servicioPrincipal?.nombre || prestador.profesion;
+  const tituloServicio = prestador.profesion;
   const descripcion =
     prestador.descripcion ||
-    servicioPrincipal?.descripcion ||
     `${prestador.nombre} ofrece servicios de ${prestador.profesion} en ${prestador.comuna || 'tu comuna'}.`;
 
   const ubicacion = [prestador.comuna, prestador.region].filter(Boolean).join(', ');
