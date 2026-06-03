@@ -22,19 +22,22 @@ public class ValidacionBiometricaService {
     private final UsuarioRepository usuarioRepository;
     private final SolicitudServicioRepository solicitudRepository;
     private final FotoBiometricaRegistroService fotoBiometricaRegistroService;
+    private final JavaCvService javaCvService;
 
     public ValidacionBiometricaService(
             ValidacionBiometricaRepository validacionRepository,
             CloudinaryService cloudinaryService,
             UsuarioRepository usuarioRepository,
             SolicitudServicioRepository solicitudRepository,
-            FotoBiometricaRegistroService fotoBiometricaRegistroService
+            FotoBiometricaRegistroService fotoBiometricaRegistroService,
+            JavaCvService javaCvService
     ) {
         this.validacionRepository = validacionRepository;
         this.cloudinaryService = cloudinaryService;
         this.usuarioRepository = usuarioRepository;
         this.solicitudRepository = solicitudRepository;
         this.fotoBiometricaRegistroService = fotoBiometricaRegistroService;
+        this.javaCvService = javaCvService;
     }
 
     public List<ValidacionBiometrica> listarValidaciones() {
@@ -97,20 +100,19 @@ public class ValidacionBiometricaService {
         FotoBiometricaRegistroAccessDTO fotoReferencia =
                 fotoBiometricaRegistroService.obtenerFotoParaValidacion(idUsuario);
 
-        Map resultadoCloudinary;
-        try {
-            resultadoCloudinary = cloudinaryService.subirImagen(
-                    fotoCapturada, "servigo/validaciones-biometricas"
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Error al subir la foto capturada a Cloudinary", e);
-        }
+        Double porcentaje = javaCvService.compararRostros(
+                fotoReferencia.getSignedUrl(),
+                fotoCapturada
+        );
+
+        String resultado = porcentaje >= 80.0 ? "aprobada" : "rechazada";
+
+        Map resultadoCloudinary = cloudinaryService.subirImagen(
+                fotoCapturada, "servigo/validaciones-biometricas"
+        );
 
         String urlFotoCapturada = resultadoCloudinary.get("secure_url").toString();
 
-        Double porcentaje = 100.0;
-
-        String resultado = porcentaje >= 80.0 ? "aprobada" : "rechazada";
 
         ValidacionBiometrica validacion = new ValidacionBiometrica();
         validacion.setUsuario(usuario);

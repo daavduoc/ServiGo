@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableMethodSecurity // <-- ¡Ponlo aquí y borra AdminSecurityConfig.java!
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -25,44 +25,18 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {})
-            .sessionManagement(session -> 
+            .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Public endpoints (no auth required)
-                .requestMatchers(
-                    "/auth/**",
-                    "/usuarios/registro",
-                    "/usuarios/registro/**",
-                    "/usuarios/registro-con-foto",
-                    "/cloudinary/upload",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
-                ).permitAll()
-                .requestMatchers(HttpMethod.POST,
-                    "/usuarios/registro",
-                    "/usuarios/registro-con-foto",
-                    "/usuarios/registro/**"
-                ).permitAll()
-                .requestMatchers(HttpMethod.PUT,
-                    "/fotos-biometricas-registro/bloquear/*"
-                ).hasRole("ADMIN")
-                .requestMatchers(
-                    "/fotos-biometricas-registro/**"
-                ).authenticated()
-                // Public GET browsing
-                .requestMatchers(HttpMethod.GET, "/prestadores/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/servicios/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/especialidades/**").permitAll()
-                // Admin only
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Authenticated users (soporte)
-                .requestMatchers("/soporte/**").authenticated()
-                // Everything else requires authentication
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .anyRequest().permitAll()
+            );
+
+            // TEMPORALMENTE COMENTADO PARA PROBAR
+            // .addFilterBefore(
+            //     jwtAuthFilter,
+            //     UsernamePasswordAuthenticationFilter.class
+            // );
 
         return http.build();
     }
