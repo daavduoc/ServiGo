@@ -1,5 +1,6 @@
 import React from 'react';
 import { FormRow } from '../ui';
+import { PasswordField } from '../view/auth/FormFields';
 
 const FieldCol = ({ children, wide = false }) => (
   <div className={wide ? 'col-12' : 'col-md-6'}>{children}</div>
@@ -109,30 +110,54 @@ export const SeccionUsuarioBase = ({
         />
       )}
 
-      <FieldCol>
-        <FormRow
-          {...formRowProps}
-          label="Contraseña"
-          name="contrasena"
-          type="password"
-          value={formData.contrasena}
-          onChange={handleChange}
-          hint={isStacked && !isClient ? 'Mínimo 8 caracteres, con mayúscula, minúscula y número.' : undefined}
-          required
-        />
-      </FieldCol>
-
-      {showConfirmPassword && (
+      {isClient ? (
+        <FieldCol>
+          <PasswordField
+            id="contrasena"
+            name="contrasena"
+            label="Contraseña"
+            value={formData.contrasena}
+            onChange={handleChange}
+            required
+          />
+        </FieldCol>
+      ) : (
         <FieldCol>
           <FormRow
             {...formRowProps}
-            label="Confirmar contraseña"
-            name="confirmContrasena"
+            label="Contraseña"
+            name="contrasena"
             type="password"
-            value={confirmContrasena}
-            onChange={onConfirmPasswordChange}
+            value={formData.contrasena}
+            onChange={handleChange}
+            hint={isStacked && !isClient ? 'Mínimo 8 caracteres, con mayúscula, minúscula y número.' : undefined}
             required
           />
+        </FieldCol>
+      )}
+
+      {showConfirmPassword && (
+        <FieldCol>
+          {isClient ? (
+            <PasswordField
+              id="confirm"
+              name="confirmContrasena"
+              label="Confirmar contraseña"
+              value={confirmContrasena}
+              onChange={onConfirmPasswordChange}
+              required
+            />
+          ) : (
+            <FormRow
+              {...formRowProps}
+              label="Confirmar contraseña"
+              name="confirmContrasena"
+              type="password"
+              value={confirmContrasena}
+              onChange={onConfirmPasswordChange}
+              required
+            />
+          )}
         </FieldCol>
       )}
 
