@@ -77,6 +77,16 @@ public class PrestadorService {
         detalle.setRegion(base.getRegion());
         detalle.setDescripcion(prestador.getDescripcion());
         detalle.setExperiencia(prestador.getExperiencia());
+        detalle.setTipoPrestador(prestador.getTipoPrestador());
+        detalle.setDireccionLocal(prestador.getDireccionLocal());
+        detalle.setLatitud(prestador.getUsuario() != null ? prestador.getUsuario().getLatitud() : null);
+        detalle.setLongitud(prestador.getUsuario() != null ? prestador.getUsuario().getLongitud() : null);
+
+        if (prestador.getEmpresa() != null) {
+            detalle.setRazonSocial(prestador.getEmpresa().getRazonSocial());
+            detalle.setNombreComercial(prestador.getEmpresa().getNombreComercial());
+            detalle.setGiroComercial(prestador.getEmpresa().getGiroComercial());
+        }
 
         List<ServicioPublicoDTO> servicios = servicioRepository.findByPrestadorIdPrestador(id).stream()
                 .filter(s -> s.getEstado() == null || "activo".equalsIgnoreCase(s.getEstado()))

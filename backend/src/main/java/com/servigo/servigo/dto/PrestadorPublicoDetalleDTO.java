@@ -18,6 +18,13 @@ public class PrestadorPublicoDetalleDTO {
     private String region;
     private String descripcion;
     private String experiencia;
+    private String tipoPrestador;
+    private String razonSocial;
+    private String nombreComercial;
+    private String giroComercial;
+    private String direccionLocal;
+    private Double latitud;
+    private Double longitud;
     private List<ServicioPublicoDTO> servicios = new ArrayList<>();
     private List<DisponibilidadPublicaDTO> disponibilidades = new ArrayList<>();
 

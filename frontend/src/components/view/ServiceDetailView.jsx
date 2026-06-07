@@ -123,15 +123,20 @@ export const ServiceDetailView = () => {
     );
   }
 
-  const tituloServicio = prestador.profesion;
+  const esEmpresa =
+    prestador.tipoPrestador?.toLowerCase() === 'empresa' ||
+    Boolean(prestador.razonSocial || prestador.nombreComercial || prestador.giroComercial);
+  const tituloServicio = esEmpresa
+    ? prestador.giroComercial || 'Empresa establecida'
+    : prestador.profesion || '';
   const descripcion =
     prestador.descripcion ||
-    `${prestador.nombre} ofrece servicios de ${prestador.profesion} en ${prestador.comuna || 'tu comuna'}.`;
+    (esEmpresa
+      ? `${prestador.nombre} ofrece servicios en ${prestador.comuna || 'tu comuna'}.`
+      : `${prestador.nombre} ofrece servicios de ${prestador.profesion || 'su especialidad'} en ${prestador.comuna || 'tu comuna'}.`);
 
   const ubicacion = [prestador.comuna, prestador.region].filter(Boolean).join(', ');
 
-  // Determinar si el prestador es empresa o tiene servicios en establecimiento
-  const esEmpresa = prestador.tipoPrestador?.toLowerCase() === 'empresa';
   const esEstablecido = prestador.servicios?.some(s => s.modalidad === 'Establecido');
   const mostrarDireccionYMapa = esEmpresa || esEstablecido;
 
@@ -198,7 +203,9 @@ export const ServiceDetailView = () => {
 
               <div className="card-body px-4 pb-4 pt-3">
                 <h2 className="fw-bold text-dark mb-1">{prestador.nombre}</h2>
-                <p className="text-muted mb-2">{prestador.profesion}</p>
+                {!esEmpresa && prestador.profesion && (
+                  <p className="text-muted mb-2">{prestador.profesion}</p>
+                )}
                 {ubicacion && (
                   <p className="text-muted small mb-3">
                     <i className="bi bi-geo-alt-fill text-danger me-1" aria-hidden="true" />
