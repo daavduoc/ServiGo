@@ -14,6 +14,8 @@ import {
   getNuevasSolicitudesPrestador,
   rechazarSolicitudPrestador,
 } from '../../../serviceFront/solicitudService';
+import { FacialValidationModal } from '../../camera/FacialValidationModal';
+import { getSolicitudDetalle } from '../../../serviceFront/validacionService';
 
 import '../../../assets/css/provider-views.css';
 
@@ -27,6 +29,8 @@ export const ProviderSolicitudesPage = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [solicitudAceptar, setSolicitudAceptar] = useState(null);
   const [confirmando, setConfirmando] = useState(false);
+  const [showFacialModal, setShowFacialModal] = useState(false);
+  const [direccionPendiente, setDireccionPendiente] = useState('');
 
   const direccionInicial =
     user?.direccionLocal || user?.direccion || '';
@@ -78,12 +82,18 @@ export const ProviderSolicitudesPage = () => {
     }
   };
 
-  const handleConfirmarAceptar = async (direccionAtencion) => {
+  const handleConfirmarAceptar = (direccionAtencion) => {
+    setDireccionPendiente(direccionAtencion);
+    setShowFacialModal(true);
+  };
+
+  const handleFacialPrestadorSuccess = async () => {
     if (!solicitudAceptar) return;
     try {
+      setShowFacialModal(false);
       setConfirmando(true);
       setErrorMsg('');
-      await aceptarSolicitudPrestador(solicitudAceptar.idSolicitud, direccionAtencion);
+      await aceptarSolicitudPrestador(solicitudAceptar.idSolicitud, direccionPendiente);
       setSolicitudAceptar(null);
       await cargarSolicitudes();
     } catch (err) {
@@ -91,6 +101,7 @@ export const ProviderSolicitudesPage = () => {
     } finally {
       setConfirmando(false);
       setAccionandoId(null);
+      setDireccionPendiente('');
     }
   };
 
@@ -135,9 +146,22 @@ export const ProviderSolicitudesPage = () => {
           <SolicitudesTabla
             solicitudes={solicitudes}
             accionandoId={accionandoId}
-            onAceptar={(s) => {
-              setAccionandoId(s.idSolicitud);
-              setSolicitudAceptar(s);
+            onAceptar={async (s) => {
+              try {
+                setAccionandoId(s.idSolicitud);
+                setErrorMsg('');
+                const fullSolicitud = await getSolicitudDetalle(s.idSolicitud);
+                setSolicitudAceptar({
+                  ...s,
+                  clienteTelefono: fullSolicitud.cliente?.usuario?.telefono || 'No registrado',
+                  clienteCorreo: fullSolicitud.cliente?.usuario?.correo || 'No registrado',
+                  clienteDireccion: fullSolicitud.cliente?.usuario?.direccion || 'No registrada',
+                });
+              } catch (err) {
+                setErrorMsg(err.message || 'No se pudieron obtener los detalles del cliente');
+              } finally {
+                setAccionandoId(null);
+              }
             }}
             onRechazar={handleRechazar}
           />
@@ -154,6 +178,17 @@ export const ProviderSolicitudesPage = () => {
         }}
         onConfirm={handleConfirmarAceptar}
         submitting={confirmando}
+      />
+      <FacialValidationModal
+        isOpen={showFacialModal}
+        onClose={() => {
+          setShowFacialModal(false);
+          setDireccionPendiente('');
+        }}
+        onValidationSuccess={handleFacialPrestadorSuccess}
+        idUsuario={user?.idUsuario}
+        tipoValidacion="prestador"
+        idSolicitud={solicitudAceptar?.idSolicitud}
       />
     </div>
   );

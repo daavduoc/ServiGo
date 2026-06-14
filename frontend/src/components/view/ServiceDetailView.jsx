@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { obtenerPrestadorPublico } from '../../serviceFront/prestadorService';
-import { crearReservaCliente } from '../../serviceFront/reservaService';
+import { crearReservaCliente, eliminarReservaCliente } from '../../serviceFront/reservaService';
 import { formatFechaCitaLegible } from '../../utils/booking';
 import { formatearPrecio } from '../../utils/formatPrice';
 import { LoginModal } from '../ui/LoginModal';
 import { MapSection } from '../ui/MapSection';
 import { BookingForm } from './BookingForm';
+import { FacialValidationModal } from '../camera/FacialValidationModal';
+import { getReservaDetalle } from '../../serviceFront/validacionService';
 import '../../assets/css/service-detail.css';
 
 const PLACEHOLDER_AVATAR =
@@ -22,7 +24,7 @@ const PLACEHOLDER_AVATAR =
 
 export const ServiceDetailView = () => {
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [prestador, setPrestador] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,6 +37,9 @@ export const ServiceDetailView = () => {
   const [bookingResetKey, setBookingResetKey] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showFacialModal, setShowFacialModal] = useState(false);
+  const [reservaCreadaId, setReservaCreadaId] = useState(null);
+  const [solicitudAsociadaId, setSolicitudAsociadaId] = useState(null);
 
   useEffect(() => {
     const cargarPrestador = async () => {
@@ -73,28 +78,61 @@ export const ServiceDetailView = () => {
     setErrorReserva(null);
 
     try {
-      await crearReservaCliente({
+      const res = await crearReservaCliente({
         idPrestador: prestador.idPrestador,
         idServicio: servicioElegido?.idServicio ?? null,
         fecha,
         hora,
       });
 
-      setMensajeExito(
-        `Tu cita con ${prestador.nombre} quedó registrada para el ${fecha} a las ${hora} hrs. Puedes revisarla en Mis Horas y Reservas.`
-      );
-      setReservaExito({
-        nombre: prestador.nombre,
-        fecha,
-        hora,
-        fechaLegible: formatFechaCitaLegible(fecha),
-      });
-      setShowReservaExitoModal(true);
+      if (res && res.idReserva) {
+        setReservaCreadaId(res.idReserva);
+        
+        // Consultar el detalle de la reserva para obtener el idSolicitud correspondiente
+        const reservaDetalle = await getReservaDetalle(res.idReserva);
+        if (reservaDetalle && reservaDetalle.solicitud) {
+          setSolicitudAsociadaId(reservaDetalle.solicitud.idSolicitud);
+          setReservaExito({
+            nombre: prestador.nombre,
+            fecha,
+            hora,
+            fechaLegible: formatFechaCitaLegible(fecha),
+          });
+          setShowFacialModal(true);
+        } else {
+          throw new Error("No se pudo obtener la solicitud asociada a la reserva.");
+        }
+      } else {
+        throw new Error("No se pudo registrar la reserva. Intenta nuevamente.");
+      }
     } catch (err) {
       setErrorReserva(err.message || 'No se pudo registrar la reserva. Intenta nuevamente.');
+      setReservaCreadaId(null);
+      setSolicitudAsociadaId(null);
     } finally {
       setReservando(false);
     }
+  };
+
+  const handleFacialSuccess = () => {
+    setShowFacialModal(false);
+    setMensajeExito(
+      `Tu cita con ${prestador.nombre} quedó registrada para el ${reservaExito.fecha} a las ${reservaExito.hora} hrs. Puedes revisarla en Mis Horas y Reservas.`
+    );
+    setShowReservaExitoModal(true);
+  };
+
+  const handleFacialClose = async () => {
+    setShowFacialModal(false);
+    if (reservaCreadaId) {
+      try {
+        await eliminarReservaCliente(reservaCreadaId);
+      } catch (e) {
+        console.error("Error al cancelar la reserva incompleta:", e);
+      }
+    }
+    setReservaCreadaId(null);
+    setSolicitudAsociadaId(null);
   };
 
   const cerrarModalReservaExito = () => {
@@ -451,6 +489,14 @@ export const ServiceDetailView = () => {
         </div>
       )}
       <LoginModal show={showLoginModal} handleClose={() => setShowLoginModal(false)} />
+      <FacialValidationModal
+        isOpen={showFacialModal}
+        onClose={handleFacialClose}
+        onValidationSuccess={handleFacialSuccess}
+        idUsuario={user?.idUsuario}
+        tipoValidacion="cliente"
+        idSolicitud={solicitudAsociadaId}
+      />
     </div>
   );
 };

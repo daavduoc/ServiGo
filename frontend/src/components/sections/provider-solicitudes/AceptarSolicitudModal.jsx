@@ -38,6 +38,12 @@ export const AceptarSolicitudModal = ({
               <p className="text-muted small mb-3">
                 Cliente: <strong>{solicitud.clienteNombre}</strong>
                 <br />
+                Teléfono: <strong>{solicitud.clienteTelefono || 'No registrado'}</strong>
+                <br />
+                Correo: <strong>{solicitud.clienteCorreo || 'No registrado'}</strong>
+                <br />
+                Dirección del Cliente: <strong>{solicitud.clienteDireccion || 'No registrada'}</strong>
+                <hr className="my-2" />
                 Servicio: <strong>{solicitud.servicioNombre}</strong>
                 <br />
                 Fecha: <strong>{solicitud.fechaPreferida}</strong>

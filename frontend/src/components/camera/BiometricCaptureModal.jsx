@@ -1,3 +1,4 @@
+// modal para el registro biometrico, almacena  la foto capturada y los datos para almacenar 
 import React, { useEffect, useState } from 'react';
 import { CameraCapture } from './CameraCapture';
 
