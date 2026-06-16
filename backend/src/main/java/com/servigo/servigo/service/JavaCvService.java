@@ -1,122 +1,119 @@
 package com.servigo.servigo.service;
 
 import org.bytedeco.opencv.opencv_core.Mat;
-import org.bytedeco.opencv.opencv_core.RectVector;
 import org.bytedeco.opencv.opencv_core.Size;
-import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
 import org.bytedeco.opencv.opencv_objdetect.FaceDetectorYN;
 import org.bytedeco.opencv.opencv_objdetect.FaceRecognizerSF;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.bytedeco.opencv.global.opencv_imgcodecs.IMREAD_COLOR;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
-import static org.bytedeco.opencv.global.opencv_imgproc.COLOR_BGR2GRAY;
-import static org.bytedeco.opencv.global.opencv_imgproc.cvtColor;
 
 @Service
 public class JavaCvService {
 
-    private static final int ANCHO_MINIMO = 640;
-    private static final int ALTO_MINIMO = 480;
+    private static final int ANCHO_MINIMO = 480;
+    private static final int ALTO_MINIMO = 360;
+
+    private static final String RUTA_YUNET =
+            "src/main/resources/opencv/models/face_detection_yunet_2023mar.onnx";
+
+    private static final String RUTA_SFACE =
+            "src/main/resources/opencv/models/face_recognition_sface_2021dec.onnx";
 
     public Double compararRostros(
             String urlFotoReferencia,
             MultipartFile fotoCapturada
     ) {
 
-        probarModelos();
+        Mat imagenReferencia = cargarImagenDesdeUrl(urlFotoReferencia);
 
-        boolean rostroDetectado = detectarRostroYuNet(fotoCapturada);
-
-        if (!rostroDetectado) {
-            System.out.println("YuNet no detectó rostro, probando con Haar Cascade...");
-            rostroDetectado = detectarRostro(fotoCapturada);
+        if (imagenReferencia.empty()) {
+            return 0.0;
         }
 
-        if (rostroDetectado) {
-            return 85.0;
+        if (!cumpleResolucionMinima(imagenReferencia)) {
+            System.out.println("Foto de referencia no cumple resolución mínima");
+            return 0.0;
         }
 
-        return 0.0;
+        Mat imagenCapturada = cargarImagenDesdeMultipart(fotoCapturada);
+
+        if (imagenCapturada.empty()) {
+            return 0.0;
+        }
+
+        if (!cumpleResolucionMinima(imagenCapturada)) {
+            System.out.println("Foto capturada no cumple resolución mínima");
+            return 0.0;
+        }
+
+        Mat rostroReferencia = detectarRostroParaSFace(imagenReferencia);
+
+        if (rostroReferencia.empty()) {
+            return 0.0;
+        }
+
+        Mat rostroCapturado = detectarRostroParaSFace(imagenCapturada);
+
+        if (rostroCapturado.empty()) {
+            return 0.0;
+        }
+
+        FaceRecognizerSF recognizer = cargarSFace();
+
+        if (recognizer == null) {
+            return 0.0;
+        }
+
+        return compararConSFace(
+                recognizer,
+                imagenReferencia,
+                rostroReferencia,
+                imagenCapturada,
+                rostroCapturado
+        );
     }
 
-    public boolean detectarRostroYuNet(MultipartFile foto) {
+    private Mat cargarImagenDesdeUrl(String urlImagen) {
 
         try {
-            String rutaYuNet =
-                    "src/main/resources/opencv/models/face_detection_yunet_2023mar.onnx";
-
             Path archivoTemporal =
-                    Files.createTempFile("foto_yunet_", ".jpg");
+                    Files.createTempFile("foto_referencia_", ".jpg");
 
-            Files.write(
-                    archivoTemporal,
-                    foto.getBytes()
-            );
+            try (InputStream inputStream = new URL(urlImagen).openStream()) {
+                Files.copy(
+                        inputStream,
+                        archivoTemporal,
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                );
+            }
 
             Mat imagen =
                     imread(archivoTemporal.toString(), IMREAD_COLOR);
 
             if (imagen.empty()) {
-                System.out.println("YuNet: no se pudo leer la imagen");
-                return false;
+                System.out.println("No se pudo leer la imagen de referencia");
             }
 
-            int ancho = imagen.cols();
-            int alto = imagen.rows();
-
-            System.out.println("Ancho imagen original: " + ancho);
-            System.out.println("Alto imagen original: " + alto);
-
-            if (!cumpleResolucionMinima(ancho, alto)) {
-                System.out.println(
-                        "Imagen rechazada por resolución insuficiente: "
-                                + ancho + "x" + alto
-                );
-                return false;
-            }
-
-            FaceDetectorYN detector = FaceDetectorYN.create(
-                    rutaYuNet,
-                    "",
-                    new Size(ancho, alto)
-            );
-
-            Mat rostros = new Mat();
-
-            detector.detect(
-                    imagen,
-                    rostros
-            );
-
-            System.out.println("YuNet rostros detectados: " + rostros.rows());
-
-            return rostros.rows() > 0;
+            return imagen;
 
         } catch (Exception e) {
-            System.out.println("Error detectando rostro con YuNet");
+            System.out.println("Error cargando imagen desde URL");
             e.printStackTrace();
-            return false;
+            return new Mat();
         }
     }
 
-    public boolean detectarRostro(MultipartFile foto) {
+    private Mat cargarImagenDesdeMultipart(MultipartFile foto) {
 
         try {
-
-            CascadeClassifier detector = new CascadeClassifier(
-                    "src/main/resources/opencv/haarcascade_frontalface_default.xml"
-            );
-
-            if (detector.empty()) {
-                System.out.println("No se pudo cargar el detector Haar Cascade");
-                return false;
-            }
-
             Path archivoTemporal =
                     Files.createTempFile("foto_capturada_", ".jpg");
 
@@ -129,79 +126,133 @@ public class JavaCvService {
                     imread(archivoTemporal.toString(), IMREAD_COLOR);
 
             if (imagen.empty()) {
-                System.out.println("No se pudo leer la imagen");
-                return false;
+                System.out.println("No se pudo leer la imagen capturada");
             }
 
+            return imagen;
+
+        } catch (Exception e) {
+            System.out.println("Error cargando imagen capturada");
+            e.printStackTrace();
+            return new Mat();
+        }
+    }
+
+    private Mat detectarRostroParaSFace(Mat imagen) {
+
+        try {
             int ancho = imagen.cols();
             int alto = imagen.rows();
 
-            if (!cumpleResolucionMinima(ancho, alto)) {
-                System.out.println(
-                        "Imagen rechazada por resolución insuficiente en Haar: "
-                                + ancho + "x" + alto
-                );
-                return false;
-            }
+            FaceDetectorYN detector = FaceDetectorYN.create(
+                    RUTA_YUNET,
+                    "",
+                    new Size(ancho, alto)
+            );
 
-            Mat gris = new Mat();
-            cvtColor(imagen, gris, COLOR_BGR2GRAY);
+            Mat rostros = new Mat();
 
-            RectVector rostros = new RectVector();
-
-            detector.detectMultiScale(
-                    gris,
+            detector.detect(
+                    imagen,
                     rostros
             );
 
-            System.out.println(
-                    "Haar rostros detectados: "
-                            + rostros.size()
-            );
+            if (rostros.rows() == 0) {
+                System.out.println("No se detectó rostro en la imagen");
+                return new Mat();
+            }
 
-            return rostros.size() > 0;
+            return rostros.row(0).clone();
 
         } catch (Exception e) {
-
+            System.out.println("Error detectando rostro con YuNet");
             e.printStackTrace();
-
-            return false;
+            return new Mat();
         }
     }
 
-    private boolean cumpleResolucionMinima(int ancho, int alto) {
-        return ancho >= ANCHO_MINIMO && alto >= ALTO_MINIMO;
-    }
-
-    public void probarModelos() {
-
-        String rutaYuNet =
-                "src/main/resources/opencv/models/face_detection_yunet_2023mar.onnx";
-
-        String rutaSFace =
-                "src/main/resources/opencv/models/face_recognition_sface_2021dec.onnx";
+    private FaceRecognizerSF cargarSFace() {
 
         try {
-
-            FaceDetectorYN detector = FaceDetectorYN.create(
-                    rutaYuNet,
-                    "",
-                    new Size(640, 480)
-            );
-
-            System.out.println("YuNet cargado correctamente");
-
-            FaceRecognizerSF recognizer = FaceRecognizerSF.create(
-                    rutaSFace,
+            return FaceRecognizerSF.create(
+                    RUTA_SFACE,
                     ""
             );
 
-            System.out.println("SFace cargado correctamente");
+        } catch (Exception e) {
+            System.out.println("Error cargando SFace");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Double compararConSFace(
+            FaceRecognizerSF recognizer,
+            Mat imagenReferencia,
+            Mat rostroReferencia,
+            Mat imagenCapturada,
+            Mat rostroCapturado
+    ) {
+        try {
+            Mat rostroReferenciaAlineado = new Mat();
+            Mat rostroCapturadoAlineado = new Mat();
+
+            recognizer.alignCrop(
+                    imagenReferencia,
+                    rostroReferencia,
+                    rostroReferenciaAlineado
+            );
+
+            recognizer.alignCrop(
+                    imagenCapturada,
+                    rostroCapturado,
+                    rostroCapturadoAlineado
+            );
+
+            Mat featureReferencia = new Mat();
+            Mat featureCapturada = new Mat();
+
+            recognizer.feature(
+                    rostroReferenciaAlineado,
+                    featureReferencia
+            );
+
+            featureReferencia = featureReferencia.clone();
+
+            recognizer.feature(
+                    rostroCapturadoAlineado,
+                    featureCapturada
+            );
+
+            featureCapturada = featureCapturada.clone();
+
+            double similitud = recognizer.match(
+                    featureReferencia,
+                    featureCapturada,
+                    FaceRecognizerSF.FR_COSINE
+            );
+
+            double porcentaje = Math.min(
+                    Math.max(similitud * 100.0, 0.0),
+                    100.0
+            );
+
+            System.out.println(
+                    "Porcentaje coincidencia facial: "
+                            + porcentaje
+            );
+
+            return porcentaje;
 
         } catch (Exception e) {
-
-            System.out.println("Error cargando modelos");
+            System.out.println("Error comparando rostros con SFace");
             e.printStackTrace();
+            return 0.0;
         }
+    }
+
+    private boolean cumpleResolucionMinima(Mat imagen) {
+        return imagen.cols() >= ANCHO_MINIMO
+                && imagen.rows() >= ALTO_MINIMO;
     }
 }
