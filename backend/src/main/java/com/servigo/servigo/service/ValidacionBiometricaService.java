@@ -105,7 +105,7 @@ public class ValidacionBiometricaService {
                 fotoCapturada
         );
 
-        String resultado = porcentaje >= 80.0 ? "aprobada" : "rechazada";
+        String resultado = porcentaje >= 40.0 ? "aprobada" : "rechazada";
 
         Map resultadoCloudinary = cloudinaryService.subirImagen(
                 fotoCapturada, "servigo/validaciones-biometricas"
