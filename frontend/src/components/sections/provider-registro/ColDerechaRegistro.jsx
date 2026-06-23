@@ -16,6 +16,15 @@ export const ColDerechaRegistro = ({
 }) => (
   <div className="col-lg-5 registro-cliente-col-right">
 
+    {/* Inicio seccion de subida de foto de perfil */}
+    <PhotoUpload
+      label={esEmpresa ? 'Logo de la empresa' : 'Foto de perfil'}
+      variant={esEmpresa ? 'empresa' : 'person'}
+      onImageSelect={onFotoSelect}
+      dropzoneTitle={esEmpresa ? 'Sube el logo de tu empresa' : 'Sube tu foto de perfil'}
+    />
+    {/* Fin seccion de subida de foto de perfil */}
+
     {/* Sección de foto biométrica: solo se muestra para prestadores particulares, no para empresa */}
     {!esEmpresa && (
       <div className="card shadow-sm rounded-4 border-0 mb-4 p-4">
@@ -25,6 +34,7 @@ export const ColDerechaRegistro = ({
             <p className="mb-0 small text-muted">
               Esta imagen solo se usa para tu validación futura. No reemplaza la foto de perfil.
             </p>
+
           </div>
           <button
             type="button"
@@ -43,15 +53,18 @@ export const ColDerechaRegistro = ({
               className="rounded-4 shadow-sm"
               style={{ width: '100px', height: '100px', objectFit: 'cover', transform: 'scaleX(-1)' }}
             />
+
             <div>
               <p className="mb-1 fw-semibold">Foto biométrica lista</p>
               <p className="mb-0 small text-success">Continúa con el resto del registro.</p>
             </div>
           </div>
+
         ) : (
           <p className="mb-0 small text-muted">
             Presiona el botón para abrir la cámara y capturar tu foto biométrica.
           </p>
+
         )}
         {biometricRejected && (
           <div className="alert alert-warning mt-3 mb-0" role="alert">
@@ -60,32 +73,6 @@ export const ColDerechaRegistro = ({
         )}
       </div>
     )}
-
-    {/* Inicio seccion de subida de foto de perfil */}
-    <PhotoUpload
-      label={esEmpresa ? 'Logo de la empresa' : 'Foto de perfil'}
-      variant={esEmpresa ? 'empresa' : 'person'}
-      onImageSelect={onFotoSelect}
-      dropzoneTitle={esEmpresa ? 'Sube el logo de tu empresa' : 'Sube tu foto de perfil'}
-    />
-    {/* Fin seccion de subida de foto de perfil */}
-
-    {/* Inicio seccion de previsualización de empresa */}
-    {esEmpresa && (
-      <div className="registro-empresa-preview">
-        <p className="registro-empresa-preview__label mb-0">Vista previa</p>
-        <div className="registro-empresa-preview__body mt-2">
-          <div className="registro-empresa-preview__icon" aria-hidden="true">
-            <i className="bi bi-building" />
-          </div>
-          <div>
-            <p className="registro-empresa-preview__name">{nombrePreview}</p>
-            <span className="badge badge-pendiente rounded-pill">Pendiente</span>
-          </div>
-        </div>
-      </div>
-    )}
-    {/* Fin seccion de previsualización de empresa */}
 
     {/* Inicio seccion de mapa */}
     <MapSection

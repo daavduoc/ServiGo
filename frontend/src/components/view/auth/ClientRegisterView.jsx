@@ -7,6 +7,7 @@ import { registrarUsuario, registrarUsuarioConFoto } from '../../../serviceFront
 import { BiometricCaptureModal } from '../../camera/BiometricCaptureModal';
 import '../../../assets/css/registro-cliente.css';
 
+// Vista de registro de cliente
 export const ClientRegisterView = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -131,7 +132,12 @@ export const ClientRegisterView = () => {
         </header>
 
         <div className="row g-4 g-xl-5">
+          
+
+          {/* Columna izquierda del formulario */}
           <div className="col-lg-7">
+            
+            {/* Seccion datos personales y seccion direccion, todo esta empaquetado en SeccionUsuarioBase */}
             <SeccionUsuarioBase
               handleChange={handleChange}
               formData={formData}
@@ -141,6 +147,32 @@ export const ClientRegisterView = () => {
               onConfirmPasswordChange={handleConfirmPasswordChange}
             />
 
+            {/* // seccion geolocalización */}
+            <h5 className="registro-section-title">Verificación de geolocalización</h5>
+            <div className="registro-cliente-geo-search mb-2">
+              <div className="input-group registro-cliente-input-lg">
+                <span className="input-group-text bg-white">
+                  <i className="bi bi-search text-muted" aria-hidden="true" />
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={direccionVisible}
+                  readOnly
+                  placeholder="Tu dirección aparecerá aquí en el mapa de forma automática"
+                  aria-label="Dirección para ubicación en mapa"
+                />
+              </div>
+            </div>
+            <div className="registro-cliente-hint registro-cliente-hint--success mb-4">
+              <i className="bi bi-check-circle-fill" aria-hidden="true" />
+              <span>
+                Asegúrate de que el marcador esté en la ubicación exacta donde recibirás los servicios.
+              </span>
+            </div>
+
+            {/* // sección foto biometrica (Aquí está la cámara) */}
+            <h5 className="registro-section-title">Foto Biométrica</h5>
             <div className="card shadow-sm rounded-4 border-0 mb-4 p-4">
               <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
                 <div>
@@ -188,34 +220,16 @@ export const ClientRegisterView = () => {
                 </div>
               )}
             </div>
-
-            <h5 className="registro-section-title">Verificación de geolocalización</h5>
-            <div className="registro-cliente-geo-search mb-2">
-              <div className="input-group registro-cliente-input-lg">
-                <span className="input-group-text bg-white">
-                  <i className="bi bi-search text-muted" aria-hidden="true" />
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={direccionVisible}
-                  readOnly
-                  placeholder="Busca tu dirección o arrastra el marcador en el mapa"
-                  aria-label="Dirección para ubicación en mapa"
-                />
-              </div>
-            </div>
-            <div className="registro-cliente-hint registro-cliente-hint--success mb-0">
-              <i className="bi bi-check-circle-fill" aria-hidden="true" />
-              <span>
-                Asegúrate de que el marcador esté en la ubicación exacta donde recibirás los servicios.
-              </span>
-            </div>
           </div>
 
+          {/* Columna derecha, foto perfil, mapa interactivo                           */}
+
           <div className="col-lg-5 registro-cliente-col-right">
+            
+            {/* // seccion foto de perfil */}
             <PhotoUpload label="Foto de Perfil" onImageSelect={handleImageChange} />
 
+            {/* seccion mapa interactivo (Parte de la sección dirección) */}
             <MapSection
               label="Ubicación en el mapa"
               fullAddress={direccionParaMapa}

@@ -14,7 +14,7 @@ export const GeolocalizacionSection = ({ direccionVisible }) => (
         <input
           type="text" className="form-control"
           value={direccionVisible} readOnly
-          placeholder="Busca tu dirección o mueve el marcador en el mapa"
+          placeholder="Aqui aparecerá la dirección de forma automática "
           aria-label="Dirección para ubicación en mapa"
         />
       </div>
