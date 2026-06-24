@@ -24,6 +24,24 @@ export const verificarFotoBiometrica = async (idUsuario) => {
   return response.json();
 };
 
+export const obtenerFotoBiometricaRegistro = async (idUsuario) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión vencida. Inicia sesión nuevamente.');
+  }
+
+  const response = await fetch(`${API_URL_BIOMETRICA}/acceso/${idUsuario}`, {
+    method: 'GET',
+    headers: getAuthHeaders(false),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'No se pudo obtener la foto biométrica de registro.'));
+  }
+
+  return response.json();
+};
+
 // Enviar foto capturada para comparación facial
 export const compararRostro = async (idUsuario, fotoBlob, tipoValidacion, idSolicitud) => {
   const token = localStorage.getItem('token');

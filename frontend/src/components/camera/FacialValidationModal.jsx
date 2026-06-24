@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { CameraCapture } from './CameraCapture';
-import { verificarFotoBiometrica, compararRostro } from '../../serviceFront/validacionService';
+import { verificarFotoBiometrica, obtenerFotoBiometricaRegistro, compararRostro } from '../../serviceFront/validacionService';
 import '../../assets/css/facial-validation-modal.css';
 
 
@@ -35,12 +35,10 @@ export const FacialValidationModal = ({
   const { user } = useAuth();
   const [stage, setStage] = useState('loading'); // 'loading', 'no-photo', 'ready', 'comparing', 'result'
   const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState('');
   const [statusMsg, setStatusMsg] = useState('Para realizar el reconocimiento facial, por favor encienda la cámara');
   const [comparisonResult, setComparisonResult] = useState(null); // 'aprobada' o 'rechazada'
   const [errorMsg, setErrorMsg] = useState('');
-
-  // Obtenemos la URL de la foto biométrica del usuario desde el contexto de autenticación
-  const photoUrl = user?.urlFotoCloud || '';
 
   useEffect(() => {
     if (isOpen && idUsuario) {
@@ -48,18 +46,23 @@ export const FacialValidationModal = ({
     } else {
       setStage('loading');
       setCapturedPhoto(null);
+      setPhotoUrl('');
       setComparisonResult(null);
       setErrorMsg('');
       setStatusMsg('Para realizar el reconocimiento facial, por favor encienda la cámara');
     }
   }, [isOpen, idUsuario]);
 
-  // Verificar si el usuario tiene foto biométrica registrada
+  // Verificar si el usuario tiene foto biométrica registrada y obtener su URL de acceso
   const checkPhotoExists = async () => {
     try {
       setStage('loading');
+      setStatusMsg('Cargando foto de registro biométrico...');
       const data = await verificarFotoBiometrica(idUsuario);
+
       if (data && data.existe) {
+        const acceso = await obtenerFotoBiometricaRegistro(idUsuario);
+        setPhotoUrl(acceso?.signedUrl || '');
         setStage('ready');
       } else {
         setStage('no-photo');

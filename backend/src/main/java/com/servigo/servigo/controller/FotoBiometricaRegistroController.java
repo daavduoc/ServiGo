@@ -1,5 +1,6 @@
 package com.servigo.servigo.controller;
 
+import com.servigo.servigo.dto.FotoBiometricaRegistroAccessDTO;
 import com.servigo.servigo.dto.FotoBiometricaRegistroResponseDTO;
 import com.servigo.servigo.service.FotoBiometricaRegistroService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +47,11 @@ public class FotoBiometricaRegistroController {
     public ResponseEntity<Map<String, Boolean>> existeFotoBiometrica(@PathVariable Long idUsuario) {
         boolean existe = fotoBiometricaService.existeFotoBiometrica(idUsuario);
         return ResponseEntity.ok(Map.of("existe", existe));
+    }
+
+    @GetMapping("/acceso/{idUsuario}")
+    public FotoBiometricaRegistroAccessDTO obtenerFotoBiometricaParaValidacion(@PathVariable Long idUsuario) {
+        return fotoBiometricaService.obtenerFotoParaValidacion(idUsuario);
     }
 
     @PutMapping("/bloquear/{idUsuario}")
