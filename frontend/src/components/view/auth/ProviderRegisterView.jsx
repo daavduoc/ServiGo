@@ -23,6 +23,7 @@ import { ColDerechaRegistro }    from '../../../components/sections/provider-reg
 import {
   registrarUsuario,
   subirCertificacionesRegistro,
+  subirFotoBiometricaRegistro,
   subirFotoRegistro,
 } from '../../../serviceFront/authService';
 import { BiometricCaptureModal } from '../../camera/BiometricCaptureModal';
@@ -140,6 +141,11 @@ export const ProviderRegisterView = () => {
       const registroResponse = await registrarUsuario(dataParaBackend);
 
       const subidas = [];
+
+      if (!esEmpresa && fotoBiometrica && registroResponse?.idUsuario) {
+        setLoadingMessage('Guardando foto biométrica...');
+        subidas.push(subirFotoBiometricaRegistro(registroResponse.idUsuario, fotoBiometrica));
+      }
 
       // este codigo es para subir la foto de perfil si se seleccionó una, se hace después de crear el usuario porque el endpoint de subida necesita el ID del usuario recién creado
       if (formData.fotoPerfil && registroResponse?.idUsuario) {

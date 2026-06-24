@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { CardContainer, FormActions, MapSection, PhotoUpload } from '../../ui';
 import { SeccionUsuarioBase } from '../../sections/SeccionUsuarioBase';
 import { authValidations } from '../../../utils/authValidations';
-import { registrarUsuario, registrarUsuarioConFoto } from '../../../serviceFront/authService';
+import {
+  registrarUsuario,
+  registrarUsuarioConFoto,
+  subirFotoBiometricaRegistro,
+} from '../../../serviceFront/authService';
 import { BiometricCaptureModal } from '../../camera/BiometricCaptureModal';
 import '../../../assets/css/registro-cliente.css';
 
@@ -98,6 +102,9 @@ export const ClientRegisterView = () => {
         registroResponse = await registrarUsuarioConFoto(dataParaBackend, formData.fotoPerfil);
       } else {
         registroResponse = await registrarUsuario(dataParaBackend);
+        if (fotoBiometrica && registroResponse?.idUsuario) {
+          await subirFotoBiometricaRegistro(registroResponse.idUsuario, fotoBiometrica);
+        }
       }
 
       navigate('/verificar-correo', {

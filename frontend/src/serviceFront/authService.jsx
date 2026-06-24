@@ -1,9 +1,12 @@
 import {
+    API_BASE_URL,
     API_URL_AUTH,
     API_URL_CLOUDINARY,
     API_URL_USUARIOS,
     getAuthHeaders,
 } from './apiConfig';
+
+const API_URL_FOTOS_BIOMETRICAS = `${API_BASE_URL}/fotos-biometricas-registro`;
 
 
 export const normalizarCorreo = (correo) => {
@@ -110,6 +113,34 @@ export const subirFotoRegistro = async (idUsuario, file) => {
     if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || 'No se pudo subir la foto de perfil');
+    }
+};
+
+/** Sube la foto biométrica de registro (POST /fotos-biometricas-registro/registro/{idUsuario}). */
+export const subirFotoBiometricaRegistro = async (idUsuario, fotoBiometrica) => {
+    if (!idUsuario || !fotoBiometrica) return;
+
+    let file;
+    if (typeof fotoBiometrica === 'string' && fotoBiometrica.startsWith('data:')) {
+        file = base64ToFile(fotoBiometrica, 'foto_biometrica.jpg');
+    } else if (fotoBiometrica instanceof File || fotoBiometrica instanceof Blob) {
+        file = fotoBiometrica;
+    }
+
+    if (!file) {
+        throw new Error('No se pudo preparar la foto biométrica para subir');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file, file.name || 'foto_biometrica.jpg');
+
+    const response = await fetchRegistroPublico(
+        `${API_URL_FOTOS_BIOMETRICAS}/registro/${idUsuario}`,
+        { method: 'POST', body: formData }
+    );
+
+    if (!response.ok) {
+        throw new Error(await parseApiError(response, 'No se pudo guardar la foto biométrica de registro'));
     }
 };
 

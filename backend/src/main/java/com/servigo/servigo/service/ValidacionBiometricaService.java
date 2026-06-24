@@ -108,11 +108,11 @@ public class ValidacionBiometricaService {
         String resultado = porcentaje >= 40.0 ? "aprobada" : "rechazada";
 
         Map resultadoCloudinary = cloudinaryService.subirImagen(
-                fotoCapturada, "servigo/validaciones-biometricas"
+                fotoCapturada,
+                "servigo/validaciones-biometricas"
         );
 
         String urlFotoCapturada = resultadoCloudinary.get("secure_url").toString();
-
 
         ValidacionBiometrica validacion = new ValidacionBiometrica();
         validacion.setUsuario(usuario);
@@ -126,4 +126,5 @@ public class ValidacionBiometricaService {
 
         return validacionRepository.save(validacion);
     }
+
 }

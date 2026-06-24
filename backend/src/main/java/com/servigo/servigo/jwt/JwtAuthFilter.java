@@ -43,6 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 || path.equals("/usuarios/registro-con-foto")
                 || path.startsWith("/usuarios/registro/")
                 || path.matches("/usuarios/registro/\\d+/foto")
+                || path.matches("/fotos-biometricas-registro/registro/\\d+")
                 || path.equals("/cloudinary/upload")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs");

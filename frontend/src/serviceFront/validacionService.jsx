@@ -32,15 +32,14 @@ export const compararRostro = async (idUsuario, fotoBlob, tipoValidacion, idSoli
   }
 
   const formData = new FormData();
+  if (idSolicitud === undefined || idSolicitud === null) {
+    throw new Error('Falta idSolicitud para validar biometría');
+  }
+
   formData.append('idUsuario', idUsuario);
   formData.append('tipoValidacion', tipoValidacion);
+  formData.append('idSolicitud', idSolicitud);
   formData.append('fotoCapturada', fotoBlob, 'foto_capturada.jpg');
-  
-  // Si el idSolicitud está definido, lo mandamos. De lo contrario, mandamos un valor nulo/vacío
-  // que el backend manejará o permitiremos un valor provisional si es requerido.
-  if (idSolicitud !== undefined && idSolicitud !== null) {
-    formData.append('idSolicitud', idSolicitud);
-  }
 
   const response = await fetch(`${API_URL_VALIDACIONES}/comparar`, {
     method: 'POST',
