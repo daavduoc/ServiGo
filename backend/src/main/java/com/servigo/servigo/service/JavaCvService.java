@@ -31,44 +31,37 @@ public class JavaCvService {
             String urlFotoReferencia,
             MultipartFile fotoCapturada
     ) {
+        System.out.println("\n--- 🔍 INICIANDO VALIDACIÓN BIOMÉTRICA ---");
 
         Mat imagenReferencia = cargarImagenDesdeUrl(urlFotoReferencia);
-
-        if (imagenReferencia.empty()) {
-            return 0.0;
-        }
-
-        if (!cumpleResolucionMinima(imagenReferencia)) {
-            System.out.println("Foto de referencia no cumple resolución mínima");
+        if (imagenReferencia.empty() || !cumpleResolucionMinima(imagenReferencia)) {
+            System.out.println("❌ Error: Foto de referencia vacía o muy pequeña.");
             return 0.0;
         }
 
         Mat imagenCapturada = cargarImagenDesdeMultipart(fotoCapturada);
-
-        if (imagenCapturada.empty()) {
+        if (imagenCapturada.empty() || !cumpleResolucionMinima(imagenCapturada)) {
+            System.out.println("❌ Error: Foto capturada vacía o muy pequeña.");
             return 0.0;
         }
 
-        if (!cumpleResolucionMinima(imagenCapturada)) {
-            System.out.println("Foto capturada no cumple resolución mínima");
-            return 0.0;
-        }
-
+        System.out.println("⏳ Buscando rostro en foto de referencia...");
         Mat rostroReferencia = detectarRostroParaSFace(imagenReferencia);
-
         if (rostroReferencia.empty()) {
+            System.out.println("❌ Falló: No hay rostro en la Referencia.");
             return 0.0;
         }
 
+        System.out.println("⏳ Buscando rostro en foto capturada...");
         Mat rostroCapturado = detectarRostroParaSFace(imagenCapturada);
-
         if (rostroCapturado.empty()) {
+            System.out.println("❌ Falló: No hay rostro en la Captura.");
             return 0.0;
         }
 
         FaceRecognizerSF recognizer = cargarSFace();
-
         if (recognizer == null) {
+            System.out.println("❌ Error crítico: No se pudo cargar el modelo SFace.");
             return 0.0;
         }
 
@@ -82,11 +75,8 @@ public class JavaCvService {
     }
 
     private Mat cargarImagenDesdeUrl(String urlImagen) {
-
         try {
-            Path archivoTemporal =
-                    Files.createTempFile("foto_referencia_", ".jpg");
-
+            Path archivoTemporal = Files.createTempFile("foto_referencia_", ".jpg");
             try (InputStream inputStream = new URL(urlImagen).openStream()) {
                 Files.copy(
                         inputStream,
@@ -94,56 +84,29 @@ public class JavaCvService {
                         java.nio.file.StandardCopyOption.REPLACE_EXISTING
                 );
             }
-
-            Mat imagen =
-                    imread(archivoTemporal.toString(), IMREAD_COLOR);
-
-            if (imagen.empty()) {
-                System.out.println("No se pudo leer la imagen de referencia");
-            }
-
-            System.out.println("Dimensiones imagen referencia: " + imagen.cols() + "x" + imagen.rows());
-
+            Mat imagen = imread(archivoTemporal.toString(), IMREAD_COLOR);
+            System.out.println("📸 Referencia cargada: " + imagen.cols() + "x" + imagen.rows());
             return imagen;
-
         } catch (Exception e) {
-            System.out.println("Error cargando imagen desde URL");
-            e.printStackTrace();
+            System.out.println("⚠️ Error cargando imagen desde URL: " + e.getMessage());
             return new Mat();
         }
     }
 
     private Mat cargarImagenDesdeMultipart(MultipartFile foto) {
-
         try {
-            Path archivoTemporal =
-                    Files.createTempFile("foto_capturada_", ".jpg");
-
-            Files.write(
-                    archivoTemporal,
-                    foto.getBytes()
-            );
-
-            Mat imagen =
-                    imread(archivoTemporal.toString(), IMREAD_COLOR);
-
-            if (imagen.empty()) {
-                System.out.println("No se pudo leer la imagen capturada");
-            }
-
-            System.out.println("Dimensiones imagen capturada: " + imagen.cols() + "x" + imagen.rows());
-
+            Path archivoTemporal = Files.createTempFile("foto_capturada_", ".jpg");
+            Files.write(archivoTemporal, foto.getBytes());
+            Mat imagen = imread(archivoTemporal.toString(), IMREAD_COLOR);
+            System.out.println("📸 Captura cargada: " + imagen.cols() + "x" + imagen.rows());
             return imagen;
-
         } catch (Exception e) {
-            System.out.println("Error cargando imagen capturada");
-            e.printStackTrace();
+            System.out.println("⚠️ Error cargando imagen capturada: " + e.getMessage());
             return new Mat();
         }
     }
 
     private Mat detectarRostroParaSFace(Mat imagen) {
-
         try {
             int ancho = imagen.cols();
             int alto = imagen.rows();
@@ -154,38 +117,32 @@ public class JavaCvService {
                     new Size(ancho, alto)
             );
 
-            Mat rostros = new Mat();
+            // Bajar el umbral de puntuación a 0.6f (60%) para que sea más flexible
+            detector.setScoreThreshold(0.6f);
 
-            detector.detect(
-                    imagen,
-                    rostros
-            );
+            Mat rostros = new Mat();
+            detector.detect(imagen, rostros);
 
             if (rostros.rows() == 0) {
-                System.out.println("No se detectó rostro en la imagen");
+                System.out.println("⚠️ YuNet no detectó ningún rostro en la imagen.");
                 return new Mat();
             }
 
+            System.out.println("✅ Rostro detectado correctamente por YuNet.");
             return rostros.row(0).clone();
 
         } catch (Exception e) {
-            System.out.println("Error detectando rostro con YuNet");
+            System.out.println("⚠️ Error detectando rostro con YuNet");
             e.printStackTrace();
             return new Mat();
         }
     }
 
     private FaceRecognizerSF cargarSFace() {
-
         try {
-            return FaceRecognizerSF.create(
-                    RUTA_SFACE,
-                    ""
-            );
-
+            return FaceRecognizerSF.create(RUTA_SFACE, "");
         } catch (Exception e) {
-            System.out.println("Error cargando SFace");
-            e.printStackTrace();
+            System.out.println("⚠️ Error cargando SFace");
             return null;
         }
     }
@@ -201,33 +158,16 @@ public class JavaCvService {
             Mat rostroReferenciaAlineado = new Mat();
             Mat rostroCapturadoAlineado = new Mat();
 
-            recognizer.alignCrop(
-                    imagenReferencia,
-                    rostroReferencia,
-                    rostroReferenciaAlineado
-            );
-
-            recognizer.alignCrop(
-                    imagenCapturada,
-                    rostroCapturado,
-                    rostroCapturadoAlineado
-            );
+            recognizer.alignCrop(imagenReferencia, rostroReferencia, rostroReferenciaAlineado);
+            recognizer.alignCrop(imagenCapturada, rostroCapturado, rostroCapturadoAlineado);
 
             Mat featureReferencia = new Mat();
             Mat featureCapturada = new Mat();
 
-            recognizer.feature(
-                    rostroReferenciaAlineado,
-                    featureReferencia
-            );
-
+            recognizer.feature(rostroReferenciaAlineado, featureReferencia);
             featureReferencia = featureReferencia.clone();
 
-            recognizer.feature(
-                    rostroCapturadoAlineado,
-                    featureCapturada
-            );
-
+            recognizer.feature(rostroCapturadoAlineado, featureCapturada);
             featureCapturada = featureCapturada.clone();
 
             double similitud = recognizer.match(
@@ -236,27 +176,22 @@ public class JavaCvService {
                     FaceRecognizerSF.FR_COSINE
             );
 
-            double porcentaje = Math.min(
-                    Math.max(similitud * 100.0, 0.0),
-                    100.0
-            );
+            double porcentaje = Math.min(Math.max(similitud * 100.0, 0.0), 100.0);
 
-            System.out.println(
-                    "Porcentaje coincidencia facial: "
-                            + porcentaje
-            );
+            System.out.println("✅ Comparación finalizada. Score crudo: " + similitud);
+            System.out.println("📊 Porcentaje enviado al Frontend: " + porcentaje + "%\n");
 
             return porcentaje;
 
         } catch (Exception e) {
-            System.out.println("Error comparando rostros con SFace");
+            System.out.println("⚠️ Error comparando rostros con SFace");
             e.printStackTrace();
             return 0.0;
         }
     }
 
+    // ¡ESTE ERA EL MÉTODO QUE FALTABA!
     private boolean cumpleResolucionMinima(Mat imagen) {
-        return imagen.cols() >= ANCHO_MINIMO
-                && imagen.rows() >= ALTO_MINIMO;
+        return imagen.cols() >= ANCHO_MINIMO && imagen.rows() >= ALTO_MINIMO;
     }
 }

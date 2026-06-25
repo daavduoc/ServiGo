@@ -1,25 +1,22 @@
 import React, { useRef, useCallback, useState } from 'react';
-// react-webcam es una libreria que permite tomar fotos con la camara
 import Webcam from 'react-webcam';
 
 export const CameraCapture = ({ onCapture }) => {
-    // nos permite acceder a los controles internos de react-webcam (tomar foto).
     const webcamRef = useRef(null);
     const [error, setError] = useState(null);
 
-    // Configuracion de la camara, ancho, alto y modo de camara
+    // MEJORA 1: Resolución forzada a 720x720. 
+    // Al ser cuadrada y de alta resolución, la captura coincide exactamente 
+    // con lo que ve el usuario en el visor 1:1, dándole al backend una imagen nítida.
     const videoConstraints = {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        facingMode: "user"      // "user" obliga a usar la cámara frontal pensando en el celular o tablet
+        width: 720,
+        height: 720,
+        facingMode: "user" 
     };
 
-    // Esta es la función que se ejecuta SOLO al hacer clic en el botón de la cámara.
     const capture = useCallback(() => {
-        // getScreenshot() extrae el fotograma actual y lo convierte en String Base64.
         if (webcamRef.current) {
             const imageSrc = webcamRef.current.getScreenshot();
-            // Si la foto es capturada correctamente, se la enviamos al componente padre.
             if (imageSrc) {
                 onCapture(imageSrc);
             }
@@ -34,14 +31,26 @@ export const CameraCapture = ({ onCapture }) => {
     return (
         <div className="d-flex flex-column align-items-center w-100">
 
-            {/* Contenedor del visor cuadrado */}
-            <div className="position-relative w-100 mb-3" style={{ maxWidth: '350px', aspectRatio: '1/1' }}>
+            {/* MEJORA 3: Tarjeta de consejos para mejorar la captura biométrica */}
+            <div className="alert alert-info w-100 mb-3 shadow-sm" style={{ maxWidth: '350px' }}>
+                <p className="mb-2 text-center" style={{ fontSize: '14px' }}>
+                    💡 <strong>Consejos para la validación:</strong>
+                </p>
+                <ul className="mb-0 text-start" style={{ fontSize: '13px', paddingLeft: '20px' }}>
+                    <li>Ubícate en un lugar con buena iluminación.</li>
+                    <li>Mira directamente a la cámara.</li>
+                    <li>Centra tu rostro dentro del recuadro.</li>
+                </ul>
+            </div>
 
-                {/* El componente real de la cámara de la librería */}
+            {/* Contenedor del visor cuadrado */}
+            <div className="position-relative w-100 mb-4" style={{ maxWidth: '350px', aspectRatio: '1/1' }}>
+
                 <Webcam
-                    audio={false} // Apaga el micrófono por privacidad y evitar errores
-                    ref={webcamRef} // Conecta la referencia a la cámara
-                    screenshotFormat="image/jpeg" // Formato de la foto resultante
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    screenshotQuality={1} // MEJORA 2: Fuerza la máxima calidad de la foto (1.0)
                     videoConstraints={videoConstraints}
                     onUserMediaError={handleUserMediaError}
                     className="rounded-4 object-fit-cover shadow-lg w-100 h-100 bg-dark"
@@ -61,11 +70,11 @@ export const CameraCapture = ({ onCapture }) => {
                     </div>
                 )}
 
-                {/* Capa visual: El cuadro estilo "escáner" que va por encima del video */}
+                {/* Capa visual: El cuadro estilo "escáner" */}
                 <div className="position-absolute top-0 start-0 w-100 h-100 rounded-4"
                     style={{
-                        pointerEvents: 'none', // Permite hacer clic "a través" de esta capa
-                        boxShadow: '0 0 0 999px rgba(0,0,0,0.4)', // Oscurece el fondo fuera del cuadrado
+                        pointerEvents: 'none', 
+                        boxShadow: '0 0 0 999px rgba(0,0,0,0.4)', 
                         zIndex: 2,
                         border: '1px solid rgba(255,255,255,0.2)'
                     }}>
@@ -76,11 +85,11 @@ export const CameraCapture = ({ onCapture }) => {
                 </div>
             </div>
 
-            {/* Botón para tomar la foto. El onClick={capture} asegura que solo pase al presionarlo */}
+            {/* Botón para tomar la foto */}
             <button
                 onClick={capture}
-                className="btn btn-primary btn-lg rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                style={{ width: '60px', height: '60px' }}
+                className="btn btn-primary btn-lg rounded-circle shadow-lg d-flex align-items-center justify-content-center mb-2"
+                style={{ width: '65px', height: '65px' }}
                 disabled={!!error}
             >
                 <i className="bi bi-camera-fill fs-3"></i>

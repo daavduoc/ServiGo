@@ -5,10 +5,9 @@ import { CameraCapture } from './CameraCapture';
 import { verificarFotoBiometrica, obtenerFotoBiometricaRegistro, compararRostro } from '../../serviceFront/validacionService';
 import '../../assets/css/facial-validation-modal.css';
 
-
-// Función para convertir para que OpenCV pueda leerlo
-// base64ToBlob convierte la foto de texto (Base64) a un archivo binario (Blob) 
-const base64ToBlob = (base64Data) => {
+// MEJORA: Función para convertir Base64 a File (en lugar de Blob).
+// Esto le da a Spring Boot un archivo real con nombre y extensión (.jpg)
+const base64ToFile = (base64Data, filename = 'captura_biometrica.jpg') => {
   if (!base64Data || typeof base64Data !== 'string') return null;
   const arr = base64Data.split(',');
   if (arr.length !== 2) return null;
@@ -20,7 +19,8 @@ const base64ToBlob = (base64Data) => {
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
-  return new Blob([u8arr], { type: mime });
+  // Retornamos un File, que es lo que espera MultipartFile en el backend
+  return new File([u8arr], filename, { type: mime });
 };
 
 // Componente Modal para Validación Facial
@@ -81,10 +81,11 @@ export const FacialValidationModal = ({
     setStatusMsg('Comparando rostros...');
     setErrorMsg('');
 
-    // Convertir la imagen capturada a Blob y enviarla para comparación facial
     try {
-      const blob = base64ToBlob(imageSrc);
-      const res = await compararRostro(idUsuario, blob, tipoValidacion, idSolicitud);
+      // MEJORA: Usar la nueva función para crear un File
+      const imageFile = base64ToFile(imageSrc);
+      const res = await compararRostro(idUsuario, imageFile, tipoValidacion, idSolicitud);
+      
       if (res && res.resultado === 'aprobada') {
         setComparisonResult('aprobada');
         setStatusMsg('Reconocimiento exitoso');
@@ -110,7 +111,6 @@ export const FacialValidationModal = ({
     setStage('ready');
   };
 
-  // Si el modal no está abierto, limpiar el estado y no renderizar nada
   if (!isOpen) return null;
 
   return (
@@ -130,7 +130,6 @@ export const FacialValidationModal = ({
             </div>
           )}
 
-            {/* Si no hay foto biométrica registrada, mostrara un mensaje de error y opción para cerrar el modal */}
           {stage === 'no-photo' && (
             <div className="text-center py-4 text-danger">
               <i className="bi bi-exclamation-octagon-fill fs-1 mb-3"></i>
@@ -141,7 +140,6 @@ export const FacialValidationModal = ({
             </div>
           )}
 
-            {/* Si el usuario tiene foto biométrica registrada, se muestra la interfaz de Validacion biometrica */}
           {(stage === 'ready' || stage === 'comparing' || stage === 'result') && (
             <>
               <div className="facial-modal-grid">
@@ -156,7 +154,6 @@ export const FacialValidationModal = ({
                   </div>
                 </div>
                 
-                {/* Componente de captura de cámara o vista previa de la foto capturada */}
                 <div>
                   <label className="form-label small fw-bold text-secondary mb-2 text-uppercase">Cámara en Vivo</label>
                   <div className="facial-photo-container">
@@ -174,7 +171,6 @@ export const FacialValidationModal = ({
                 </div>
               </div>
 
-              {/* Caja de Estado */}
               <div className="mt-3">
                 {stage === 'comparing' && (
                   <div className="facial-status-box facial-status-loading">
@@ -186,7 +182,6 @@ export const FacialValidationModal = ({
                 {stage === 'result' && comparisonResult === 'aprobada' && (
                   <div className="d-flex flex-column gap-3">
                     <div className="facial-status-box facial-status-success">
-                        {/*el simbolo (✅) es el que se mostrara si la validacion es correcta*/}
                       ✅ {statusMsg}
                     </div>
                     <div>
@@ -214,7 +209,6 @@ export const FacialValidationModal = ({
                   </div>
                 )}
 
-                
                 {stage === 'ready' && (
                   <div className="facial-status-box facial-status-loading">
                     <i className="bi bi-camera me-2" />
@@ -226,7 +220,6 @@ export const FacialValidationModal = ({
           )}
         </div>
 
-          {/* Footer del Modal con botones para cancelar o aceptar la validación facial */}
         <div className="modal-footer border-0 bg-light p-3 gap-2">
           <button type="button" className="btn btn-outline-secondary rounded-pill px-4" onClick={onClose}>
             Cancelar

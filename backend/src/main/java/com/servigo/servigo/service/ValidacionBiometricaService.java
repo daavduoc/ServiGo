@@ -91,6 +91,8 @@ public class ValidacionBiometricaService {
             MultipartFile fotoCapturada
     ) throws Exception {
 
+        System.out.println("➡️ Solicitando validación para Usuario ID: " + idUsuario);
+
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -100,13 +102,17 @@ public class ValidacionBiometricaService {
         FotoBiometricaRegistroAccessDTO fotoReferencia =
                 fotoBiometricaRegistroService.obtenerFotoParaValidacion(idUsuario);
 
+        System.out.println("➡️ Enviando fotos al motor de reconocimiento...");
         Double porcentaje = javaCvService.compararRostros(
                 fotoReferencia.getSignedUrl(),
                 fotoCapturada
         );
 
-        String resultado = porcentaje >= 40.0 ? "aprobada" : "rechazada";
+        // Ajuste al umbral base del modelo SFace (36.3%). Usamos 36.5% como margen seguro.
+        String resultado = porcentaje >= 36.5 ? "aprobada" : "rechazada";
+        System.out.println("➡️ Resultado final del servicio: " + resultado.toUpperCase() + " (Score: " + porcentaje + "%)");
 
+        System.out.println("➡️ Subiendo evidencia fotográfica a Cloudinary...");
         Map resultadoCloudinary = cloudinaryService.subirImagen(
                 fotoCapturada,
                 "servigo/validaciones-biometricas"
@@ -122,8 +128,9 @@ public class ValidacionBiometricaService {
         validacion.setPorcentajeCoincidencia(porcentaje);
         validacion.setResultado(resultado);
         validacion.setFechaValidacion(LocalDateTime.now());
-        validacion.setObservacion("Validación biométrica registrada correctamente");
+        validacion.setObservacion("Validación biométrica procesada: " + resultado);
 
+        System.out.println("✅ Validación guardada con éxito en la base de datos.\n");
         return validacionRepository.save(validacion);
     }
 
