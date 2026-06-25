@@ -18,8 +18,8 @@ import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
 @Service
 public class JavaCvService {
 
-    private static final int ANCHO_MINIMO = 320;
-    private static final int ALTO_MINIMO = 240;
+    private static final int ANCHO_MINIMO = 200;
+    private static final int ALTO_MINIMO = 200;
 
     private static final String RUTA_YUNET =
             "src/main/resources/opencv/models/face_detection_yunet_2023mar.onnx";
