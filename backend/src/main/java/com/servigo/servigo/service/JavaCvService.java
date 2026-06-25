@@ -18,8 +18,8 @@ import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
 @Service
 public class JavaCvService {
 
-    private static final int ANCHO_MINIMO = 480;
-    private static final int ALTO_MINIMO = 360;
+    private static final int ANCHO_MINIMO = 320;
+    private static final int ALTO_MINIMO = 240;
 
     private static final String RUTA_YUNET =
             "src/main/resources/opencv/models/face_detection_yunet_2023mar.onnx";
@@ -102,6 +102,8 @@ public class JavaCvService {
                 System.out.println("No se pudo leer la imagen de referencia");
             }
 
+            System.out.println("Dimensiones imagen referencia: " + imagen.cols() + "x" + imagen.rows());
+
             return imagen;
 
         } catch (Exception e) {
@@ -128,6 +130,8 @@ public class JavaCvService {
             if (imagen.empty()) {
                 System.out.println("No se pudo leer la imagen capturada");
             }
+
+            System.out.println("Dimensiones imagen capturada: " + imagen.cols() + "x" + imagen.rows());
 
             return imagen;
 
