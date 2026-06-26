@@ -109,7 +109,7 @@ export const ProviderRegisterView = () => {
     try {
       setLoadingMessage('Creando tu cuenta...');
 
-      // son los datos que se enviarán al backend para crear el usuario, se mapean desde formData y se ajustan según lo que el backend espera
+      // FIX: Ya no se envía fotoBiometrica aquí para evitar que se guarde como foto de perfil
       const dataParaBackend = {
         rut:            formData.rut,
         nombre:         formData.nombre,
@@ -128,8 +128,6 @@ export const ProviderRegisterView = () => {
         idCategoria:    formData.tipoServicio === 'profesional' ? 2 : 1,
         direccionLocal: formData.direccion,
         especialidad:   formData.especialidad,
-        // Solo enviar foto biométrica si no es empresa
-        fotoBiometrica: esEmpresa ? null : fotoBiometrica,
         ...(esEmpresa && {
           razonSocial:    formData.nombre,
           nombreFantasia: formData.nombreFantasia,
@@ -147,13 +145,13 @@ export const ProviderRegisterView = () => {
         subidas.push(subirFotoBiometricaRegistro(registroResponse.idUsuario, fotoBiometrica));
       }
 
-      // este codigo es para subir la foto de perfil si se seleccionó una, se hace después de crear el usuario porque el endpoint de subida necesita el ID del usuario recién creado
+      // este codigo es para subir la foto de perfil si se seleccionó una
       if (formData.fotoPerfil && registroResponse?.idUsuario) {
         setLoadingMessage('Subiendo foto de perfil...');
         subidas.push(subirFotoRegistro(registroResponse.idUsuario, formData.fotoPerfil));
       }
 
-      // este codigo es para subir las certificaciones si se seleccionaron archivos, también se hace después de crear el usuario porque el endpoint de subida necesita el ID del prestador recién creado, que viene en la respuesta del registro
+      // este codigo es para subir las certificaciones si se seleccionaron archivos
       if (certificaciones.length > 0 && registroResponse?.idPrestador) {
         setLoadingMessage('Subiendo documentación...');
         subidas.push(subirCertificacionesRegistro(registroResponse.idPrestador, certificaciones));
