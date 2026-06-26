@@ -1,34 +1,96 @@
-// URL de tu backend (Cambia el puerto 5000 por el que use tu servidor Node.js)
-const API_URL = 'http://localhost:5000/api';
+import {
+  API_BASE_URL,
+  API_URL_USUARIOS,
+  getAuthHeaders,
+  isNetworkError,
+  networkErrorMessage,
+  parseApiError,
+} from './apiConfig';
 
-export const registerUserInDB = async (userData) => {
-    try {
-        // direccionamiento decimos a dónde ir.
-        const response = await fetch(`${API_URL}/registro`, {
-            // POST de los datos nuevos.
-            method: 'POST', 
-            
-            // identifica como se formatean los datos que enviamos, en este caso JSON.
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            
-            //el objeto se convierte de JavaScript (userData) a un texto plano (JSON) para que el backend pueda entenderlo.
-            body: JSON.stringify(userData)
-        });
+const API_URL_FOTOS = `${API_BASE_URL}/fotos-perfil`;
 
-        // mensaje de error si NO SE ENVIARON los datos correctamente al backend
-        if (!response.ok) {
-            throw new Error('Error al registrar en el servidor');
-        }
+// GET: obtener perfil completo del usuario autenticado
+export const getMyProfile = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión no válida. Inicia sesión nuevamente.');
+  }
 
-        // mensaje generico solicitud de respuesta, el backend responde con un mensaje de éxito o error que se muestra en la consola del navegador.
-        const data = await response.json();
-        console.log("Respuesta del servidor:", data);
-        return data;
-
-    } catch (error) {
-        console.error("Falló la conexión con el Backend:", error);
-        throw error; // mensage de error si no se CONECTA cpon backend
+  let response;
+  try {
+    response = await fetch(`${API_URL_USUARIOS}/me/perfil`, {
+      method: 'GET',
+      headers: getAuthHeaders(false),
+    });
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new Error(networkErrorMessage());
     }
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al obtener perfil'));
+  }
+
+  return response.json();
+};
+
+// POST: subir o actualizar foto de perfil (multipart → backend → Cloudinary + BD)
+export const uploadProfilePhoto = async (userId, file) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión no válida. Inicia sesión nuevamente.');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  let response;
+  try {
+    response = await fetch(`${API_URL_FOTOS}/upload/${userId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(true),
+      body: formData,
+    });
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new Error(networkErrorMessage());
+    }
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al subir la foto de perfil'));
+  }
+
+  return response.json();
+};
+
+// PUT: actualizar datos del usuario autenticado
+export const updateUserProfile = async (userId, userData) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Sesión no válida. Inicia sesión nuevamente.');
+  }
+
+  let response;
+  try {
+    response = await fetch(`${API_URL_USUARIOS}/${userId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(false),
+      body: JSON.stringify(userData),
+    });
+  } catch (error) {
+    if (isNetworkError(error)) {
+      throw new Error(networkErrorMessage());
+    }
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Error al actualizar perfil'));
+  }
+
+  return response.json();
 };

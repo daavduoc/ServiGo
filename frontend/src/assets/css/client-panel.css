@@ -1,0 +1,403 @@
+/* ==========================================================================
+   Panel cliente: Layout con sidebar (/perfil, /mis-reservas, etc.)
+   ========================================================================== */
+
+.client-panel-main {
+  min-height: 100vh;
+}
+
+/* Tipografía y grises — un poco más pequeño, menos negro */
+.client-panel-content {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #495057;
+}
+
+.client-panel-content .text-dark {
+  color: #6c757d !important;
+}
+
+.client-panel-content .profile-panel-title,
+.client-panel-content .profile-settings-title {
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.client-panel-content h2.profile-panel-title {
+  font-size: 1.4rem;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.client-panel-content h4.profile-panel-title,
+.client-panel-content .profile-panel-title h4 {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+.client-panel-content h5.profile-panel-title,
+.client-panel-content .profile-settings-title {
+  font-size: 1.05rem;
+}
+
+.client-panel-content .card h3.fw-bold {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.client-panel-content .card h4.fw-bold:not(.profile-panel-title),
+.client-panel-content .card h5.fw-bold:not(.profile-panel-title):not(.profile-settings-title) {
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.client-panel-content .fs-5 {
+  font-size: 0.95rem !important;
+}
+
+.client-panel-content .fs-5.fw-bold {
+  color: #495057;
+  font-weight: 600;
+}
+
+.client-panel-content h5.text-muted {
+  font-size: 0.8125rem;
+  color: #868e96 !important;
+  font-weight: 600;
+}
+
+.client-panel-content strong {
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.client-panel-content .form-label.fw-bold {
+  color: #6c757d;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.client-panel-content .profile-settings-item__label {
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.client-panel-content .list-group-item {
+  font-size: 0.9rem;
+}
+
+/* Botón principal del encabezado (ej. Agendar Nueva Cita) */
+.client-panel-cta-btn {
+  font-size: 0.875rem;
+  padding: 0.5rem 1.15rem;
+  line-height: 1.25;
+}
+
+/* ==========================================================================
+   Sidebar del Cliente
+   ========================================================================== */
+
+.client-sidebar h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6c757d !important;
+}
+
+.client-sidebar .nav-link:not(.bg-success) {
+  color: #6c757d !important;
+  font-size: 0.9rem;
+}
+
+.client-panel-content .card h5.fw-bold,
+.client-panel-content .card h6.fw-bold,
+.client-panel-content .card .fw-bold.text-dark {
+  color: #495057 !important;
+  font-weight: 600;
+}
+
+.client-panel-content .card h5.fw-bold,
+.client-panel-content .card h6.fw-bold {
+  font-size: 0.95rem;
+}
+
+.client-panel-content h4.fw-bold:not(.profile-panel-title) {
+  color: #6c757d;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.client-sidebar .hover-sidebar-green:hover {
+  background-color: var(--servigo-green-tint) !important;
+  color: var(--servigo-green) !important;
+  transform: translateX(4px);
+}
+
+.client-sidebar .transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+.client-sidebar .client-sidebar-nav__icon {
+  font-size: 1.1rem;
+  width: 1.25rem;
+  text-align: center;
+  flex-shrink: 0;
+  color: var(--servigo-green);
+}
+
+.client-sidebar .nav-link.bg-success .client-sidebar-nav__icon {
+  color: #fff;
+}
+
+/* ==========================================================================
+   Vistas de Perfil y Configuración
+   ========================================================================== */
+
+.profile-panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  width: 100%;
+  text-align: left;
+  line-height: 1.25;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+/* Más aire entre el título de la tarjeta y el contenido */
+.client-panel-content .card .profile-panel-title,
+.client-panel-content .card .profile-settings-title,
+.client-panel-content .card > .profile-panel-title {
+  margin-bottom: 1.75rem !important;
+  padding-bottom: 0.25rem;
+}
+
+.profile-panel-title > i,
+.profile-panel-title i.bi:first-child {
+  color: var(--servigo-green);
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar-placeholder {
+  font-size: 5rem;
+  color: #adb5bd;
+  line-height: 1;
+}
+
+.profile-settings-title {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  width: 100%;
+  text-align: left;
+  line-height: 1.25;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.profile-settings-title > i {
+  color: var(--servigo-green);
+  font-size: 1.45rem;
+  line-height: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+.profile-settings-item__icon {
+  color: var(--servigo-green);
+  font-size: 1.15rem;
+  width: 1.5rem;
+  margin-right: 0.15rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.profile-settings-item__label {
+  flex: 1;
+}
+
+.profile-settings-item__chevron {
+  color: #adb5bd;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.profile-settings-item--danger .profile-settings-item__icon,
+.profile-settings-item--danger .profile-settings-item__chevron {
+  color: #dc3545;
+}
+
+/* ==========================================================================
+   Panel admin: Tablas y filtros
+   ========================================================================== */
+
+.admin-page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #6c757d;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+/* ==========================================================================
+   Estilos para Reservas Mejoradas
+   ========================================================================== */
+
+/* Tarjetas de próximas citas */
+.card.border-start.border-success {
+  transition: all 0.3s ease;
+}
+
+.card.border-start.border-success:hover {
+  box-shadow: 0 0.5rem 1.5rem rgba(39, 174, 96, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* Mejora de badge estados */
+.badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge.bg-success {
+  background-color: #27ae60 !important;
+}
+
+.badge.bg-warning {
+  background-color: #f39c12 !important;
+}
+
+.badge.bg-danger {
+  background-color: #e74c3c !important;
+}
+
+/* Estilos para zona de fecha mejorada */
+.card-body > div > div {
+  transition: all 0.2s ease;
+}
+
+/* Historial con mejor visual */
+.card.bg-light.hover-shadow-md {
+  transition: all 0.3s ease;
+}
+
+.card.bg-light.hover-shadow-md:hover {
+  box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.1) !important;
+  background-color: #f8f9fa !important;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Botones mejorados en historial */
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-outline-danger:hover {
+  transform: translateY(-1px);
+}
+
+/* Spinner en botón eliminar */
+.spinner-border-sm {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-width: 0.15em;
+}
+
+/* Ícono en botones */
+.btn i {
+  transition: transform 0.2s ease;
+}
+
+.btn:hover:not(:disabled) i {
+  transform: scale(1.1);
+}
+
+/* Zona de información en tarjetas */
+.bg-light.p-3 {
+  border-radius: 0.75rem;
+}
+
+/* Modal detalle cita */
+.modal-content {
+  border-radius: 1rem;
+}
+
+.modal-header {
+  border-radius: 1rem 1rem 0 0;
+}
+
+.admin-page-title > i {
+  color: var(--servigo-green);
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-filter-dropdown {
+  position: absolute;
+  left: 0;
+  z-index: 20;
+  min-width: min(100%, 420px);
+  max-width: 520px;
+}
+
+.admin-data-table .table thead th {
+  user-select: none;
+  color: #6c757d !important;
+  font-weight: 600;
+  border-bottom-color: #dee2e6;
+}
+
+.admin-data-table .table tbody td {
+  color: #495057;
+}
+
+/* ==========================================================================
+   Correcciones y Adiciones para Perfil Modularizado
+   ========================================================================== */
+
+/* Contenedor exacto para mantener el círculo del avatar responsivo */
+.profile-avatar-container {
+  width: 150px;
+  height: 150px;
+}
+
+/* Ajuste de la imagen dentro del círculo sin deformarse */
+.profile-avatar-img {
+  object-fit: cover;
+}
+
+/* Backdrop para simular el comportamiento oscuro del modal nativo de Bootstrap */
+.custom-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+}

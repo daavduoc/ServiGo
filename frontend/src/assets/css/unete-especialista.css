@@ -1,0 +1,175 @@
+/* Únete como Especialista — importar solo desde UneteComoEspecialistaView.jsx */
+
+.unete-especialista-view .unete-hero-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.unete-especialista-view .unete-hero-lead {
+  max-width: 520px;
+}
+
+.unete-especialista-view .unete-trust-desc {
+  max-width: 420px;
+}
+
+.unete-especialista-view .unete-como-funciona {
+  scroll-margin-top: calc(var(--servigo-navbar-h, 64px) + 1rem);
+}
+
+/* Hero: imagen y tarjeta flotante */
+.unete-especialista-view .unete-hero-media {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.unete-especialista-view .unete-hero-img {
+  width: 100%;
+  min-height: 320px;
+  max-height: 520px;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.unete-especialista-view .unete-float-card {
+  position: absolute;
+  right: 4%;
+  bottom: 10%;
+  max-width: 220px;
+  text-align: left;
+}
+
+.unete-especialista-view .unete-float-card strong {
+  font-size: 0.8rem;
+}
+
+.unete-especialista-view .unete-float-card p {
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.unete-especialista-view .unete-hero-benefit {
+  max-width: 220px;
+}
+
+.unete-especialista-view .unete-hero-benefit span {
+  font-size: 0.8rem;
+}
+
+/* Pasos: línea conectora (solo desktop) */
+.unete-especialista-view .unete-steps-line {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .unete-especialista-view .unete-hero-img {
+    min-height: 440px;
+    max-height: 560px;
+  }
+
+  .unete-especialista-view .unete-steps-line {
+    display: block;
+    position: absolute;
+    top: 72px;
+    left: 12%;
+    right: 12%;
+    height: 0;
+    border-top: 2px dashed #c5d0c8;
+    z-index: 0;
+  }
+}
+
+/* Confianza: ícono escudo */
+.unete-especialista-view .unete-trust-icon {
+  width: 72px;
+  height: 72px;
+}
+
+.unete-especialista-view .unete-trust-icon i {
+  font-size: 2rem;
+}
+
+/* Requisitos: ilustración */
+.unete-especialista-view .unete-requirements-illus {
+  position: relative;
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c5d0c8;
+  font-size: 5.5rem;
+}
+
+.unete-especialista-view .unete-requirements-illus .badge {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(var(--servigo-green-rgb), 0.35);
+}
+
+/* FAQ: chevron al abrir */
+.unete-especialista-view .unete-faq-btn i {
+  transition: transform 0.2s ease;
+}
+
+.unete-especialista-view .unete-faq-btn[aria-expanded='true'] i {
+  transform: rotate(180deg);
+}
+
+/* Testimonios: avatares */
+.unete-especialista-view .unete-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 1rem;
+}
+
+.unete-especialista-view .unete-avatar--cm {
+  background-color: var(--servigo-green);
+}
+
+.unete-especialista-view .unete-avatar--mg {
+  background-color: var(--servigo-green-hover);
+}
+
+.unete-especialista-view .unete-avatar--rl {
+  background-color: var(--servigo-green-dark);
+}
+
+/* CTA: ícono cohete */
+.unete-especialista-view .unete-cta-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .unete-especialista-view .unete-hero-media {
+    margin-top: 1.5rem;
+  }
+
+  .unete-especialista-view .unete-hero-img {
+    min-height: 280px;
+    max-height: 400px;
+  }
+
+  .unete-especialista-view .unete-float-card {
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 6%;
+    max-width: 90%;
+  }
+
+  .unete-especialista-view .unete-trust-list li {
+    white-space: normal;
+  }
+}

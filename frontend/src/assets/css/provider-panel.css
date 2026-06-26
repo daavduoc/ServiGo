@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Panel prestador — layout responsivo
+   ========================================================================== */
+
+.provider-panel-wrap {
+  min-height: 100vh;
+}
+
+.provider-panel-main {
+  min-width: 0;
+}
+
+@media (max-width: 991.98px) {
+  .provider-panel-main {
+    padding-top: 3.25rem;
+  }
+
+  .provider-panel-main .servigo-card {
+    margin-top: 0.75rem !important;
+  }
+
+  .provider-panel-main .container-fluid {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
+.provider-sidebar {
+  width: 260px;
+  min-height: 100%;
+}
+
+.provider-sidebar--drawer {
+  width: 100%;
+  min-height: auto;
+  border-right: none !important;
+}
+
+/* Cabecera de página con tabs */
+.provider-page-header {
+  gap: 1rem;
+}
+
+.provider-page-header__title h2 {
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
+  line-height: 1.25;
+}
+
+.provider-nav-tabs-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.provider-nav-tabs-wrap .btn-group {
+  flex-wrap: nowrap;
+  min-width: max-content;
+}
+
+.provider-nav-tabs-wrap .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+  .provider-nav-tabs-wrap {
+    display: none !important;
+  }
+}
+
+/* Perfil prestador */
+.provider-profile-photo-col {
+  border-right: 1px solid #dee2e6;
+  padding-right: 1.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .provider-profile-photo-col {
+    border-right: none;
+    border-bottom: 1px solid #dee2e6;
+    padding-right: 0;
+    padding-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .provider-profile-form-col {
+    padding-left: 0 !important;
+  }
+
+  .registro-photo-dropzone {
+    padding: 1.5rem 1rem;
+  }
+
+  .registro-photo-dropzone__preview {
+    width: 120px;
+    height: 120px;
+  }
+
+  .registro-photo-dropzone__title {
+    font-size: 0.875rem;
+  }
+}
+
+.provider-profile-actions {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 575.98px) {
+  .provider-profile-actions {
+    flex-direction: column;
+  }
+
+  .provider-profile-actions .btn {
+    width: 100%;
+  }
+
+  .provider-page-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .provider-page-header .text-end,
+  .provider-page-header__actions {
+    text-align: center !important;
+  }
+
+  .provider-page-header__actions .btn {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Tablas en vistas del panel */
+@media (max-width: 767.98px) {
+  .provider-panel-main .table {
+    font-size: 0.875rem;
+  }
+
+  .provider-panel-main .table th,
+  .provider-panel-main .table td {
+    padding: 0.5rem 0.4rem;
+  }
+
+  .provider-panel-main .btn-sm {
+    display: block;
+    width: 100%;
+    margin: 0.25rem 0 !important;
+  }
+}
+
+/* Offcanvas móvil por encima del contenido */
+@media (max-width: 991.98px) {
+  .provider-panel-wrap .offcanvas.show {
+    z-index: 1045;
+  }
+
+  .provider-panel-wrap .offcanvas-backdrop {
+    z-index: 1040;
+  }
+}
+
+/* Tarjetas del dashboard prestador */
+@media (max-width: 575.98px) {
+  .provider-panel-main .alert.d-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .provider-panel-main .alert.d-flex .fs-4 {
+    margin-right: 0 !important;
+    margin-bottom: 0.5rem;
+  }
+}

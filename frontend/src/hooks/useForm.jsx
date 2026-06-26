@@ -1,21 +1,23 @@
 import { useState } from 'react';
 
-    //Función genérica para manejar cualquier cambio en los inputs
-export const useForm = (initialState = {}) => {
-   
-    const [formData, setFormData] = useState(initialState);
-// Función genérica para actualizar el estado del formulario cuando se actualiza un campo
-    const handleChange = ({ target }) => {
-        const { name, value } = target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+export const useForm = (initialValues = {}) => {
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState({});
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
 
-    return {
-        formData,
-        handleChange
-    };
+  const reset = () => {
+    setValues(initialValues);
+    setErrors({});
+  };
+
+  const setValue = (name, value) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  return { values, errors, setErrors, handleChange, reset, setValue, setValues };
 };

@@ -1,0 +1,36 @@
+.form-actions-generic__cancel {
+  min-width: 120px;
+  border: 1px solid #ced4da;
+  background: #f8f9fa;
+  color: #6c757d;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.6rem 1.35rem;
+}
+
+.form-actions-generic__cancel:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  color: #495057;
+}
+
+.form-actions-generic__submit {
+  min-width: 140px;
+  background-color: var(--servigo-green, #198754);
+  border: 1px solid var(--servigo-green, #198754);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.25);
+}
+
+.form-actions-generic__submit:hover:not(:disabled) {
+  background-color: var(--servigo-green-hover, #157347);
+  border-color: var(--servigo-green-hover, #157347);
+  color: #fff;
+}
+
+.form-actions-generic__submit:disabled {
+  opacity: 0.65;
+}

@@ -1,0 +1,17 @@
+/* HomeView — iconos "¿Por qué elegir ServiGo?" */
+
+.home-why-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: var(--servigo-green);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-why-icon i {
+  color: #fff;
+  line-height: 1;
+}

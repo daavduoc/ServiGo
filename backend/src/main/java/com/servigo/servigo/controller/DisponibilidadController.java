@@ -56,6 +56,14 @@ public class DisponibilidadController {
     public void eliminarDisponibilidad(@PathVariable Long id) {
         disponibilidadService.eliminarDisponibilidad(id);
     }
+
+    // POST: Crear múltiples disponibilidades (solo prestador)
+    // URL: http://localhost:8080/disponibilidad/lote
+    // Recibe un array de disponibilidades en el body
+    @PostMapping("/lote")
+    public List<Disponibilidad> crearDisponibilidades(@RequestBody List<Disponibilidad> disponibilidades) {
+    return disponibilidadService.crearDisponibilidades(disponibilidades);
+}
 }
 
 // TODO: Agregar validación de roles para que solo prestador pueda crear, actualizar y eliminar

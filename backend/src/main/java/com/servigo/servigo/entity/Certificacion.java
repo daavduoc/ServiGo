@@ -3,6 +3,8 @@ package com.servigo.servigo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "CERTIFICACION")
@@ -13,8 +15,14 @@ public class Certificacion {
     private Long idCertificacion;
 
     private String nombreDocumento;
+
     private String urlDocumento;
+
+    private String publicId;
+
     private String estado;
+
+    private LocalDateTime fechaSubida;
 
     @ManyToOne
     @JoinColumn(name = "id_prestador", nullable = false)

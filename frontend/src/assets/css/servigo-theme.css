@@ -1,0 +1,94 @@
+/**
+ * Paleta oficial ServiGo — alineada con bg-success / ContactCTA (Bootstrap).
+ * Evitar #2f9e44 y #4ad990 en fondos y botones principales (demasiado claros).
+ */
+:root {
+  --servigo-green: #198754;
+  --servigo-green-rgb: 25, 135, 84;
+  --servigo-green-dark: #146c43;
+  --servigo-green-hover: #157347;
+  --servigo-green-accent: #1aab5c;
+  --servigo-green-pale: #d1e7dd;
+  --servigo-green-badge: #c3e6cb;
+  --servigo-green-tint: #e8f5e9;
+  --servigo-text-on-green: #ffffff;
+  --servigo-text-muted: #1f3b2f;
+
+  /* Bootstrap: mismo verde en toda la app */
+  --bs-success: var(--servigo-green);
+  --bs-success-rgb: var(--servigo-green-rgb);
+  --bs-link-color: var(--servigo-green);
+  --bs-link-hover-color: var(--servigo-green-dark);
+}
+
+.btn-success {
+  --bs-btn-bg: var(--servigo-green);
+  --bs-btn-border-color: var(--servigo-green);
+  --bs-btn-hover-bg: var(--servigo-green-hover);
+  --bs-btn-hover-border-color: var(--servigo-green-hover);
+  --bs-btn-active-bg: var(--servigo-green-dark);
+  --bs-btn-active-border-color: var(--servigo-green-dark);
+}
+
+.btn-outline-success {
+  --bs-btn-color: var(--servigo-green);
+  --bs-btn-border-color: var(--servigo-green);
+  --bs-btn-hover-bg: var(--servigo-green);
+  --bs-btn-hover-border-color: var(--servigo-green);
+  --bs-btn-active-bg: var(--servigo-green-dark);
+  --bs-btn-active-border-color: var(--servigo-green-dark);
+}
+
+.text-success {
+  color: var(--servigo-green) !important;
+}
+
+.bg-success {
+  background-color: var(--servigo-green) !important;
+}
+
+.bg-success-subtle {
+  background-color: var(--servigo-green-tint) !important;
+}
+
+.border-success {
+  border-color: var(--servigo-green) !important;
+}
+
+/* Tarjetas de formularios (CardContainer) */
+.servigo-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.text-servigo-title {
+  color: var(--servigo-green);
+  font-weight: 700;
+}
+
+/* Iconos circulares (landings, tarjetas de beneficios) */
+.servigo-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--servigo-green-badge);
+  color: var(--servigo-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.servigo-icon-badge--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+}
+
+/* Modales overlay (detalle servicio, perfil, etc.) */
+.custom-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+}

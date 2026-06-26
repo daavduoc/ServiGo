@@ -1,48 +1,161 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
 
-export const MapSection = ({ label }) => {
-    return (
-        <div className="row mb-4">
-            {/* Etiqueta lateral */}
-            <label className="col-md-3 fw-bold text-secondary">
-                {label || "Mapa"}
-            </label>
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-            <div className="col-md-9">
-                {/* Contenedor del Mapa con el estilo de tu foto */}
-                <div 
-                    className="d-flex align-items-center justify-content-center border" 
-                    style={{ 
-                        height: '300px', 
-                        width: '100%', 
-                        backgroundColor: '#fdfdfd', // Fondo casi blanco
-                        borderWidth: '1px',
-                        borderColor: '#ccc' 
-                    }}
-                >
-                    {/* El cuadro interno con la X o el símbolo */}
-                    <div 
-                        className="d-flex align-items-center justify-content-center border"
-                        style={{ 
-                            width: '120px', 
-                            height: '120px', 
-                            backgroundColor: '#f8f9fa' 
-                        }}
-                    >
-                        {/* Puedes poner una X roja como en tu foto o un emoji de mapa */}
-                        <span style={{ fontSize: '50px', color: '#ff5c5c', fontWeight: 'light' }}>
-                            ✕
-                        </span>
-                    </div>
-                </div>
-                
-                {/* Texto informativo debajo (opcional, como en tu foto) */}
-                <div className="mt-2">
-                    <small className="text-primary" style={{ fontSize: '0.85rem' }}>
-                        Se solicita ubicación para el registro de cobertura de servicio
-                    </small>
-                </div>
-            </div>
+const DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function ChangeView({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 15, { animate: true, duration: 1.5 });
+    // Forzar redibujado para solucionar contenedores ocultos o de tamaño 0 al montar/actualizar
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map, center]);
+  return null;
+}
+
+function MapFocusGuard() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    container.setAttribute('tabindex', '-1');
+    if (document.activeElement === container) {
+      container.blur();
+    }
+
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      // Asegurar que el mapa calcule sus dimensiones correctamente
+      map.invalidateSize();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [map]);
+
+  return null;
+}
+
+const DEFAULT_POSITION = [-33.4489, -70.6693];
+
+export const MapSection = ({
+  label,
+  fullAddress,
+  onCoordsChange,
+  mapHint,
+  mapClassName = '',
+  allowMarkerDrag = false,
+  initialPosition,
+}) => {
+  const startingPos = initialPosition
+    ? [initialPosition.lat, initialPosition.lng]
+    : DEFAULT_POSITION;
+
+  const [position, setPosition] = useState(startingPos);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const notifyCoords = useCallback((lat, lng) => {
+    onCoordsChange({ lat, lng });
+  }, [onCoordsChange]);
+
+  // Sincronizar el estado interno de la posición cuando se carguen las coordenadas iniciales del perfil
+  useEffect(() => {
+    if (initialPosition && initialPosition.lat != null && initialPosition.lng != null) {
+      setPosition([initialPosition.lat, initialPosition.lng]);
+    }
+  }, [initialPosition]);
+
+  useEffect(() => {
+    const direccionLimpia = fullAddress
+      .replace(/,\s*,/g, ',')
+      .replace(/^[\s,]+/, '')
+      .trim();
+
+    if (direccionLimpia.length < 10) return;
+
+    setIsSearching(true);
+
+    const temporizador = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccionLimpia)}`
+        );
+        const data = await response.json();
+
+        if (data && data[0]) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          const newPos = [lat, lng];
+          setPosition(newPos);
+          notifyCoords(lat, lng);
+        }
+      } catch (error) {
+        console.error('Error al buscar dirección:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 1500);
+
+    return () => clearTimeout(temporizador);
+  }, [fullAddress, notifyCoords]);
+
+  const handleMarkerDragEnd = (e) => {
+    const { lat, lng } = e.target.getLatLng();
+    const newPos = [lat, lng];
+    setPosition(newPos);
+    notifyCoords(lat, lng);
+  };
+
+  return (
+    <div className="mb-4 registro-cliente-map-wrap">
+      <label className="form-label fw-bold d-flex justify-content-between align-items-center">
+        {label}
+        {isSearching && (
+          <span className="badge bg-success rounded-pill fw-normal">Ubicando...</span>
+        )}
+      </label>
+      {/* Contenedor del mapa con estilos para asegurar tamaño y responsividad (rebisar si funciona de formaresponsiva cuando se use en celular) */}
+      <div
+        className={`map-container-wrapper ${mapClassName}`.trim()}
+        style={{
+          height: '300px',
+          width: '100%',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          border: '1px solid #dee2e6',
+        }}
+      >
+        <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          />
+          <Marker
+            position={position}
+            icon={DefaultIcon}
+            draggable={allowMarkerDrag}
+            eventHandlers={allowMarkerDrag ? { dragend: handleMarkerDragEnd } : undefined}
+          />
+          <ChangeView center={position} />
+          <MapFocusGuard />
+        </MapContainer>
+      </div>
+      {mapHint && (
+        <div className="registro-cliente-hint registro-cliente-hint--info mt-2">
+          <i className="bi bi-info-circle" aria-hidden="true" />
+          <span>{mapHint}</span>
         </div>
-    );
+      )}
+    </div>
+  );
 };

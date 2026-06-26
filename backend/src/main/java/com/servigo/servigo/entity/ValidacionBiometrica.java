@@ -14,7 +14,7 @@ public class ValidacionBiometrica {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idValidacion;
 
-    private String tipoValidacion;
+    private String tipoValidacion; // // facial, selfie, etc.
     private String urlFotoCapturada;
     private Double porcentajeCoincidencia;
     private String resultado;

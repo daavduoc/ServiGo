@@ -6,19 +6,24 @@ import org.springframework.stereotype.Service;
 
 import com.servigo.servigo.entity.Disponibilidad;
 import com.servigo.servigo.entity.Prestador;
+import com.servigo.servigo.entity.Servicio;
 import com.servigo.servigo.repository.DisponibilidadRepository;
 import com.servigo.servigo.repository.PrestadorRepository;
+import com.servigo.servigo.repository.ServicioRepository;
 
 @Service
 public class DisponibilidadService {
 
     private final DisponibilidadRepository disponibilidadRepository;
     private final PrestadorRepository prestadorRepository;
+    private final ServicioRepository servicioRepository;
 
     public DisponibilidadService(DisponibilidadRepository disponibilidadRepository,
-                                 PrestadorRepository prestadorRepository) {
+                                 PrestadorRepository prestadorRepository,
+                                 ServicioRepository servicioRepository) {
         this.disponibilidadRepository = disponibilidadRepository;
         this.prestadorRepository = prestadorRepository;
+        this.servicioRepository = servicioRepository;
     }
 
     // GET: listar todo
@@ -35,18 +40,29 @@ public class DisponibilidadService {
     // POST: crear
     public Disponibilidad crearDisponibilidad(Disponibilidad disponibilidad) {
 
-        // 🔥 VALIDACIÓN
+        //  VALIDACIÓN
         if (disponibilidad.getPrestador() == null ||
             disponibilidad.getPrestador().getIdPrestador() == null) {
             throw new RuntimeException("Debe enviar idPrestador");
         }
 
-        // 🔥 BUSCAR prestador real en BD
+        //  BUSCAR prestador real en BD
         Prestador prestador = prestadorRepository
                 .findById(disponibilidad.getPrestador().getIdPrestador())
                 .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
 
         disponibilidad.setPrestador(prestador);
+
+        //  RESOLVER servicio si viene
+        if (disponibilidad.getServicio() != null &&
+            disponibilidad.getServicio().getIdServicio() != null) {
+
+            Servicio servicio = servicioRepository
+                    .findById(disponibilidad.getServicio().getIdServicio())
+                    .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+            disponibilidad.setServicio(servicio);
+        }
 
         return disponibilidadRepository.save(disponibilidad);
     }
@@ -73,6 +89,17 @@ public class DisponibilidadService {
             disponibilidad.setPrestador(prestador);
         }
 
+        //  VALIDAR servicio opcional
+        if (disponibilidadActualizada.getServicio() != null &&
+            disponibilidadActualizada.getServicio().getIdServicio() != null) {
+
+            Servicio servicio = servicioRepository
+                    .findById(disponibilidadActualizada.getServicio().getIdServicio())
+                    .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+            disponibilidad.setServicio(servicio);
+        }
+
         return disponibilidadRepository.save(disponibilidad);
     }
 
@@ -82,5 +109,41 @@ public class DisponibilidadService {
             throw new RuntimeException("Disponibilidad no encontrada");
         }
         disponibilidadRepository.deleteById(id);
+    }
+
+
+
+    public List<Disponibilidad> crearDisponibilidades(List<Disponibilidad> disponibilidades) {
+
+    for (Disponibilidad disponibilidad : disponibilidades) {
+
+        if (disponibilidad.getPrestador() == null ||
+            disponibilidad.getPrestador().getIdPrestador() == null) {
+            throw new RuntimeException("Debe enviar idPrestador");
+        }
+
+        Prestador prestador = prestadorRepository
+                .findById(disponibilidad.getPrestador().getIdPrestador())
+                .orElseThrow(() -> new RuntimeException("Prestador no encontrado"));
+
+        disponibilidad.setPrestador(prestador);
+
+        //  RESOLVER servicio si viene
+        if (disponibilidad.getServicio() != null &&
+            disponibilidad.getServicio().getIdServicio() != null) {
+
+            Servicio servicio = servicioRepository
+                    .findById(disponibilidad.getServicio().getIdServicio())
+                    .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+            disponibilidad.setServicio(servicio);
+        }
+
+        if (disponibilidad.getEstado() == null || disponibilidad.getEstado().isBlank()) {
+            disponibilidad.setEstado("activo");
+        }
+    }
+
+    return disponibilidadRepository.saveAll(disponibilidades);
     }
 }

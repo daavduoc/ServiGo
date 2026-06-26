@@ -1,0 +1,226 @@
+/* Vista de selección de tipo de cuenta (/registro) */
+
+.register-selection-view {
+  --reg-green: var(--servigo-green);
+  --reg-green-dark: var(--servigo-green-dark);
+  --reg-green-light: #e8f8ef;
+  --reg-blue: #0d6efd;
+  --reg-blue-dark: #0a58ca;
+  --reg-blue-light: #e7f1ff;
+  --reg-text-muted: #6c757d;
+  max-width: 960px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.register-selection-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.register-selection-header h1 {
+  font-weight: 700;
+  color: #212529;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 0.5rem;
+}
+
+.register-selection-header .subtitle {
+  color: var(--reg-text-muted);
+  margin-bottom: 0;
+}
+
+.register-title-underline {
+  width: 48px;
+  height: 4px;
+  background-color: var(--reg-green);
+  border-radius: 2px;
+  margin: 0.75rem auto;
+}
+
+.register-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  color: var(--reg-green-dark);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.register-trust-badge i {
+  font-size: 1.25rem;
+}
+
+/* Tarjetas de rol */
+.register-role-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+  padding: 2rem 1.75rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid transparent;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.register-role-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.register-role-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin: 0 auto 1.25rem;
+  flex-shrink: 0;
+}
+
+.register-role-card--client .register-role-icon {
+  background-color: var(--reg-green-light);
+  color: var(--reg-green-dark);
+}
+
+.register-role-card--provider .register-role-icon {
+  background-color: var(--reg-blue-light);
+  color: var(--reg-blue);
+}
+
+.register-role-card h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.register-role-card--client h2 {
+  color: var(--reg-green-dark);
+}
+
+.register-role-card--provider h2 {
+  color: var(--reg-blue);
+}
+
+.register-role-card .role-description {
+  color: var(--reg-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+}
+
+.register-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.75rem;
+  text-align: left;
+  width: 100%;
+  align-self: stretch;
+}
+
+.register-feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.register-role-card--client .register-feature-list i {
+  color: var(--reg-green-dark);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.register-role-card--provider .register-feature-list i {
+  color: var(--reg-blue);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.register-role-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  align-self: stretch;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  border: none;
+  margin-top: auto;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.register-role-btn:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+.register-role-card--client .register-role-btn {
+  background-color: var(--reg-green-dark);
+  color: #fff;
+}
+
+.register-role-card--client .register-role-btn:hover {
+  background-color: var(--reg-green);
+  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.35);
+  color: #fff;
+}
+
+.register-role-card--provider .register-role-btn {
+  background-color: var(--reg-blue);
+  color: #fff;
+}
+
+.register-role-card--provider .register-role-btn:hover {
+  background-color: var(--reg-blue-dark);
+  box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35);
+  color: #fff;
+}
+
+/* Banner de seguridad */
+.register-security-banner {
+  background-color: #f0f2f5;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.register-security-banner .security-icon {
+  color: var(--reg-green-dark);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.register-security-banner strong {
+  display: block;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.register-security-banner p {
+  margin: 0;
+  color: var(--reg-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 767.98px) {
+  .register-role-card {
+    margin-bottom: 0.5rem;
+  }
+}
