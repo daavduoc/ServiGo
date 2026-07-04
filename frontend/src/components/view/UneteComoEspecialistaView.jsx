@@ -20,7 +20,7 @@ export const UneteComoEspecialistaView = () => {
       <section className="bg-success-subtle rounded-4 p-4 p-lg-5 mb-5 overflow-hidden">
         <div className="row align-items-center g-4 g-lg-5">
           <div className="col-lg-5">
-            <span className="badge rounded-pill bg-success bg-opacity-25 text-success fw-semibold mb-3 px-3 py-2">
+            <span className="badge rounded-pill bg-success bg-opacity-25 fw-semibold mb-3 px-3 py-2 unete-hero-badge">
               Para Prestadores de Servicios
             </span>
             <h1 className="fw-bold mb-3 lh-sm unete-hero-title">

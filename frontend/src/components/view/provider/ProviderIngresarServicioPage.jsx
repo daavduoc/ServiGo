@@ -26,6 +26,16 @@ function obtenerDiaSemanaDeFecha(fechaStr) {
   return DIAS_MAP[date.getDay()];
 }
 
+const pareceTextoGeneradoComoOpciones = (texto) => {
+  const normalizado = String(texto || '').toLowerCase();
+  return (
+    normalizado.includes('aquí tienes') ||
+    normalizado.includes('aqui tienes') ||
+    /opci[oó]n\s+\d/.test(normalizado) ||
+    normalizado.includes('puedes elegir la que mejor se adapte')
+  );
+};
+
 export const ProviderIngresarServicioPage = () => {
   const { user, updateUserData } = useAuth();
   const navigate = useNavigate(); // Inicializamos el hook de navegación
@@ -113,6 +123,11 @@ export const ProviderIngresarServicioPage = () => {
 
     if (!nombre.trim() || !area.trim() || !descripcion.trim() || !precio) {
       setMensajeError('Por favor, rellene todos los campos de información básica.');
+      return;
+    }
+
+    if (pareceTextoGeneradoComoOpciones(descripcion)) {
+      setMensajeError('La descripción contiene opciones o instrucciones. Deja solo el texto final que verán los clientes.');
       return;
     }
 

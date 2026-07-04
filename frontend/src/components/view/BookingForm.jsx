@@ -22,6 +22,31 @@ import {
   validarSeleccionHorario,
 } from '../../utils/booking';
 
+const limpiarDescripcionServicio = (descripcion) => {
+  if (!descripcion) return '';
+
+  const texto = String(descripcion).trim();
+  const pareceRespuestaGenerada =
+    /aqu[ií] tienes/i.test(texto) ||
+    /opci[oó]n\s+\d/i.test(texto) ||
+    /puedes elegir/i.test(texto);
+
+  if (!pareceRespuestaGenerada) return texto;
+
+  const sinOpcionesPosteriores = texto.split(/opci[oó]n\s+2\s*:/i)[0];
+  const desdePregunta = sinOpcionesPosteriores.match(/¿[^]+/);
+  if (desdePregunta?.[0]) {
+    return desdePregunta[0]
+      .replace(/Mi metodolog[ií]a\s*:/i, '\nMi metodología:')
+      .trim();
+  }
+
+  const desdeSoy = sinOpcionesPosteriores.match(/Soy\s+[^]+/i);
+  if (desdeSoy?.[0]) return desdeSoy[0].trim();
+
+  return '';
+};
+
 export const BookingForm = ({
   prestador,
   precioReferencial,
@@ -29,7 +54,14 @@ export const BookingForm = ({
   submitting = false,
   resetKey = 0,
 }) => {
-  const todasDisponibilidades = prestador.disponibilidades || [];
+  const todasDisponibilidades = useMemo(
+    () => prestador.disponibilidades || [],
+    [prestador.disponibilidades]
+  );
+  const servicios = useMemo(
+    () => prestador.servicios || [],
+    [prestador.servicios]
+  );
   const { fechaMinString, fechaMaxString } = getLimitesAgenda();
   const fechaMinDate = useMemo(() => parseFechaIso(fechaMinString), [fechaMinString]);
   const { fechaHoyString, horaActualString } = getFechaHoyStrings();
@@ -45,6 +77,30 @@ export const BookingForm = ({
     setHoraSeleccionada('');
     setInicioSemana(getInicioSemana(fechaMinDate));
   }, [resetKey, fechaMinDate]);
+
+  useEffect(() => {
+    if (servicioSeleccionado || servicios.length === 0) return;
+
+    const servicioConDisponibilidad = servicios.find((servicio) =>
+      todasDisponibilidades.some(
+        (disponibilidad) =>
+          disponibilidad.idServicio != null &&
+          String(disponibilidad.idServicio) === String(servicio.idServicio)
+      )
+    );
+
+    const servicioConPrecioDesde = servicios.find(
+      (servicio) =>
+        servicio.precioReferencial != null &&
+        precioReferencial != null &&
+        Number(servicio.precioReferencial) === Number(precioReferencial)
+    );
+    const servicioConDetalle = servicios.find(
+      (servicio) => servicio.descripcion || servicio.precioReferencial != null
+    );
+
+    setServicioSeleccionado(servicioConDisponibilidad || servicioConPrecioDesde || servicioConDetalle || servicios[0]);
+  }, [servicioSeleccionado, servicios, todasDisponibilidades, precioReferencial]);
 
   const disponibilidades = useMemo(
     () => filtrarDisponibilidades(todasDisponibilidades, servicioSeleccionado?.idServicio ?? null),
@@ -66,6 +122,16 @@ export const BookingForm = ({
   const horariosDisponibles = useMemo(
     () => horariosParaFecha(fechaSeleccionada, disponibilidades),
     [fechaSeleccionada, disponibilidades]
+  );
+
+  const duracionEstimada = useMemo(() => {
+    const reglaConDuracion = disponibilidades.find((regla) => Number(regla.duracionCita) > 0);
+    return Number(reglaConDuracion?.duracionCita) || 60;
+  }, [disponibilidades]);
+
+  const descripcionServicioSeleccionado = useMemo(
+    () => limpiarDescripcionServicio(servicioSeleccionado?.descripcion),
+    [servicioSeleccionado?.descripcion]
   );
 
   const inicioSemanaMin = getInicioSemana(parseFechaIso(fechaMinString));
@@ -109,8 +175,6 @@ export const BookingForm = ({
     onSubmit(fechaSeleccionada, horaSeleccionada, servicioSeleccionado?.idServicio ?? null);
   };
 
-  const servicios = prestador.servicios || [];
-
   return (
     <div className="servigo-booking-card card border-0 shadow-sm p-4 bg-white h-100">
       <h4 className="servigo-booking-card__title fw-bold text-dark mb-2 d-flex align-items-center gap-2">
@@ -131,7 +195,8 @@ export const BookingForm = ({
           </h6>
           <div className="d-flex flex-column gap-2">
             {servicios.map((servicio) => {
-              const seleccionado = servicioSeleccionado?.idServicio === servicio.idServicio;
+              const seleccionado = String(servicioSeleccionado?.idServicio) === String(servicio.idServicio);
+              const descripcionLimpia = limpiarDescripcionServicio(servicio.descripcion);
               return (
                 <button
                   key={servicio.idServicio}
@@ -144,9 +209,14 @@ export const BookingForm = ({
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <strong>{servicio.nombre}</strong>
-                      {servicio.descripcion && (
-                        <span className="small text-muted ms-2 d-none d-md-inline">
-                          — {servicio.descripcion.length > 60 ? servicio.descripcion.substring(0, 60) + '...' : servicio.descripcion}
+                      {descripcionLimpia && (
+                        <span
+                          className="small ms-2 d-none d-md-inline"
+                          style={{ color: seleccionado ? '#30533f' : '#6c757d' }}
+                        >
+                          — {descripcionLimpia.length > 60
+                            ? descripcionLimpia.substring(0, 60) + '...'
+                            : descripcionLimpia}
                         </span>
                       )}
                     </div>
@@ -155,7 +225,10 @@ export const BookingForm = ({
                     </span>
                   </div>
                   {servicio.modalidad && (
-                    <small className={seleccionado ? 'text-white-50' : 'text-muted'}>
+                    <small
+                      className={seleccionado ? 'fw-semibold' : 'text-muted'}
+                      style={seleccionado ? { color: '#0f5132' } : undefined}
+                    >
                       <i className="bi bi-geo-alt me-1" aria-hidden="true" />
                       {servicio.modalidad}
                     </small>
@@ -163,6 +236,58 @@ export const BookingForm = ({
                 </button>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {servicioSeleccionado && (
+        <section className="servigo-selected-service mb-4">
+          <div className="servigo-selected-service__body">
+            <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+              <div>
+                <h5 className="servigo-selected-service__title mb-2">
+                  {servicioSeleccionado.nombre}
+                </h5>
+                <span className="servigo-selected-service__eyebrow">
+                  Acerca del servicio
+                </span>
+              </div>
+              {servicioSeleccionado.modalidad && (
+                <span className="servigo-selected-service__mode align-self-md-start">
+                  <i className="bi bi-geo-alt me-1" aria-hidden="true" />
+                  {servicioSeleccionado.modalidad}
+                </span>
+              )}
+            </div>
+
+            <p className="servigo-selected-service__description mb-4">
+              {descripcionServicioSeleccionado || `Servicio de ${servicioSeleccionado.nombre} ofrecido por ${prestador.nombre}.`}
+            </p>
+
+            <div className="servigo-selected-service__meta">
+              <div className="servigo-selected-service__meta-item">
+                <span className="servigo-selected-service__icon" aria-hidden="true">
+                  <i className="bi bi-clock" />
+                </span>
+                <div>
+                  <strong>Duración estimada</strong>
+                  <span>{duracionEstimada} minutos</span>
+                </div>
+              </div>
+
+              <div className="servigo-selected-service__meta-item">
+                <span className="servigo-selected-service__icon" aria-hidden="true">
+                  <i className="bi bi-tag" />
+                </span>
+                <div>
+                  <strong>Precio referencial</strong>
+                  <span className="servigo-selected-service__price">
+                    {formatearPrecio(servicioSeleccionado.precioReferencial ?? precioReferencial)}
+                  </span>
+                  <small>El precio final puede variar según la modalidad del servicio.</small>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       )}
