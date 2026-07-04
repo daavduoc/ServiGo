@@ -14,6 +14,7 @@ public class Servicio {
 
     private String nombre;
 
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
     private Double precioReferencial;

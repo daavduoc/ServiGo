@@ -129,7 +129,7 @@ public class ReservaService {
         solicitud.setServicio(servicio);
         solicitud.setFechaHoraSolicitud(LocalDateTime.now());
         solicitud.setFechaHoraPreferida(fechaHora);
-        solicitud.setEstado("pendiente");
+        solicitud.setEstado("pendiente_biometria");
         solicitud.setDireccionAtencion("Por confirmar");
         solicitud = solicitudRepository.save(solicitud);
 
@@ -137,7 +137,7 @@ public class ReservaService {
         reserva.setSolicitud(solicitud);
         reserva.setFechaHoraReserva(fechaHora);
         reserva.setFechaCreacionReserva(LocalDateTime.now());
-        reserva.setEstado("pendiente");
+        reserva.setEstado("pendiente_biometria");
 
         return reservaRepository.save(reserva);
     }
