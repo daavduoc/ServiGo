@@ -4,6 +4,7 @@ import com.servigo.servigo.dto.FotoBiometricaRegistroAccessDTO;
 import com.servigo.servigo.entity.SolicitudServicio;
 import com.servigo.servigo.entity.Usuario;
 import com.servigo.servigo.entity.ValidacionBiometrica;
+import com.servigo.servigo.repository.ReservaRepository;
 import com.servigo.servigo.repository.SolicitudServicioRepository;
 import com.servigo.servigo.repository.UsuarioRepository;
 import com.servigo.servigo.repository.ValidacionBiometricaRepository;
@@ -21,6 +22,7 @@ public class ValidacionBiometricaService {
     private final CloudinaryService cloudinaryService;
     private final UsuarioRepository usuarioRepository;
     private final SolicitudServicioRepository solicitudRepository;
+    private final ReservaRepository reservaRepository;
     private final FotoBiometricaRegistroService fotoBiometricaRegistroService;
     private final JavaCvService javaCvService;
 
@@ -29,6 +31,7 @@ public class ValidacionBiometricaService {
             CloudinaryService cloudinaryService,
             UsuarioRepository usuarioRepository,
             SolicitudServicioRepository solicitudRepository,
+            ReservaRepository reservaRepository,
             FotoBiometricaRegistroService fotoBiometricaRegistroService,
             JavaCvService javaCvService
     ) {
@@ -36,6 +39,7 @@ public class ValidacionBiometricaService {
         this.cloudinaryService = cloudinaryService;
         this.usuarioRepository = usuarioRepository;
         this.solicitudRepository = solicitudRepository;
+        this.reservaRepository = reservaRepository;
         this.fotoBiometricaRegistroService = fotoBiometricaRegistroService;
         this.javaCvService = javaCvService;
     }
@@ -131,6 +135,18 @@ public class ValidacionBiometricaService {
         validacion.setObservacion("Validación biométrica procesada: " + resultado);
 
         System.out.println("✅ Validación guardada con éxito en la base de datos.\n");
+        if ("aprobada".equalsIgnoreCase(resultado)) {
+            solicitud.setEstado("pendiente");
+        } else {
+            solicitud.setEstado("rechazada_biometria");
+        }
+        solicitudRepository.save(solicitud);
+
+        reservaRepository.findBySolicitud_IdSolicitud(idSolicitud).ifPresent(reserva -> {
+            reserva.setEstado("aprobada".equalsIgnoreCase(resultado) ? "pendiente" : "rechazada_biometria");
+            reservaRepository.save(reserva);
+        });
+
         return validacionRepository.save(validacion);
     }
 

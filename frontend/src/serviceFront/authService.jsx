@@ -352,7 +352,7 @@ export const registrarUsuario = async (dataUsuario) => {
         const response = await fetchRegistroPublico(`${API_URL_USUARIOS}/registro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...resto, fotoUrl, fotoBiometrica }),
+            body: JSON.stringify({ ...resto, fotoUrl }),
         });
 
         if (!response.ok) {

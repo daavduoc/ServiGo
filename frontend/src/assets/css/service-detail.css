@@ -34,9 +34,12 @@
 
 .servigo-profile-status {
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--servigo-green);
-  padding: 0.35rem 0.75rem;
+  font-weight: 800;
+  color: #0f5132 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 81, 50, 0.18);
+  padding: 0.4rem 0.8rem;
+  -webkit-text-fill-color: #0f5132;
 }
 
 .servigo-status-dot {
@@ -44,7 +47,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--servigo-green);
+  background: #198754;
+  box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.16);
   margin-right: 0.35rem;
   vertical-align: middle;
 }
@@ -137,6 +141,120 @@
   min-width: 140px;
 }
 
+/* Servicio seleccionado */
+.servigo-selected-service {
+  border: 1px solid #e1e7ec;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbf9 100%);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.servigo-selected-service__body {
+  padding: 1.5rem;
+}
+
+.servigo-selected-service__title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #101828;
+}
+
+.servigo-selected-service__eyebrow {
+  display: inline-block;
+  color: var(--servigo-green-dark);
+  font-size: 0.86rem;
+  font-weight: 800;
+  padding-bottom: 0.45rem;
+  border-bottom: 2px solid var(--servigo-green);
+}
+
+.servigo-selected-service__mode {
+  border: 1px solid var(--servigo-green-pale);
+  background: var(--servigo-green-tint);
+  color: var(--servigo-green-dark);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.38rem 0.8rem;
+}
+
+.servigo-selected-service__description {
+  color: #344054;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  max-width: 760px;
+}
+
+.servigo-selected-service__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid #e4e7ec;
+}
+
+.servigo-selected-service__meta-item {
+  display: flex;
+  gap: 0.9rem;
+  padding-top: 1.25rem;
+}
+
+.servigo-selected-service__meta-item + .servigo-selected-service__meta-item {
+  border-left: 1px solid #e4e7ec;
+  padding-left: 1.5rem;
+}
+
+.servigo-selected-service__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--servigo-green-pale);
+  color: var(--servigo-green);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.servigo-selected-service__meta-item strong,
+.servigo-selected-service__meta-item span,
+.servigo-selected-service__meta-item small {
+  display: block;
+}
+
+.servigo-selected-service__meta-item strong {
+  color: var(--servigo-green-dark);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.servigo-selected-service__meta-item span {
+  color: #101828;
+  font-weight: 700;
+}
+
+.servigo-selected-service__meta-item small {
+  color: #667085;
+  margin-top: 0.25rem;
+}
+
+.servigo-selected-service__price {
+  color: var(--servigo-green) !important;
+  font-size: 1.35rem;
+}
+
+@media (max-width: 767.98px) {
+  .servigo-selected-service__meta {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .servigo-selected-service__meta-item + .servigo-selected-service__meta-item {
+    border-left: 0;
+    border-top: 1px solid #e4e7ec;
+    padding-left: 0;
+  }
+}
+
 /* Selector semanal */
 .servigo-week-picker {
   background: #fafbfc;
@@ -153,9 +271,9 @@
 }
 
 .servigo-week-day {
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--servigo-green);
   border-radius: 12px;
-  background: #fff;
+  background: #eaf8f0;
   padding: 0.5rem 0.25rem;
   min-height: 88px;
   display: flex;
@@ -163,33 +281,34 @@
   align-items: center;
   justify-content: center;
   gap: 0.15rem;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.1);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .servigo-week-day__label {
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #6c757d;
+  color: var(--servigo-green-dark);
 }
 
 .servigo-week-day__num {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #212529;
+  color: #0f5132;
 }
 
 .servigo-week-day__muted {
   font-size: 0.6rem;
-  color: #adb5bd;
+  color: #8b949e;
   text-align: center;
   line-height: 1.1;
   margin-top: 0.15rem;
 }
 
 .servigo-week-day__dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--servigo-green);
   margin-top: 0.2rem;
@@ -197,17 +316,36 @@
 
 .servigo-week-day--selected {
   border-color: var(--servigo-green) !important;
-  background: var(--servigo-green-tint);
+  background: var(--servigo-green) !important;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(25, 135, 84, 0.28);
+}
+
+.servigo-week-day--selected .servigo-week-day__label,
+.servigo-week-day--selected .servigo-week-day__num {
+  color: #fff;
+}
+
+.servigo-week-day--selected .servigo-week-day__dot {
+  background: #fff;
 }
 
 .servigo-week-day--disabled {
-  background: #f8f9fa;
-  opacity: 0.85;
+  background: #f3f5f7 !important;
+  border-color: #d8dde3 !important;
+  box-shadow: none;
+  opacity: 1;
   cursor: not-allowed;
 }
 
+.servigo-week-day--disabled .servigo-week-day__label,
+.servigo-week-day--disabled .servigo-week-day__num {
+  color: #9aa3ad;
+}
+
 .servigo-week-day:not(:disabled):not(.servigo-week-day--disabled):hover {
-  border-color: var(--servigo-green-pale);
+  background: #dff3e8;
+  transform: translateY(-1px);
 }
 
 /* Chips de próximas fechas */

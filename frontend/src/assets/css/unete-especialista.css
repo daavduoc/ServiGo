@@ -8,6 +8,11 @@
   max-width: 520px;
 }
 
+.unete-especialista-view .unete-hero-badge {
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+}
+
 .unete-especialista-view .unete-trust-desc {
   max-width: 420px;
 }

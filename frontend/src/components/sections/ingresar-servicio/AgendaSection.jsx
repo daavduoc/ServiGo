@@ -1,312 +1,428 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-// Días de la semana — el value es el string exacto que recibe la entidad Disponibilidad del backend
 const DIAS_SEMANA = [
-  { label: 'Lunes',     value: 'LUNES'     },
-  { label: 'Martes',    value: 'MARTES'    },
+  { label: 'Lunes', value: 'LUNES' },
+  { label: 'Martes', value: 'MARTES' },
   { label: 'Miércoles', value: 'MIERCOLES' },
-  { label: 'Jueves',    value: 'JUEVES'    },
-  { label: 'Viernes',   value: 'VIERNES'   },
-  { label: 'Sábado',    value: 'SABADO'    },
-  { label: 'Domingo',   value: 'DOMINGO'   },
+  { label: 'Jueves', value: 'JUEVES' },
+  { label: 'Viernes', value: 'VIERNES' },
+  { label: 'Sábado', value: 'SABADO' },
+  { label: 'Domingo', value: 'DOMINGO' },
 ];
 
-// Nombres de meses en español para el navegador de mes del calendario de referencia
-const MESES = [
-  'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre',
+const DURACIONES = [
+  { label: '30 minutos', value: 30 },
+  { label: '45 minutos', value: 45 },
+  { label: '60 minutos (1 hora)', value: 60 },
+  { label: '90 minutos', value: 90 },
+  { label: '120 minutos (2 horas)', value: 120 },
 ];
 
-// Cabecera corta de días (Lun a Dom) para el mini-calendario del modal
-const CAB_SEMANA = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
+const DESCANSOS = [
+  { label: 'Sin descanso', value: 0 },
+  { label: '10 minutos', value: 10 },
+  { label: '15 minutos', value: 15 },
+  { label: '30 minutos', value: 30 },
+  { label: '45 minutos', value: 45 },
+  { label: '60 minutos (1 hora)', value: 60 },
+];
 
-// Mapa de día-valor → índice de columna (0=Lunes … 6=Domingo) para resaltar columnas en el calendario
-const DIA_A_COLUMNA = {
-  LUNES: 0, MARTES: 1, MIERCOLES: 2, JUEVES: 3,
-  VIERNES: 4, SABADO: 5, DOMINGO: 6,
+const BLOQUES_HORARIOS = [
+  { key: 'MANANA', label: 'Mañana', icon: 'bi-sunrise', horaInicio: '08:00', horaFin: '12:00' },
+  { key: 'TARDE', label: 'Tarde', icon: 'bi-sun', horaInicio: '13:00', horaFin: '18:00' },
+  { key: 'NOCHE', label: 'Noche', icon: 'bi-moon', horaInicio: '18:00', horaFin: '22:00' },
+];
+
+const obtenerBloquePorHoras = (horaInicio, horaFin) => {
+  const bloque = BLOQUES_HORARIOS.find(
+    (item) => item.horaInicio === horaInicio && item.horaFin === horaFin
+  );
+  return bloque?.key || 'PERSONALIZADO';
 };
 
-/** Construye el array de semanas (7 columnas) para el mes/año dado */
-function construirCalendario(anio, mes) {
-  const diasEnMes       = new Date(anio, mes + 1, 0).getDate();
-  const primerDiaSemana = new Date(anio, mes, 1).getDay();
-  const offset          = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1;
+const etiquetaBloque = (bloqueKey) => {
+  if (bloqueKey === 'PERSONALIZADO') return 'Personalizado';
+  return BLOQUES_HORARIOS.find((item) => item.key === bloqueKey)?.label || 'Personalizado';
+};
 
-  const celdas = [];
-  for (let i = 0; i < offset; i++) celdas.push(null);
-  for (let d = 1; d <= diasEnMes; d++) celdas.push(d);
-  while (celdas.length % 7 !== 0) celdas.push(null);
+const crearIntervalo = (
+  horaInicio = '09:00',
+  horaFin = '13:00',
+  bloque = obtenerBloquePorHoras(horaInicio, horaFin)
+) => ({
+  id: `${Date.now()}-${Math.random()}`,
+  horaInicio,
+  horaFin,
+  bloque,
+});
 
-  const semanas = [];
-  for (let i = 0; i < celdas.length; i += 7) semanas.push(celdas.slice(i, i + 7));
-  return semanas;
-}
+const minutosDesdeHora = (hora) => {
+  const [hh, mm] = String(hora || '00:00').split(':').map(Number);
+  return (hh * 60) + mm;
+};
 
-// Helper para formatear la fecha como string YYYY-MM-DD
-const obtenerFechaString = (anio, mes, dia) => {
-  if (!dia) return null;
-  const m = String(mes + 1).padStart(2, '0');
-  const d = String(dia).padStart(2, '0');
-  return `${anio}-${m}-${d}`;
+const horaDesdeMinutos = (minutos) => {
+  const minutosValidos = Math.min(Math.max(minutos, 0), 1439);
+  const hh = String(Math.floor(minutosValidos / 60)).padStart(2, '0');
+  const mm = String(minutosValidos % 60).padStart(2, '0');
+  return `${hh}:${mm}`;
+};
+
+const crearSiguienteIntervalo = (intervalosActuales) => {
+  const ultimo = intervalosActuales[intervalosActuales.length - 1];
+  if (!ultimo?.horaInicio || !ultimo?.horaFin) return crearIntervalo();
+
+  const duracionUltimo = Math.max(
+    minutosDesdeHora(ultimo.horaFin) - minutosDesdeHora(ultimo.horaInicio),
+    60
+  );
+  const inicio = minutosDesdeHora(ultimo.horaFin) + 60;
+  const fin = inicio + duracionUltimo;
+
+  if (inicio >= 1439) {
+    return crearIntervalo('09:00', '13:00');
+  }
+
+  return crearIntervalo(horaDesdeMinutos(inicio), horaDesdeMinutos(fin), 'PERSONALIZADO');
+};
+
+const formatearFecha = (fecha) => {
+  if (!fecha) return '';
+  const [anio, mes, dia] = fecha.split('-');
+  return `${dia}/${mes}/${anio}`;
+};
+
+const crearVistaPrevia = (intervalos, duracion, descanso) => {
+  const slots = [];
+
+  intervalos.forEach((intervalo) => {
+    let actual = minutosDesdeHora(intervalo.horaInicio);
+    const fin = minutosDesdeHora(intervalo.horaFin);
+
+    while (actual + duracion <= fin && slots.length < 9) {
+      const inicioSlot = horaDesdeMinutos(actual);
+      const finSlot = horaDesdeMinutos(actual + duracion);
+      slots.push(`${inicioSlot} - ${finSlot}`);
+      actual += duracion + descanso;
+    }
+  });
+
+  return slots;
 };
 
 export const AgendaSection = ({ agenda, setAgenda }) => {
-  // modal de asignacion de horas
-  const [modalAbierto,      setModalAbierto]      = useState(false);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(null);
   const [diasSeleccionados, setDiasSeleccionados] = useState([]);
-  
-  //Estados para excepciones de fechas específicas
-  const [fechasDesactivadas, setFechasDesactivadas] = useState([]); // Fechas del grupo que se desmarcaron
-  const [fechasAdicionales,  setFechasAdicionales]  = useState([]); // Fechas individuales que se marcaron
+  const [intervalos, setIntervalos] = useState([]);
+  const [duracionCita, setDuracionCita] = useState(60);
+  const [descanso, setDescanso] = useState(15);
+  const [fechaExcepcion, setFechaExcepcion] = useState('');
+  const [excepciones, setExcepciones] = useState([]);
+  const [errorModal, setErrorModal] = useState('');
 
-  const [horaInicio,        setHoraInicio]        = useState('09:00');
-  const [horaFin,           setHoraFin]           = useState('13:00');
-  const [errorModal,        setErrorModal]        = useState('');
+  const agendaPorDia = useMemo(() => {
+    return DIAS_SEMANA.reduce((acc, dia) => {
+      acc[dia.value] = agenda
+        .filter((regla) => !regla.fecha && !regla.excluido && regla.diaSemana === dia.value)
+        .sort((a, b) => (a.horaInicio || '').localeCompare(b.horaInicio || ''));
+      return acc;
+    }, {});
+  }, [agenda]);
 
-  //calendario del modal
-  const hoy = new Date();
-  const [mesVista,  setMesVista]  = useState(hoy.getMonth());
-  const [anioVista, setAnioVista] = useState(hoy.getFullYear());
+  const excepcionesGuardadas = useMemo(
+    () => agenda.filter((regla) => regla.excluido && regla.fecha),
+    [agenda]
+  );
 
-  // secciond e navegacion del calendario
-  const navegarMes = (dir) => {
-    let m = mesVista + dir;
-    let a = anioVista;
-    if (m > 11) { m = 0; a++; }
-    if (m < 0)  { m = 11; a--; }
-    setMesVista(m);
-    setAnioVista(a);
-  };
+  const diaPreview = DIAS_SEMANA.find((dia) => diasSeleccionados.includes(dia.value));
+  const vistaPrevia = crearVistaPrevia(intervalos, Number(duracionCita), Number(descanso));
 
-  // Comprueba si un día específico debe mostrarse seleccionado (en verde)
-  const esFechaSeleccionada = (fechaStr, diaSemanaIndex) => {
-    if (!fechaStr) return false;
-    const diaSemanaVal = DIAS_SEMANA[diaSemanaIndex]?.value;
-    const perteneceADiaSemana = diasSeleccionados.includes(diaSemanaVal);
-
-    if (perteneceADiaSemana) {
-      return !fechasDesactivadas.includes(fechaStr);
-    } else {
-      return fechasAdicionales.includes(fechaStr);
-    }
-  };
-
-  // Marca/desmarca una fecha del calendario al hacer clic en ella
-  const toggleFechaEnCalendario = (fechaStr, diaSemanaIndex) => {
-    if (!fechaStr) return;
-    const diaSemanaVal = DIAS_SEMANA[diaSemanaIndex]?.value;
-    const perteneceADiaSemana = diasSeleccionados.includes(diaSemanaVal);
-
-    if (perteneceADiaSemana) {
-      setFechasDesactivadas((prev) =>
-        prev.includes(fechaStr) ? prev.filter((f) => f !== fechaStr) : [...prev, fechaStr]
-      );
-    } else {
-      setFechasAdicionales((prev) =>
-        prev.includes(fechaStr) ? prev.filter((f) => f !== fechaStr) : [...prev, fechaStr]
-      );
-    }
-  };
-
-  // esto se encarga de agregar o quitar un día de la semana del array de seleccionados al hacer click en el botón correspondiente
-  const toggleDia = (valor) => {
-    setDiasSeleccionados((prev) => {
-      const nuevo = prev.includes(valor) ? prev.filter((d) => d !== valor) : [...prev, valor];
-      
-      // Resetea excepciones para este día de la semana
-      const columnaIndex = DIAS_SEMANA.findIndex(d => d.value === valor);
-      setFechasDesactivadas(current => current.filter(fecha => {
-        const date = new Date(fecha + 'T00:00:00');
-        const day = date.getDay();
-        const dayIndex = day === 0 ? 6 : day - 1;
-        return dayIndex !== columnaIndex;
-      }));
-      setFechasAdicionales(current => current.filter(fecha => {
-        const date = new Date(fecha + 'T00:00:00');
-        const day = date.getDay();
-        const dayIndex = day === 0 ? 6 : day - 1;
-        return dayIndex !== columnaIndex;
-      }));
-
-      return nuevo;
-    });
-  };
-
-  // abre el modal limpio con valores con iniciales (puede cambiarse sin problemas)
-  const abrirModal = () => {
+  const abrirModalNuevo = () => {
+    setModoEdicion(null);
     setDiasSeleccionados([]);
-    // Resetear excepciones locales al abrir modal
-    setFechasDesactivadas([]);
-    setFechasAdicionales([]);
-    setHoraInicio('09:00');
-    setHoraFin('13:00');
+    setIntervalos([]);
+    setDuracionCita(60);
+    setDescanso(15);
+    setFechaExcepcion('');
+    setExcepciones(excepcionesGuardadas.map((regla) => regla.fecha));
     setErrorModal('');
     setModalAbierto(true);
   };
 
-  // agegar reglas
+  const abrirModalEditar = (dia) => {
+    const reglasDia = agendaPorDia[dia.value] || [];
+
+    setModoEdicion(dia.value);
+    setDiasSeleccionados([dia.value]);
+    setIntervalos(
+      reglasDia.length > 0
+        ? reglasDia.map((regla) => ({
+            id: regla.id || `${dia.value}-${regla.horaInicio}-${regla.horaFin}`,
+            horaInicio: regla.horaInicio,
+            horaFin: regla.horaFin,
+            bloque: regla.bloque || obtenerBloquePorHoras(regla.horaInicio, regla.horaFin),
+          }))
+        : []
+    );
+    setDuracionCita(reglasDia[0]?.duracionCita || 60);
+    setDescanso(reglasDia[0]?.descanso || 15);
+    setFechaExcepcion('');
+    setExcepciones(excepcionesGuardadas.map((regla) => regla.fecha));
+    setErrorModal('');
+    setModalAbierto(true);
+  };
+
+  const toggleDia = (valor) => {
+    if (modoEdicion) return;
+    setDiasSeleccionados((actual) =>
+      actual.includes(valor) ? actual.filter((dia) => dia !== valor) : [...actual, valor]
+    );
+  };
+
+  const actualizarIntervalo = (id, campo, valor) => {
+    setIntervalos((actual) =>
+      actual.map((intervalo) => {
+        if (intervalo.id !== id) return intervalo;
+        const siguiente = { ...intervalo, [campo]: valor };
+        if (campo === 'horaInicio' || campo === 'horaFin') {
+          siguiente.bloque = obtenerBloquePorHoras(siguiente.horaInicio, siguiente.horaFin);
+        }
+        return siguiente;
+      })
+    );
+  };
+
+  const agregarBloqueHorario = (bloque) => {
+    setErrorModal('');
+    setIntervalos((actual) => {
+      const yaExiste = actual.some((intervalo) => intervalo.bloque === bloque.key);
+      if (yaExiste) return actual;
+      return [...actual, crearIntervalo(bloque.horaInicio, bloque.horaFin, bloque.key)];
+    });
+  };
+
+  const agregarIntervalo = () => {
+    setIntervalos((actual) => [
+      ...actual,
+      actual.length > 0 ? crearSiguienteIntervalo(actual) : crearIntervalo('09:00', '13:00', 'PERSONALIZADO'),
+    ]);
+  };
+
+  const eliminarIntervalo = (id) => {
+    setIntervalos((actual) =>
+      actual.length === 1 ? actual : actual.filter((intervalo) => intervalo.id !== id)
+    );
+  };
+
+  const agregarExcepcion = () => {
+    if (!fechaExcepcion) return;
+    setExcepciones((actual) =>
+      actual.includes(fechaExcepcion) ? actual : [...actual, fechaExcepcion].sort()
+    );
+    setFechaExcepcion('');
+  };
+
+  const eliminarExcepcion = (fecha) => {
+    setExcepciones((actual) => actual.filter((item) => item !== fecha));
+  };
+
+  const validarModal = () => {
+    if (diasSeleccionados.length === 0) {
+      return 'Selecciona al menos un dia de la semana.';
+    }
+
+    for (const intervalo of intervalos) {
+      if (!intervalo.horaInicio || !intervalo.horaFin) {
+        return 'Completa todos los intervalos.';
+      }
+      if (intervalo.horaFin <= intervalo.horaInicio) {
+        return 'La hora de fin debe ser mayor que la hora de inicio.';
+      }
+    }
+
+    const ordenados = [...intervalos].sort((a, b) =>
+      a.horaInicio.localeCompare(b.horaInicio)
+    );
+    for (let i = 1; i < ordenados.length; i += 1) {
+      if (ordenados[i].horaInicio < ordenados[i - 1].horaFin) {
+        return 'Los intervalos no pueden superponerse.';
+      }
+    }
+
+    return '';
+  };
+
   const confirmarRegla = () => {
-    //  Validación de selección flexible
-    const tieneSeleccion = diasSeleccionados.length > 0 || fechasAdicionales.length > 0;
-    if (!tieneSeleccion) {
-      setErrorModal('Selecciona al menos un día de la semana o marca fechas en el calendario.');
-      return;
-    }
-    if (!horaInicio || !horaFin) {
-      setErrorModal('Completa la hora de inicio y la hora de fin.');
-      return;
-    }
-    if (horaFin <= horaInicio) {
-      setErrorModal('La hora de fin debe ser posterior a la hora de inicio.');
+    const error = validarModal();
+    if (error) {
+      setErrorModal(error);
       return;
     }
 
-    const nuevasReglas = [];
+    const diasAReemplazar = new Set(diasSeleccionados);
+    const reglasSinDiasEditados = agenda.filter(
+      (regla) => regla.fecha || regla.excluido || !diasAReemplazar.has(regla.diaSemana)
+    );
 
-    // Reglas recurrentes semanales
-    diasSeleccionados.forEach((dia) => {
-      nuevasReglas.push({
-        id:         `${Date.now()}-${dia}`,
-        diaSemana:  dia,
-        fecha:      null,
-        horaInicio,
-        horaFin,
-        mes:        mesVista,
-        anio:       anioVista,
-      });
-    });
+    const reglasSemanales = diasSeleccionados.flatMap((dia) =>
+      intervalos.map((intervalo, index) => ({
+        id: `${Date.now()}-${dia}-${index}`,
+        diaSemana: dia,
+        fecha: null,
+        horaInicio: intervalo.horaInicio,
+        horaFin: intervalo.horaFin,
+        bloque: intervalo.bloque,
+        duracionCita: Number(duracionCita),
+        descanso: Number(descanso),
+      }))
+    );
 
-    // Reglas para fechas específicas marcadas individualmente
-    fechasAdicionales.forEach((fechaStr) => {
-      nuevasReglas.push({
-        id:         `${Date.now()}-${fechaStr}`,
-        diaSemana:  null,
-        fecha:      fechaStr,
-        horaInicio,
-        horaFin,
-      });
-    });
+    const reglasSinExcepciones = reglasSinDiasEditados.filter((regla) => !regla.excluido);
+    const reglasExcepciones = excepciones.map((fecha) => ({
+      id: `${Date.now()}-${fecha}-excluido`,
+      diaSemana: null,
+      fecha,
+      excluido: true,
+      horaInicio: '00:00',
+      horaFin: '23:59',
+    }));
 
-    //  Reglas de exclusión (útil en frontend para documentar y mandar al backend si este se actualiza)
-    fechasDesactivadas.forEach((fechaStr) => {
-      nuevasReglas.push({
-        id:         `${Date.now()}-${fechaStr}-excluido`,
-        diaSemana:  null,
-        fecha:      fechaStr,
-        excluido:   true,
-        horaInicio,
-        horaFin,
-      });
-    });
-
-    setAgenda([...agenda, ...nuevasReglas]);
+    setAgenda([...reglasSinExcepciones, ...reglasSemanales, ...reglasExcepciones]);
     setModalAbierto(false);
   };
 
-  //elimina una regla de horas
-  const eliminarRegla = (index) => {
-    setAgenda(agenda.filter((_, i) => i !== index));
+  const desactivarDia = (dia) => {
+    setAgenda(agenda.filter((regla) => regla.diaSemana !== dia.value));
   };
 
-  // mini calendariod el modal se usan las semanas para el mes/año de vista y un set de columnas a resaltar según los días seleccionados
-  const semanas            = construirCalendario(anioVista, mesVista);
-  const columnasResaltadas = new Set(diasSeleccionados.map((d) => DIA_A_COLUMNA[d]));
-
-  // render inicial
   return (
     <div className="card border-0 shadow-sm p-4 mb-4 bg-white animate__animated animate__fadeIn">
-
-      {/* Cabecera de la sección */}
-      <h4 className="profile-panel-title mb-2">
-        <i className="bi bi-calendar-week" />
-        Horarios Semanales de Atención
-      </h4>
-      <p className="text-muted small mb-3">
-        Configura los días recurrentes y/o fechas específicas en los que ofreces este servicio.
-      </p>
-
-      {/* Lista de reglas ya agregadas */}
-      {agenda.length === 0 ? (
-        <p className="fst-italic text-muted small mb-3">
-          Aún no has ingresado ningún horario. Haz clic en el botón de abajo para empezar.
-        </p>
-      ) : (
-        <div className="mb-3">
-          {agenda.map((regla, i) => (
-            <div
-              key={regla.id ?? i}
-              className="d-flex align-items-center justify-content-between rounded px-3 py-2 mb-2"
-              // Color de fondo de los badges según sea recurrente, específico o exclusión
-              style={{ 
-                background: regla.excluido ? '#f8d7da' : regla.fecha ? '#e8f4fd' : '#f0faf4', 
-                border: regla.excluido ? '1px solid #f5c2c7' : regla.fecha ? '1px solid #bde0fe' : '1px solid #c3e6cb' 
-              }}
-            >
-              <div>
-                {/* Renderizado de badges adaptativos */}
-                {regla.excluido ? (
-                  <span className="badge bg-danger me-2" style={{ fontSize: '0.78rem' }}>
-                    <i className="bi bi-calendar-x me-1" />
-                    Excluido: {(() => {
-                      const parts = regla.fecha.split('-');
-                      if (parts.length === 3) {
-                        const [, mm, dd] = parts;
-                        const mesIndex = parseInt(mm, 10) - 1;
-                        return `${parseInt(dd, 10)} de ${MESES[mesIndex]}`;
-                      }
-                      return regla.fecha;
-                    })()}
-                  </span>
-                ) : regla.fecha ? (
-                  <span className="badge bg-primary me-2" style={{ fontSize: '0.78rem', background: '#0d6efd' }}>
-                    <i className="bi bi-calendar-event me-1" />
-                    {(() => {
-                      const parts = regla.fecha.split('-');
-                      if (parts.length === 3) {
-                        // MODIFICACIÓN LÍNEA 266: Se omite 'aaaa' para evitar el warning
-                        const [, mm, dd] = parts;
-                        const mesIndex = parseInt(mm, 10) - 1;
-                        return `${parseInt(dd, 10)} de ${MESES[mesIndex]}`;
-                      }
-                      return regla.fecha;
-                    })()}
-                  </span>
-                ) : (
-                  <span className="badge bg-success me-2" style={{ fontSize: '0.78rem' }}>
-                    Cada {DIAS_SEMANA.find((d) => d.value === regla.diaSemana)?.label ?? regla.diaSemana}
-                    {regla.mes != null && regla.anio != null && ` de ${MESES[regla.mes]}`}
-                  </span>
-                )}
-                <span className="small fw-semibold text-dark" style={{ textDecoration: regla.excluido ? 'line-through' : 'none' }}>
-                  {regla.horaInicio} — {regla.horaFin}
-                </span>
-              </div>
-              <button
-                type="button"
-                className="btn btn-outline-danger btn-sm border-0 py-0 px-2"
-                title="Eliminar este horario"
-                onClick={() => eliminarRegla(i)}
-              >
-                <i className="bi bi-trash3" />
-              </button>
-            </div>
-          ))}
+      <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
+        <div>
+          <h4 className="profile-panel-title mb-2">
+            <i className="bi bi-calendar-week" />
+            Horarios Semanales de Atención
+          </h4>
+          <p className="text-muted small mb-0">
+            Configura los días y horarios en los que ofreces este servicio.
+          </p>
         </div>
-      )}
-
-      {/* Botón principal para abrir el modal */}
-      <div>
         <button
           type="button"
-          className="btn btn-outline-success fw-bold px-4"
-          onClick={abrirModal}
+          className="btn btn-outline-success fw-bold px-3"
+          onClick={abrirModalNuevo}
         >
           <i className="bi bi-plus-lg me-2" />
-          Asignar Horas
+          Nuevo Horario
         </button>
       </div>
 
-      {/* Modal y las reglas*/}
+      <div className="border rounded-3 overflow-hidden">
+        {DIAS_SEMANA.map((dia) => {
+          const reglas = agendaPorDia[dia.value] || [];
+          const activo = reglas.length > 0;
+
+          return (
+            <div
+              key={dia.value}
+              className="d-flex align-items-center gap-3 px-3 py-2 border-bottom"
+              style={{ minHeight: 54, background: activo ? '#fff' : '#fbfcfd' }}
+            >
+              <button
+                type="button"
+                className="btn btn-sm p-0 d-flex align-items-center justify-content-center"
+                style={{
+                  width: 20,
+                  height: 20,
+                  backgroundColor: activo ? '#198754' : '#fff',
+                  borderColor: activo ? '#198754' : '#adb5bd',
+                  color: activo ? '#fff' : '#6c757d',
+                }}
+                onClick={() => (activo ? desactivarDia(dia) : abrirModalEditar(dia))}
+                title={activo ? 'Desactivar dia' : 'Agregar horario'}
+              >
+                {activo && <i className="bi bi-check-lg" style={{ fontSize: 12 }} />}
+              </button>
+
+              <strong className="small text-dark" style={{ width: 96 }}>
+                {dia.label}
+              </strong>
+
+              <div className="d-flex flex-wrap gap-2 flex-grow-1">
+                {activo ? (
+                  reglas.map((regla) => (
+                    <span
+                      key={regla.id || `${dia.value}-${regla.horaInicio}-${regla.horaFin}`}
+                      className="badge bg-light text-dark border fw-semibold px-3 py-2"
+                    >
+                      <i className="bi bi-clock me-2 text-success" />
+                      <span className="text-success me-2">{etiquetaBloque(regla.bloque)}:</span>
+                      {regla.horaInicio} - {regla.horaFin}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-muted small">-</span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className={`btn btn-sm px-4 fw-bold ${
+                  activo ? 'btn-outline-success' : 'btn-outline-secondary'
+                }`}
+                onClick={() => abrirModalEditar(dia)}
+                disabled={!activo}
+              >
+                <i className="bi bi-pencil me-2" />
+                Modificar
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="row g-3 mt-3">
+        <div className="col-lg-4">
+          <div className="border rounded-3 p-3 h-100">
+            <h6 className="fw-bold mb-1">Duración de cada cita</h6>
+            <p className="text-muted small mb-2">Tiempo que durara cada asesoria.</p>
+            <span className="badge bg-light text-dark border px-3 py-2">
+              <i className="bi bi-clock me-2 text-success" />
+              {DURACIONES.find((item) => item.value === Number(duracionCita))?.label || '60 minutos'}
+            </span>
+          </div>
+        </div>
+        <div className="col-lg-4">
+          <div className="border rounded-3 p-3 h-100">
+            <h6 className="fw-bold mb-1">Descanso entre citas</h6>
+            <p className="text-muted small mb-2">Tiempo de descanso entre una cita y otra.</p>
+            <span className="badge bg-light text-dark border px-3 py-2">
+              <i className="bi bi-clock me-2 text-success" />
+              {DESCANSOS.find((item) => item.value === Number(descanso))?.label || '15 minutos'}
+            </span>
+          </div>
+        </div>
+        <div className="col-lg-4">
+          <div className="border rounded-3 p-3 h-100">
+            <h6 className="fw-bold mb-1">Vista previa de disponibilidad</h6>
+            <p className="text-muted small mb-2">Así verán tus clientes los horarios disponibles.</p>
+            {excepcionesGuardadas.length > 0 && (
+              <div className="d-flex flex-wrap gap-2">
+                {excepcionesGuardadas.slice(0, 3).map((regla) => (
+                  <span key={regla.id || regla.fecha} className="badge bg-danger-subtle text-danger border px-2 py-2">
+                    {formatearFecha(regla.fecha)}
+                  </span>
+                ))}
+              </div>
+            )}
+            {excepcionesGuardadas.length === 0 && (
+              <span className="text-muted small">Sin excepciones configuradas.</span>
+            )}
+          </div>
+        </div>
+      </div>
+
       {modalAbierto && (
         <div
           className="modal fade show d-block animate__animated animate__fadeIn"
@@ -314,13 +430,18 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
           tabIndex="-1"
         >
           <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-            <div className="modal-content rounded-4 shadow-lg border-0 overflow-hidden">
-
-              {/* Cabecera del modal */}
+            <div className="modal-content shadow-lg border-0 overflow-hidden" style={{ borderRadius: 8 }}>
               <div className="modal-header py-3" style={{ background: '#198754' }}>
-                <h5 className="modal-title fw-bold text-white">
-                  <i className="bi bi-clock me-2" />
-                  Nueva Regla de Horario
+                <h5 className="modal-title fw-bold m-0" style={{ color: '#fff' }}>
+                  <span
+                    className="d-inline-flex align-items-center"
+                    style={{ color: '#fff', WebkitTextFillColor: '#fff' }}
+                  >
+                    <i className="bi bi-clock me-2" style={{ color: '#fff', WebkitTextFillColor: '#fff' }} />
+                    <span style={{ color: '#fff', WebkitTextFillColor: '#fff' }}>
+                      {modoEdicion ? 'Modificar horario' : 'Nuevo Horario'}
+                    </span>
+                  </span>
                 </h5>
                 <button
                   type="button"
@@ -330,9 +451,7 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
               </div>
 
               <div className="modal-body p-4">
-
-                {/* Días de la semana */}
-                <p className="fw-semibold mb-2">1. Selecciona los días de la semana:</p>
+                <p className="fw-bold mb-2">1. Selecciona los días de la semana</p>
                 <div className="d-flex flex-wrap gap-2 mb-4">
                   {DIAS_SEMANA.map((dia) => {
                     const activo = diasSeleccionados.includes(dia.value);
@@ -340,138 +459,200 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                       <button
                         key={dia.value}
                         type="button"
-                        onClick={() => toggleDia(dia.value)}
+                        className="btn btn-sm rounded-pill px-4 fw-bold"
                         style={{
-                          borderRadius: '999px',
-                          padding:      '6px 18px',
-                          fontWeight:   '600',
-                          fontSize:     '0.9rem',
-                          border:       activo ? 'none' : '1.5px solid #198754',
-                          background:   activo ? '#198754' : 'transparent',
-                          color:        activo ? '#fff'   : '#198754',
-                          cursor:       'pointer',
-                          transition:   'all 0.15s ease',
+                          backgroundColor: activo ? '#198754' : '#fff',
+                          borderColor: '#198754',
+                          color: activo ? '#fff' : '#198754',
+                          opacity: modoEdicion && !activo ? 0.55 : 1,
                         }}
+                        onClick={() => toggleDia(dia.value)}
+                        disabled={Boolean(modoEdicion && !activo)}
                       >
+                        {activo && <i className="bi bi-check-square-fill me-2" />}
                         {dia.label}
                       </button>
                     );
                   })}
                 </div>
 
-                {/* parte horario: Rango horario */}
-                <p className="fw-semibold mb-2">2. Rango horario:</p>
-                <div className="row g-3 mb-4">
-                  <div className="col-md-6">
-                    <label className="form-label text-muted small">Hora de Inicio</label>
-                    <input
-                      type="time"
-                      className="form-control"
-                      value={horaInicio}
-                      onChange={(e) => setHoraInicio(e.target.value)}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label text-muted small">Hora de Fin</label>
-                    <input
-                      type="time"
-                      className="form-control"
-                      value={horaFin}
-                      onChange={(e) => setHoraFin(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* calendario de referencia */}
-                <p className="fw-semibold small text-muted mb-1">
-                  <i className="bi bi-calendar3 me-1" />
-                  Vista del mes — los días seleccionados se resaltan:
+                <p className="fw-bold mb-1">2. Define los horarios para los días seleccionados</p>
+                <p className="text-muted small mb-3">
+                  Agrega bloques por mañana, tarde o noche. Puedes modificar las horas después.
                 </p>
 
-                {/* Mensaje explicativo para marcar y desmarcar celdas */}
-                <p className="small text-success fw-semibold mb-2">
-                  * Al hacer clic en el calendario puedes marcar o desmarcar fechas.
-                </p>
-
-                {/* Navegador de mes */}
-                <div className="d-flex align-items-center justify-content-between mb-2">
-                  <button type="button" className="btn btn-outline-secondary btn-sm"
-                    onClick={() => navegarMes(-1)}>
-                    <i className="bi bi-chevron-left" />
-                  </button>
-                  <span className="fw-bold small">{MESES[mesVista]} {anioVista}</span>
-                  <button type="button" className="btn btn-outline-secondary btn-sm"
-                    onClick={() => navegarMes(1)}>
-                    <i className="bi bi-chevron-right" />
-                  </button>
-                </div>
-
-                {/* Cabecera días del mini-calendario */}
-                <div className="d-grid mb-1"
-                  style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
-                  {CAB_SEMANA.map((d, i) => (
-                    <div
-                      key={d}
-                      className="text-center py-1 rounded small fw-semibold"
-                      style={{
-                        background: columnasResaltadas.has(i) ? '#d1f0e0' : 'transparent',
-                        color:      columnasResaltadas.has(i) ? '#155724' : '#6c757d',
-                      }}
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  {BLOQUES_HORARIOS.map((bloque) => (
+                    <button
+                      key={bloque.key}
+                      type="button"
+                      className="btn btn-outline-success btn-sm fw-bold"
+                      onClick={() => agregarBloqueHorario(bloque)}
                     >
-                      {d}
+                      <i className={`bi ${bloque.icon} me-2`} />
+                      {bloque.label}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm fw-bold"
+                    onClick={agregarIntervalo}
+                  >
+                    <i className="bi bi-plus-lg me-2" />
+                    Personalizado
+                  </button>
+                </div>
+
+                <div className="border rounded-3 overflow-hidden mb-3">
+                  {intervalos.length === 0 && (
+                    <div className="p-4 text-center text-muted small">
+                      Selecciona Mañana, Tarde, Noche o Personalizado para agregar un horario.
+                    </div>
+                  )}
+                  {intervalos.map((intervalo, index) => (
+                    <div key={intervalo.id} className="p-3 border-bottom">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                          <strong className="small">{etiquetaBloque(intervalo.bloque)}</strong>
+                          <span className="text-muted small ms-2">Intervalo {index + 1}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger btn-sm"
+                          onClick={() => eliminarIntervalo(intervalo.id)}
+                          disabled={intervalos.length === 1}
+                          title="Eliminar intervalo"
+                        >
+                          <i className="bi bi-trash" />
+                        </button>
+                      </div>
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <label className="form-label text-muted small">Hora de inicio</label>
+                          <input
+                            type="time"
+                            className="form-control"
+                            value={intervalo.horaInicio}
+                            onChange={(e) => actualizarIntervalo(intervalo.id, 'horaInicio', e.target.value)}
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label text-muted small">Hora de fin</label>
+                          <input
+                            type="time"
+                            className="form-control"
+                            value={intervalo.horaFin}
+                            onChange={(e) => actualizarIntervalo(intervalo.id, 'horaFin', e.target.value)}
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
+                  <div className="p-3">
+                    <button
+                      type="button"
+                      className="btn btn-outline-success btn-sm fw-bold"
+                      onClick={agregarIntervalo}
+                    >
+                      <i className="bi bi-plus-lg me-2" />
+                      Agregar personalizado
+                    </button>
+                  </div>
                 </div>
 
-                {/* Filas del mini-calendario */}
-                {semanas.map((semana, si) => (
-                  <div key={si} className="d-grid mb-1"
-                    style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
-                    {semana.map((dia, di) => {
-                      // Renderizado interactivo y unificado de selección
-                      if (!dia) {
-                        return <div key={di} style={{ minHeight: '32px' }} />;
-                      }
-
-                      const fechaStr = obtenerFechaString(anioVista, mesVista, dia);
-                      const seleccionado = esFechaSeleccionada(fechaStr, di);
-
-                      let background = 'transparent';
-                      let color = '#212529';
-                      let fontWeight = 'normal';
-
-                      if (seleccionado) {
-                        background = '#198754'; // Verde unificado
-                        color = '#fff';
-                        fontWeight = 'bold';
-                      }
-
-                      return (
-                        <button
-                          key={di}
-                          type="button"
-                          onClick={() => toggleFechaEnCalendario(fechaStr, di)}
-                          className="btn btn-sm p-0 rounded-circle text-center d-flex align-items-center justify-content-center"
-                          style={{
-                            width: '32px',
-                            height: '32px',
-                            margin: 'auto',
-                            background,
-                            color,
-                            fontWeight,
-                            border: seleccionado ? 'none' : '1px solid #dee2e6',
-                            fontSize: '0.85rem',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          {dia}
-                        </button>
-                      );
-                    })}
+                <div className="border-bottom pb-3 mb-3">
+                  <p className="fw-bold mb-1">3. Excepciones (opcional)</p>
+                  <p className="text-muted small mb-2">
+                    Agrega todas las fechas en las que no estarás disponible.
+                  </p>
+                  <div className="d-flex gap-2 flex-wrap align-items-center">
+                    <input
+                      type="date"
+                      className="form-control"
+                      style={{ maxWidth: 220 }}
+                      value={fechaExcepcion}
+                      onChange={(e) => setFechaExcepcion(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary fw-bold"
+                      onClick={agregarExcepcion}
+                      disabled={!fechaExcepcion}
+                    >
+                      <i className="bi bi-calendar-x me-2" />
+                      Agregar excepción
+                    </button>
+                    {excepciones.length > 0 && (
+                      <span className="badge bg-success-subtle text-success border px-3 py-2">
+                        {excepciones.length} fecha{excepciones.length !== 1 ? 's' : ''}
+                      </span>
+                    )}
                   </div>
-                ))}
+                  {excepciones.length > 0 && (
+                    <div className="d-flex flex-wrap gap-2 mt-3">
+                      {excepciones.map((fecha) => (
+                        <button
+                          key={fecha}
+                          type="button"
+                          className="btn btn-sm btn-danger-subtle text-danger border"
+                          onClick={() => eliminarExcepcion(fecha)}
+                          title="Quitar excepción"
+                        >
+                          {formatearFecha(fecha)}
+                          <i className="bi bi-x-lg ms-2" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-                {/* Error de validación */}
+                <div className="row g-3 mb-3">
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold small">4. Duración de cada cita</label>
+                    <select
+                      className="form-select"
+                      value={duracionCita}
+                      onChange={(e) => setDuracionCita(Number(e.target.value))}
+                    >
+                      {DURACIONES.map((item) => (
+                        <option key={item.value} value={item.value}>{item.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold small">Descanso entre citas</label>
+                    <select
+                      className="form-select"
+                      value={descanso}
+                      onChange={(e) => setDescanso(Number(e.target.value))}
+                    >
+                      {DESCANSOS.map((item) => (
+                        <option key={item.value} value={item.value}>{item.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="fw-bold mb-1">
+                    5. Vista previa{diaPreview ? ` para ${diaPreview.label}` : ''}
+                  </p>
+                  <p className="text-muted small mb-2">
+                    Así verán tus clientes los horarios disponibles para los días seleccionados.
+                  </p>
+                  <div className="d-flex flex-wrap gap-2">
+                    {vistaPrevia.length > 0 ? (
+                      vistaPrevia.map((slot) => (
+                        <span key={slot} className="badge bg-success-subtle text-success border px-3 py-2">
+                          {slot}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-muted small">No hay bloques disponibles con esta configuracion.</span>
+                    )}
+                  </div>
+                </div>
+
                 {errorModal && (
                   <div className="alert alert-danger py-2 small mt-3 mb-0">
                     <i className="bi bi-exclamation-triangle-fill me-2" />
@@ -480,7 +661,6 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                 )}
               </div>
 
-              {/* Footer del modal */}
               <div className="modal-footer border-0 pb-4 px-4 gap-2">
                 <button
                   type="button"
@@ -497,12 +677,10 @@ export const AgendaSection = ({ agenda, setAgenda }) => {
                   Aceptar
                 </button>
               </div>
-
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };
