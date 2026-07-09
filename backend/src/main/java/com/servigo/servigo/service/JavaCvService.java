@@ -82,8 +82,9 @@ public class JavaCvService {
                 System.out.println("❌ No se encontró el recurso en classpath: " + recursoClasspath);
                 return null;
             }
-            String nombre = recursoClasspath.substring(recursoClasspath.lastIndexOf('/'));
-            Path tmp = Files.createTempFile("modelo_", nombre);
+            String nombre = recursoClasspath.substring(recursoClasspath.lastIndexOf('/') + 1);
+            String sufijo = nombre.contains(".") ? nombre.substring(nombre.lastIndexOf('.')) : ".onnx";
+            Path tmp = Files.createTempFile("modelo_", sufijo);
             Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
             is.close();
             tmp.toFile().deleteOnExit();
