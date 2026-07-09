@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { obtenerPrestadorPublico } from '../../serviceFront/prestadorService';
-import { crearReservaCliente, eliminarReservaCliente } from '../../serviceFront/reservaService';
+import { crearReservaCliente } from '../../serviceFront/reservaService';
 import { formatFechaCitaLegible } from '../../utils/booking';
 import { formatearPrecio } from '../../utils/formatPrice';
 import { LoginModal } from '../ui/LoginModal';
@@ -122,15 +122,8 @@ export const ServiceDetailView = () => {
     setShowReservaExitoModal(true);
   };
 
-  const handleFacialClose = async () => {
+  const handleFacialClose = () => {
     setShowFacialModal(false);
-    if (reservaCreadaId) {
-      try {
-        await eliminarReservaCliente(reservaCreadaId);
-      } catch (e) {
-        console.error("Error al cancelar la reserva incompleta:", e);
-      }
-    }
     setReservaCreadaId(null);
     setSolicitudAsociadaId(null);
   };
