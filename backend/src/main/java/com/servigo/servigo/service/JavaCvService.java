@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import static org.bytedeco.opencv.global.opencv_imgcodecs.IMREAD_COLOR;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
@@ -21,11 +22,11 @@ public class JavaCvService {
     private static final int ANCHO_MINIMO = 200;
     private static final int ALTO_MINIMO = 200;
 
-    private static final String RUTA_YUNET =
-            "src/main/resources/opencv/models/face_detection_yunet_2023mar.onnx";
+    private static final String RECURSO_YUNET =
+            "/opencv/models/face_detection_yunet_2023mar.onnx";
 
-    private static final String RUTA_SFACE =
-            "src/main/resources/opencv/models/face_recognition_sface_2021dec.onnx";
+    private static final String RECURSO_SFACE =
+            "/opencv/models/face_recognition_sface_2021dec.onnx";
 
     public Double compararRostros(
             String urlFotoReferencia,
@@ -74,6 +75,26 @@ public class JavaCvService {
         );
     }
 
+    private String extraerModelo(String recursoClasspath) {
+        try {
+            InputStream is = getClass().getResourceAsStream(recursoClasspath);
+            if (is == null) {
+                System.out.println("❌ No se encontró el recurso en classpath: " + recursoClasspath);
+                return null;
+            }
+            String nombre = recursoClasspath.substring(recursoClasspath.lastIndexOf('/'));
+            Path tmp = Files.createTempFile("modelo_", nombre);
+            Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
+            is.close();
+            tmp.toFile().deleteOnExit();
+            System.out.println("📦 Modelo extraído a: " + tmp.toAbsolutePath());
+            return tmp.toAbsolutePath().toString();
+        } catch (Exception e) {
+            System.out.println("⚠️ Error extrayendo modelo: " + e.getMessage());
+            return null;
+        }
+    }
+
     private Mat cargarImagenDesdeUrl(String urlImagen) {
         try {
             Path archivoTemporal = Files.createTempFile("foto_referencia_", ".jpg");
@@ -81,7 +102,7 @@ public class JavaCvService {
                 Files.copy(
                         inputStream,
                         archivoTemporal,
-                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                        StandardCopyOption.REPLACE_EXISTING
                 );
             }
             Mat imagen = imread(archivoTemporal.toString(), IMREAD_COLOR);
@@ -108,16 +129,18 @@ public class JavaCvService {
 
     private Mat detectarRostroParaSFace(Mat imagen) {
         try {
+            String rutaYuNet = extraerModelo(RECURSO_YUNET);
+            if (rutaYuNet == null) return new Mat();
+
             int ancho = imagen.cols();
             int alto = imagen.rows();
 
             FaceDetectorYN detector = FaceDetectorYN.create(
-                    RUTA_YUNET,
+                    rutaYuNet,
                     "",
                     new Size(ancho, alto)
             );
 
-            // Bajar el umbral de puntuación a 0.6f (60%) para que sea más flexible
             detector.setScoreThreshold(0.6f);
 
             Mat rostros = new Mat();
@@ -140,7 +163,9 @@ public class JavaCvService {
 
     private FaceRecognizerSF cargarSFace() {
         try {
-            return FaceRecognizerSF.create(RUTA_SFACE, "");
+            String rutaSFace = extraerModelo(RECURSO_SFACE);
+            if (rutaSFace == null) return null;
+            return FaceRecognizerSF.create(rutaSFace, "");
         } catch (Exception e) {
             System.out.println("⚠️ Error cargando SFace");
             return null;
@@ -190,7 +215,6 @@ public class JavaCvService {
         }
     }
 
-    // ¡ESTE ERA EL MÉTODO QUE FALTABA!
     private boolean cumpleResolucionMinima(Mat imagen) {
         return imagen.cols() >= ANCHO_MINIMO && imagen.rows() >= ALTO_MINIMO;
     }
