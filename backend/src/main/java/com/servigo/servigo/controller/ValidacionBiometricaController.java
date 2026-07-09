@@ -27,7 +27,7 @@ public class ValidacionBiometricaController {
 
     // GET: obtener validación por ID
     // URL: http://localhost:8080/validaciones-biometricas/{id}
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public ValidacionBiometrica obtenerValidacion(@PathVariable Long id) {
         return validacionService.obtenerValidacionPorId(id);
     }
@@ -41,14 +41,14 @@ public class ValidacionBiometricaController {
 
     // PUT: actualizar validación biométrica
     // URL: http://localhost:8080/validaciones-biometricas/{id}
-    @PutMapping("/{id}")
+    @PutMapping("/{id:\\d+}")
     public ValidacionBiometrica actualizarValidacion(@PathVariable Long id, @RequestBody ValidacionBiometrica validacionActualizada) {
         return validacionService.actualizarValidacion(id, validacionActualizada);
     }
 
     // DELETE: eliminar validación biométrica
     // URL: http://localhost:8080/validaciones-biometricas/{id}
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:\\d+}")
     public void eliminarValidacion(@PathVariable Long id) {
         validacionService.eliminarValidacion(id);
     }
